@@ -29,18 +29,19 @@
             this.tsslTotalTested = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.bCalc = new System.Windows.Forms.Button();
-            this.bDebug = new System.Windows.Forms.Button();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.bShowParent = new System.Windows.Forms.Button();
             this.tbGameInfos = new System.Windows.Forms.TextBox();
-            this.bMap = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.portaldatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.loadFromIntelMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearDisabledToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showDebugFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
@@ -153,16 +154,6 @@
             this.bCalc.UseVisualStyleBackColor = true;
             this.bCalc.Click += new System.EventHandler(this.bCalc_Click);
             // 
-            // bDebug
-            // 
-            this.bDebug.Location = new System.Drawing.Point(757, 12);
-            this.bDebug.Name = "bDebug";
-            this.bDebug.Size = new System.Drawing.Size(75, 23);
-            this.bDebug.TabIndex = 6;
-            this.bDebug.Text = "Show debug";
-            this.bDebug.UseVisualStyleBackColor = true;
-            this.bDebug.Click += new System.EventHandler(this.bDebug_Click);
-            // 
             // timer
             // 
             this.timer.Enabled = true;
@@ -190,20 +181,11 @@
             this.tbGameInfos.Size = new System.Drawing.Size(269, 190);
             this.tbGameInfos.TabIndex = 7;
             // 
-            // bMap
-            // 
-            this.bMap.Location = new System.Drawing.Point(621, 12);
-            this.bMap.Name = "bMap";
-            this.bMap.Size = new System.Drawing.Size(130, 23);
-            this.bMap.TabIndex = 9;
-            this.bMap.Text = "Show intel map";
-            this.bMap.UseVisualStyleBackColor = true;
-            this.bMap.Click += new System.EventHandler(this.bMap_Click);
-            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.portaldatabaseToolStripMenuItem,
+            this.debugToolStripMenuItem,
             this.infoToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -215,6 +197,7 @@
             // 
             this.portaldatabaseToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripSeparator1,
+            this.loadFromIntelMapToolStripMenuItem,
             this.toolStripSeparator2,
             this.toolStripSeparator3,
             this.clearAllToolStripMenuItem,
@@ -226,31 +209,53 @@
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(179, 6);
+            // 
+            // loadFromIntelMapToolStripMenuItem
+            // 
+            this.loadFromIntelMapToolStripMenuItem.Name = "loadFromIntelMapToolStripMenuItem";
+            this.loadFromIntelMapToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.loadFromIntelMapToolStripMenuItem.Text = "Load from Intel map";
+            this.loadFromIntelMapToolStripMenuItem.Click += new System.EventHandler(this.loadFromIntelMapToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(179, 6);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(179, 6);
             // 
             // clearAllToolStripMenuItem
             // 
             this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
-            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.clearAllToolStripMenuItem.Text = "Clear all";
             this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
             // 
             // clearDisabledToolStripMenuItem
             // 
             this.clearDisabledToolStripMenuItem.Name = "clearDisabledToolStripMenuItem";
-            this.clearDisabledToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearDisabledToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.clearDisabledToolStripMenuItem.Text = "Clear disabled";
             this.clearDisabledToolStripMenuItem.Click += new System.EventHandler(this.clearDisabledToolStripMenuItem_Click);
+            // 
+            // debugToolStripMenuItem
+            // 
+            this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showDebugFormToolStripMenuItem});
+            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
+            this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
+            this.debugToolStripMenuItem.Text = "Debug";
+            // 
+            // showDebugFormToolStripMenuItem
+            // 
+            this.showDebugFormToolStripMenuItem.Name = "showDebugFormToolStripMenuItem";
+            this.showDebugFormToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.showDebugFormToolStripMenuItem.Text = "Show debug form";
+            this.showDebugFormToolStripMenuItem.Click += new System.EventHandler(this.showDebugFormToolStripMenuItem_Click);
             // 
             // infoToolStripMenuItem
             // 
@@ -269,10 +274,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tcMain.Controls.Add(this.tabPage1);
             this.tcMain.Controls.Add(this.tabMap);
-            this.tcMain.Location = new System.Drawing.Point(12, 41);
+            this.tcMain.Location = new System.Drawing.Point(12, 27);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(784, 454);
+            this.tcMain.Size = new System.Drawing.Size(784, 468);
             this.tcMain.TabIndex = 11;
             this.tcMain.SelectedIndexChanged += new System.EventHandler(this.tcMain_SelectedIndexChanged);
             // 
@@ -290,7 +295,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(776, 428);
+            this.tabPage1.Size = new System.Drawing.Size(776, 442);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Portals";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -323,7 +328,7 @@
             this.olvGroup.ShowGroups = false;
             this.olvGroup.ShowHeaderInAllViews = false;
             this.olvGroup.ShowImagesOnSubItems = true;
-            this.olvGroup.Size = new System.Drawing.Size(165, 359);
+            this.olvGroup.Size = new System.Drawing.Size(165, 373);
             this.olvGroup.TabIndex = 22;
             this.olvGroup.UseCompatibleStateImageBehavior = false;
             this.olvGroup.View = System.Windows.Forms.View.Details;
@@ -348,7 +353,7 @@
             // bLoadGroup
             // 
             this.bLoadGroup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bLoadGroup.Location = new System.Drawing.Point(6, 399);
+            this.bLoadGroup.Location = new System.Drawing.Point(6, 413);
             this.bLoadGroup.Name = "bLoadGroup";
             this.bLoadGroup.Size = new System.Drawing.Size(165, 23);
             this.bLoadGroup.TabIndex = 21;
@@ -408,7 +413,7 @@
             this.olvPortals.Name = "olvPortals";
             this.olvPortals.ShowGroups = false;
             this.olvPortals.ShowImagesOnSubItems = true;
-            this.olvPortals.Size = new System.Drawing.Size(593, 391);
+            this.olvPortals.Size = new System.Drawing.Size(593, 405);
             this.olvPortals.Sorting = System.Windows.Forms.SortOrder.Descending;
             this.olvPortals.TabIndex = 19;
             this.olvPortals.UseCompatibleStateImageBehavior = false;
@@ -698,7 +703,7 @@
             this.olvAnchors.Location = new System.Drawing.Point(3, 3);
             this.olvAnchors.Name = "olvAnchors";
             this.olvAnchors.ShowImagesOnSubItems = true;
-            this.olvAnchors.Size = new System.Drawing.Size(251, 204);
+            this.olvAnchors.Size = new System.Drawing.Size(251, 218);
             this.olvAnchors.Sorting = System.Windows.Forms.SortOrder.Descending;
             this.olvAnchors.TabIndex = 20;
             this.olvAnchors.UseCompatibleStateImageBehavior = false;
@@ -733,10 +738,10 @@
             this.tabControl2.Controls.Add(this.tabAnchors);
             this.tabControl2.Controls.Add(this.tabLinks);
             this.tabControl2.Controls.Add(this.tabDestroyPortals);
-            this.tabControl2.Location = new System.Drawing.Point(802, 63);
+            this.tabControl2.Location = new System.Drawing.Point(802, 49);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(265, 236);
+            this.tabControl2.Size = new System.Drawing.Size(265, 250);
             this.tabControl2.TabIndex = 13;
             // 
             // tabAnchors
@@ -745,7 +750,7 @@
             this.tabAnchors.Location = new System.Drawing.Point(4, 22);
             this.tabAnchors.Name = "tabAnchors";
             this.tabAnchors.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAnchors.Size = new System.Drawing.Size(257, 210);
+            this.tabAnchors.Size = new System.Drawing.Size(257, 224);
             this.tabAnchors.TabIndex = 0;
             this.tabAnchors.Text = "Anchors";
             this.tabAnchors.UseVisualStyleBackColor = true;
@@ -756,7 +761,7 @@
             this.tabLinks.Location = new System.Drawing.Point(4, 22);
             this.tabLinks.Name = "tabLinks";
             this.tabLinks.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLinks.Size = new System.Drawing.Size(257, 210);
+            this.tabLinks.Size = new System.Drawing.Size(257, 224);
             this.tabLinks.TabIndex = 1;
             this.tabLinks.Text = "Links";
             this.tabLinks.UseVisualStyleBackColor = true;
@@ -774,7 +779,7 @@
             this.olvLinks.Location = new System.Drawing.Point(3, 3);
             this.olvLinks.Name = "olvLinks";
             this.olvLinks.ShowImagesOnSubItems = true;
-            this.olvLinks.Size = new System.Drawing.Size(251, 204);
+            this.olvLinks.Size = new System.Drawing.Size(251, 218);
             this.olvLinks.Sorting = System.Windows.Forms.SortOrder.Descending;
             this.olvLinks.TabIndex = 21;
             this.olvLinks.UseCompatibleStateImageBehavior = false;
@@ -804,7 +809,7 @@
             this.tabDestroyPortals.Location = new System.Drawing.Point(4, 22);
             this.tabDestroyPortals.Name = "tabDestroyPortals";
             this.tabDestroyPortals.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDestroyPortals.Size = new System.Drawing.Size(257, 210);
+            this.tabDestroyPortals.Size = new System.Drawing.Size(257, 224);
             this.tabDestroyPortals.TabIndex = 2;
             this.tabDestroyPortals.Text = "Destroy";
             this.tabDestroyPortals.UseVisualStyleBackColor = true;
@@ -823,6 +828,9 @@
             // 
             this.olvDestroy.AllColumns.Add(this.olvDeleteColumn2);
             this.olvDestroy.AllColumns.Add(this.olvColumn15);
+            this.olvDestroy.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.olvDestroy.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.SingleClick;
             this.olvDestroy.CheckedAspectName = "";
             this.olvDestroy.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -832,7 +840,7 @@
             this.olvDestroy.Name = "olvDestroy";
             this.olvDestroy.ShowGroups = false;
             this.olvDestroy.ShowImagesOnSubItems = true;
-            this.olvDestroy.Size = new System.Drawing.Size(251, 185);
+            this.olvDestroy.Size = new System.Drawing.Size(251, 199);
             this.olvDestroy.Sorting = System.Windows.Forms.SortOrder.Descending;
             this.olvDestroy.TabIndex = 21;
             this.olvDestroy.UseCompatibleStateImageBehavior = false;
@@ -889,9 +897,7 @@
             this.ClientSize = new System.Drawing.Size(1079, 523);
             this.Controls.Add(this.tabControl2);
             this.Controls.Add(this.tcMain);
-            this.Controls.Add(this.bMap);
             this.Controls.Add(this.tbGameInfos);
-            this.Controls.Add(this.bDebug);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -929,12 +935,10 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tsslMousePosition;
         private System.Windows.Forms.Button bCalc;
-        private System.Windows.Forms.Button bDebug;
         private System.Windows.Forms.Timer timer;
         private System.Windows.Forms.Button bShowParent;
         private System.Windows.Forms.ToolStripStatusLabel tsslTotalTested;
         private System.Windows.Forms.TextBox tbGameInfos;
-        private System.Windows.Forms.Button bMap;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem portaldatabaseToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
@@ -997,6 +1001,9 @@
         private BrightIdeasSoftware.OLVColumn olvDeleteColumn2;
         private System.Windows.Forms.Label lDestroyStatus;
         private BrightIdeasSoftware.OLVColumn olvColumn17;
+        private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showDebugFormToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadFromIntelMapToolStripMenuItem;
     }
 }
 

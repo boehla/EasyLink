@@ -337,10 +337,6 @@ namespace EasyLinkGui {
             d.Start();
 
         }
-
-        private void bDebug_Click(object sender, EventArgs e) {
-            Lib.Logging.showForm();
-        }
         GameState lastPrinted = null;
         private void timer_Tick(object sender, EventArgs e) {
             long totaltested = 0;
@@ -391,12 +387,6 @@ namespace EasyLinkGui {
             refresh();
         }
         IngressView mv = null;
-        private void bMap_Click(object sender, EventArgs e) {
-            if (mv == null || mv.IsDisposed) mv = new IngressView(this);
-            mv.Show();
-            externLinks.Clear();
-            ingressDatabase.deleteAllOtherLinks();
-        }
         bool doClosing = false;
         private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
             doClosing = true;
@@ -1073,6 +1063,17 @@ namespace EasyLinkGui {
                 refreshDestryPortalList();
                 refreshGoogleMaps();
             }
+        }
+
+        private void showDebugFormToolStripMenuItem_Click(object sender, EventArgs e) {
+            Lib.Logging.showForm();
+        }
+
+        private void loadFromIntelMapToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (mv == null || mv.IsDisposed) mv = new IngressView(this);
+            mv.Show();
+            externLinks.Clear();
+            ingressDatabase.deleteAllOtherLinks();
         }
     }
     public class DuplicateKeyComparer<TKey>
