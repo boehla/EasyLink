@@ -15,6 +15,9 @@ namespace EasyLinkLib {
         public static int findSide(PortalInfo n1, PortalInfo n2, PortalInfo n3) {
             return findSide(n1.Pos.X, n1.Pos.Y, n2.Pos.X, n2.Pos.Y, n3.Pos.X, n3.Pos.Y);
         }
+        // Author: Michael Myers
+        // https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line
+        //
         public static int findSide(
         double ax, double ay,
         double bx, double by,
@@ -85,7 +88,8 @@ namespace EasyLinkLib {
         public static bool PointInPolygon(PointD[] Points, PortalInfo ni) {
             return PointInPolygon(Points, ni.Pos.X, ni.Pos.Y);
         }
-            public static bool PointInPolygon(PointD[] Points, double X, double Y) {
+        // Author: http://csharphelper.com/blog/2014/07/determine-whether-a-point-is-inside-a-polygon-in-c/
+        public static bool PointInPolygon(PointD[] Points, double X, double Y) {
             // Get the angle between the point and the
             // first and last vertices.
             int max_point = Points.Length - 1;
@@ -115,6 +119,7 @@ namespace EasyLinkLib {
         // For two vectors in the X-Y plane, the result is a
         // vector with X and Y components 0 so the Z component
         // gives the vector's length and direction.
+        // Author: http://csharphelper.com/blog/2014/07/determine-whether-a-point-is-inside-a-polygon-in-c/
         public static double CrossProductLength(double Ax, double Ay,
             double Bx, double By, double Cx, double Cy) {
             // Get the vectors' coordinates.
@@ -130,6 +135,7 @@ namespace EasyLinkLib {
         // Return a value between PI and -PI.
         // Note that the value is the opposite of what you might
         // expect because Y coordinates increase downward.
+        // Author: http://csharphelper.com/blog/2014/07/determine-whether-a-point-is-inside-a-polygon-in-c/
         public static double GetAngle(double Ax, double Ay,
             double Bx, double By, double Cx, double Cy) {
             // Get the dot product.
@@ -143,6 +149,7 @@ namespace EasyLinkLib {
         }
         // Return the dot product AB · BC.
         // Note that AB · BC = |AB| * |BC| * Cos(theta).
+        // Author: http://csharphelper.com/blog/2014/07/determine-whether-a-point-is-inside-a-polygon-in-c/
         private static double DotProduct(double Ax, double Ay,
             double Bx, double By, double Cx, double Cy) {
             // Get the vectors' coordinates.
@@ -193,34 +200,17 @@ namespace EasyLinkLib {
 
         public static double calculateDistance(PortalInfo n1, PortalInfo n2) {
             return CalcDistance(n1.Pos.X, n1.Pos.Y, n2.Pos.X, n2.Pos.Y);
-
-
-            //return (n1.LonX - n2.LonX) * (n1.LonX - n2.LonX) + (n1.LatY - n2.LatY) * (n1.LatY - n2.LatY);
-        }
-        public static double calculateAreaOld(GameState gs, Field f) {
-            PortalInfo p1 = gs.PortalInfos[f.NodesIds[0]];
-            PortalInfo p2 = gs.PortalInfos[f.NodesIds[1]];
-            PortalInfo p3 = gs.PortalInfos[f.NodesIds[2]];
-
-            double l1 = (float)Math.Sqrt((p1.Pos.X - p2.Pos.X) * (p1.Pos.X - p2.Pos.X) + (p1.Pos.Y - p2.Pos.Y) * (p1.Pos.Y - p2.Pos.Y));
-            double l2 = (float)Math.Sqrt((p3.Pos.X - p2.Pos.X) * (p3.Pos.X - p2.Pos.X) + (p3.Pos.Y - p2.Pos.Y) * (p3.Pos.Y - p2.Pos.Y));
-            double l3 = (float)Math.Sqrt((p1.Pos.X - p3.Pos.X) * (p1.Pos.X - p3.Pos.X) + (p1.Pos.Y - p3.Pos.Y) * (p1.Pos.Y - p3.Pos.Y));
-            
-            return (l1 + l2 + l3) * (-l1 + l2 + l3) * (l1 - l2 + l3) * (l1 + l2 - l3);
         }
         public static double calculateArea(GameState gs, Field f) {
             PortalInfo p1 = gs.PortalInfos[f.NodesIds[0]];
             PortalInfo p2 = gs.PortalInfos[f.NodesIds[1]];
             PortalInfo p3 = gs.PortalInfos[f.NodesIds[2]];
-
-
-
+            
             double a = CalcDistance(p1, p2);
             double b = CalcDistance(p2, p3);
             double c = CalcDistance(p3, p1);
             double s = (a + b + c) / 2;
-
-
+            
             return Math.Sqrt(s * (s - a) * (s - b) * (s - c));
         }
         public static bool crossLink(GameState gs, PointD p1, PointD p2) {
@@ -250,26 +240,10 @@ namespace EasyLinkLib {
             }
             return false;
         }
-        public static bool FindIntersection2(PortalInfo s1, PortalInfo e1, PortalInfo s2, PortalInfo e2) {
-            double a1 = e1.Pos.Y - s1.Pos.Y;
-            double b1 = s1.Pos.X - e1.Pos.X;
-            double c1 = a1 * s1.Pos.X + b1 * s1.Pos.Y;
-
-            double a2 = e2.Pos.Y - s2.Pos.Y;
-            double b2 = s2.Pos.X - e2.Pos.X;
-            double c2 = a2 * s2.Pos.X + b2 * s2.Pos.Y;
-
-            double delta = a1 * b2 - a2 * b1;
-            //If lines are parallel, the result will be (NaN, NaN).
-            if (delta == 0) return false;
-            PointD sp = new PointD((b2 * c1 - b1 * c2) / delta, (a1 * c2 - a2 * c1) / delta);
-
-
-            return delta != 0;
-        }
         public static bool FindIntersection(PortalInfo s1, PortalInfo e1, PortalInfo s2, PortalInfo e2) {
             return FindIntersection(new Vector(s1), new Vector(e1), new Vector(s2), new Vector(e2));
         }
+        // Author: https://www.codeproject.com/Tips/862988/Find-the-Intersection-Point-of-Two-Line-Segments
         public static bool FindIntersection(Vector p, Vector p2, Vector q, Vector q2) {
             Vector intersection = new Vector();
 
@@ -326,6 +300,7 @@ namespace EasyLinkLib {
 
     }
 
+    // https://www.codeproject.com/Tips/862988/Find-the-Intersection-Point-of-Two-Line-Segments
     public class Vector {
         public double X;
         public double Y;
@@ -416,9 +391,6 @@ namespace EasyLinkLib {
         }
     }
 
-
-
-
     public struct Line {
         public double x1 { get; set; }
         public double y1 { get; set; }
@@ -438,126 +410,5 @@ namespace EasyLinkLib {
             this.x2 = x2;
             this.y2 = y2;
         }
-    }
-
-    public class LineIntersection {
-        //  Returns Point of intersection if do intersect otherwise default Point (null)
-        public static PointD FindIntersection2(Line lineA, Line lineB, double tolerance = 0.001) {
-            double x1 = lineA.x1, y1 = lineA.y1;
-            double x2 = lineA.x2, y2 = lineA.y2;
-
-            double x3 = lineB.x1, y3 = lineB.y1;
-            double x4 = lineB.x2, y4 = lineB.y2;
-
-            // equations of the form x = c (two vertical lines)
-            if (Math.Abs(x1 - x2) < tolerance && Math.Abs(x3 - x4) < tolerance && Math.Abs(x1 - x3) < tolerance) {
-                throw new Exception("Both lines overlap vertically, ambiguous intersection points.");
-            }
-
-            //equations of the form y=c (two horizontal lines)
-            if (Math.Abs(y1 - y2) < tolerance && Math.Abs(y3 - y4) < tolerance && Math.Abs(y1 - y3) < tolerance) {
-                throw new Exception("Both lines overlap horizontally, ambiguous intersection points.");
-            }
-
-            //equations of the form x=c (two vertical lines)
-            if (Math.Abs(x1 - x2) < tolerance && Math.Abs(x3 - x4) < tolerance) {
-                return default(PointD);
-            }
-
-            //equations of the form y=c (two horizontal lines)
-            if (Math.Abs(y1 - y2) < tolerance && Math.Abs(y3 - y4) < tolerance) {
-                return default(PointD);
-            }
-
-            //general equation of line is y = mx + c where m is the slope
-            //assume equation of line 1 as y1 = m1x1 + c1 
-            //=> -m1x1 + y1 = c1 ----(1)
-            //assume equation of line 2 as y2 = m2x2 + c2
-            //=> -m2x2 + y2 = c2 -----(2)
-            //if line 1 and 2 intersect then x1=x2=x & y1=y2=y where (x,y) is the intersection point
-            //so we will get below two equations 
-            //-m1x + y = c1 --------(3)
-            //-m2x + y = c2 --------(4)
-
-            double x, y;
-
-            //lineA is vertical x1 = x2
-            //slope will be infinity
-            //so lets derive another solution
-            if (Math.Abs(x1 - x2) < tolerance) {
-                //compute slope of line 2 (m2) and c2
-                double m2 = (y4 - y3) / (x4 - x3);
-                double c2 = -m2 * x3 + y3;
-
-                //equation of vertical line is x = c
-                //if line 1 and 2 intersect then x1=c1=x
-                //subsitute x=x1 in (4) => -m2x1 + y = c2
-                // => y = c2 + m2x1 
-                x = x1;
-                y = c2 + m2 * x1;
-            }
-            //lineB is vertical x3 = x4
-            //slope will be infinity
-            //so lets derive another solution
-            else if (Math.Abs(x3 - x4) < tolerance) {
-                //compute slope of line 1 (m1) and c2
-                double m1 = (y2 - y1) / (x2 - x1);
-                double c1 = -m1 * x1 + y1;
-
-                //equation of vertical line is x = c
-                //if line 1 and 2 intersect then x3=c3=x
-                //subsitute x=x3 in (3) => -m1x3 + y = c1
-                // => y = c1 + m1x3 
-                x = x3;
-                y = c1 + m1 * x3;
-            }
-            //lineA & lineB are not vertical 
-            //(could be horizontal we can handle it with slope = 0)
-            else {
-                //compute slope of line 1 (m1) and c2
-                double m1 = (y2 - y1) / (x2 - x1);
-                double c1 = -m1 * x1 + y1;
-
-                //compute slope of line 2 (m2) and c2
-                double m2 = (y4 - y3) / (x4 - x3);
-                double c2 = -m2 * x3 + y3;
-
-                //solving equations (3) & (4) => x = (c1-c2)/(m2-m1)
-                //plugging x value in equation (4) => y = c2 + m2 * x
-                x = (c1 - c2) / (m2 - m1);
-                y = c2 + m2 * x;
-
-                float zero = 0.0000000001f;
-                //verify by plugging intersection point (x, y)
-                //in orginal equations (1) & (2) to see if they intersect
-                //otherwise x,y values will not be finite and will fail this check
-                if (!(Math.Abs(-m1 * x + y - c1) <= zero
-                    && Math.Abs(-m2 * x + y - c2) <= zero)) {
-                    return default(PointD);
-                }
-            }
-
-            //x,y can intersect outside the line segment since line is infinitely long
-            //so finally check if x, y is within both the line segments
-            if (IsInsideLine(lineA, x, y) &&
-                IsInsideLine(lineB, x, y)) {
-                return new PointD { X = x, Y = y };
-            }
-
-            //return default null (no intersection)
-            return default(PointD);
-
-        }
-
-        // Returns true if given point(x,y) is inside the given line segment
-        private static bool IsInsideLine(Line line, double x, double y) {
-            return (x >= line.x1 && x <= line.x2
-                        || x >= line.x2 && x <= line.x1)
-                   && (y >= line.y1 && y <= line.y2
-                        || y >= line.y2 && y <= line.y1);
-        }
-    }
-
-
-    
+    }    
 }

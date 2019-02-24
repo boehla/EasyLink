@@ -36,12 +36,8 @@
             this.bMap = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.portaldatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveCopyAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearDisabledToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -153,7 +149,7 @@
             this.bCalc.Name = "bCalc";
             this.bCalc.Size = new System.Drawing.Size(75, 23);
             this.bCalc.TabIndex = 5;
-            this.bCalc.Text = "Calc";
+            this.bCalc.Text = "Auto link";
             this.bCalc.UseVisualStyleBackColor = true;
             this.bCalc.Click += new System.EventHandler(this.bCalc_Click);
             // 
@@ -218,12 +214,8 @@
             // portaldatabaseToolStripMenuItem
             // 
             this.portaldatabaseToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveToolStripMenuItem1,
             this.toolStripSeparator1,
-            this.loadToolStripMenuItem,
-            this.saveToolStripMenuItem,
             this.toolStripSeparator2,
-            this.saveCopyAsToolStripMenuItem,
             this.toolStripSeparator3,
             this.clearAllToolStripMenuItem,
             this.clearDisabledToolStripMenuItem});
@@ -231,60 +223,32 @@
             this.portaldatabaseToolStripMenuItem.Size = new System.Drawing.Size(97, 20);
             this.portaldatabaseToolStripMenuItem.Text = "Portaldatabase";
             // 
-            // saveToolStripMenuItem1
-            // 
-            this.saveToolStripMenuItem1.Name = "saveToolStripMenuItem1";
-            this.saveToolStripMenuItem1.Size = new System.Drawing.Size(150, 22);
-            this.saveToolStripMenuItem1.Text = "Save";
-            this.saveToolStripMenuItem1.Click += new System.EventHandler(this.saveToolStripMenuItem1_Click);
-            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(147, 6);
-            // 
-            // loadToolStripMenuItem
-            // 
-            this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
-            this.loadToolStripMenuItem.Text = "Load from..";
-            this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
-            // 
-            // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
-            this.saveToolStripMenuItem.Text = "Save as...";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(147, 6);
-            // 
-            // saveCopyAsToolStripMenuItem
-            // 
-            this.saveCopyAsToolStripMenuItem.Name = "saveCopyAsToolStripMenuItem";
-            this.saveCopyAsToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
-            this.saveCopyAsToolStripMenuItem.Text = "Save copy as...";
-            this.saveCopyAsToolStripMenuItem.Click += new System.EventHandler(this.saveCopyAsToolStripMenuItem_Click);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(147, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
             // 
             // clearAllToolStripMenuItem
             // 
             this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
-            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.clearAllToolStripMenuItem.Text = "Clear all";
             this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
             // 
             // clearDisabledToolStripMenuItem
             // 
             this.clearDisabledToolStripMenuItem.Name = "clearDisabledToolStripMenuItem";
-            this.clearDisabledToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.clearDisabledToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.clearDisabledToolStripMenuItem.Text = "Clear disabled";
             this.clearDisabledToolStripMenuItem.Click += new System.EventHandler(this.clearDisabledToolStripMenuItem_Click);
             // 
@@ -613,7 +577,7 @@
             this.tabMap.Padding = new System.Windows.Forms.Padding(3);
             this.tabMap.Size = new System.Drawing.Size(776, 428);
             this.tabMap.TabIndex = 1;
-            this.tabMap.Text = "Map";
+            this.tabMap.Text = "EasyLink Map";
             this.tabMap.UseVisualStyleBackColor = true;
             // 
             // gmap
@@ -694,7 +658,7 @@
             this.bCreateGameState.Name = "bCreateGameState";
             this.bCreateGameState.Size = new System.Drawing.Size(119, 23);
             this.bCreateGameState.TabIndex = 9;
-            this.bCreateGameState.Text = "Load from database";
+            this.bCreateGameState.Text = "Reload";
             this.bCreateGameState.UseVisualStyleBackColor = true;
             this.bCreateGameState.Click += new System.EventHandler(this.bCreateGameState_Click);
             // 
@@ -973,10 +937,7 @@
         private System.Windows.Forms.Button bMap;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem portaldatabaseToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.TabControl tcMain;
@@ -986,7 +947,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.NumericUpDown nudThreadCount;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.ToolStripMenuItem saveCopyAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem clearAllToolStripMenuItem;

@@ -397,10 +397,6 @@ namespace EasyLinkGui {
             externLinks.Clear();
             ingressDatabase.deleteAllOtherLinks();
         }
-        private void saveToolStripMenuItem1_Click(object sender, EventArgs e) {
-            //ingressDatabase.WriteXml(opts.get("portalxsdfile", "portals.xsd").Value);
-        }
-
         bool doClosing = false;
         private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
             doClosing = true;
@@ -410,24 +406,7 @@ namespace EasyLinkGui {
             saveGroup("AutoSave");
             //ingressDatabase.WriteXml(opts.get("portalxsdfile", "portals.xsd").Value); TODO
             gmap.Dispose();
-
         }
-
-        private void loadToolStripMenuItem_Click(object sender, EventArgs e) {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK) {
-                opts.set("portalxsdfile", openFileDialog1.FileName);
-                //ingressDatabase.Clear();
-                //ingressDatabase.ReadXml(openFileDialog1.FileName);
-            }
-        }
-
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e) {
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK) {
-                opts.set("portalxsdfile", saveFileDialog1.FileName);
-               // ingressDatabase.WriteXml(saveFileDialog1.FileName);
-            }
-        }
-
         private void bCreateGameState_Click(object sender, EventArgs e) {
             gs = new GameState();
             gs.loadPortals(ingressDatabase.getAllEnabled());
