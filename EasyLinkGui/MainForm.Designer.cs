@@ -56,6 +56,8 @@
             this.olvPortals = new BrightIdeasSoftware.FastObjectListView();
             this.olvEnabledColumn = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn3 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn16 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn18 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumnGeo = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn8 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn9 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
@@ -375,6 +377,8 @@
             // 
             this.olvPortals.AllColumns.Add(this.olvEnabledColumn);
             this.olvPortals.AllColumns.Add(this.olvColumn3);
+            this.olvPortals.AllColumns.Add(this.olvColumn16);
+            this.olvPortals.AllColumns.Add(this.olvColumn18);
             this.olvPortals.AllColumns.Add(this.olvColumnGeo);
             this.olvPortals.AllColumns.Add(this.olvColumn8);
             this.olvPortals.AllColumns.Add(this.olvColumn9);
@@ -396,6 +400,8 @@
             this.olvPortals.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.olvEnabledColumn,
             this.olvColumn3,
+            this.olvColumn16,
+            this.olvColumn18,
             this.olvColumnGeo,
             this.olvColumn8,
             this.olvColumn9,
@@ -408,6 +414,9 @@
             this.olvColumn4,
             this.olvColumn17,
             this.olvColumn1});
+            this.olvPortals.EmptyListMsg = "Portaldatabase is empty. First load from [Portaldatabase] - [Load from intal map]" +
+    "";
+            this.olvPortals.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.olvPortals.FullRowSelect = true;
             this.olvPortals.Location = new System.Drawing.Point(177, 34);
             this.olvPortals.Name = "olvPortals";
@@ -421,6 +430,7 @@
             this.olvPortals.UseSubItemCheckBoxes = true;
             this.olvPortals.View = System.Windows.Forms.View.Details;
             this.olvPortals.VirtualMode = true;
+            this.olvPortals.FormatRow += new System.EventHandler<BrightIdeasSoftware.FormatRowEventArgs>(this.olv_FormatRow);
             this.olvPortals.ItemsChanged += new System.EventHandler<BrightIdeasSoftware.ItemsChangedEventArgs>(this.olv_ItemsChanged);
             this.olvPortals.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.olv_ItemChecked);
             // 
@@ -438,6 +448,18 @@
             this.olvColumn3.IsEditable = false;
             this.olvColumn3.Text = "Name";
             this.olvColumn3.Width = 199;
+            // 
+            // olvColumn16
+            // 
+            this.olvColumn16.AspectName = "ResCount";
+            this.olvColumn16.CellPadding = null;
+            this.olvColumn16.Text = "ResCount";
+            // 
+            // olvColumn18
+            // 
+            this.olvColumn18.AspectName = "Level";
+            this.olvColumn18.CellPadding = null;
+            this.olvColumn18.Text = "Level";
             // 
             // olvColumnGeo
             // 
@@ -493,7 +515,6 @@
             // 
             this.olvColumn5.AspectName = "Pos.Y";
             this.olvColumn5.CellPadding = null;
-            this.olvColumn5.DisplayIndex = 11;
             this.olvColumn5.IsEditable = false;
             this.olvColumn5.Text = "Lat";
             // 
@@ -501,7 +522,6 @@
             // 
             this.olvColumn4.AspectName = "Pos.X";
             this.olvColumn4.CellPadding = null;
-            this.olvColumn4.DisplayIndex = 12;
             this.olvColumn4.IsEditable = false;
             this.olvColumn4.Text = "Lon";
             // 
@@ -509,7 +529,6 @@
             // 
             this.olvColumn17.AspectName = "AddressName";
             this.olvColumn17.CellPadding = null;
-            this.olvColumn17.DisplayIndex = 10;
             this.olvColumn17.Groupable = false;
             this.olvColumn17.IsEditable = false;
             this.olvColumn17.Searchable = false;
@@ -580,7 +599,7 @@
             this.tabMap.Location = new System.Drawing.Point(4, 22);
             this.tabMap.Name = "tabMap";
             this.tabMap.Padding = new System.Windows.Forms.Padding(3);
-            this.tabMap.Size = new System.Drawing.Size(776, 428);
+            this.tabMap.Size = new System.Drawing.Size(776, 442);
             this.tabMap.TabIndex = 1;
             this.tabMap.Text = "EasyLink Map";
             this.tabMap.UseVisualStyleBackColor = true;
@@ -784,23 +803,25 @@
             this.olvLinks.TabIndex = 21;
             this.olvLinks.UseCompatibleStateImageBehavior = false;
             this.olvLinks.UseFiltering = true;
-            this.olvLinks.UseSubItemCheckBoxes = true;
             this.olvLinks.View = System.Windows.Forms.View.Details;
+            this.olvLinks.Resize += new System.EventHandler(this.olvLinks_Resize);
             // 
             // olvColumn2
             // 
-            this.olvColumn2.AspectName = "Name";
+            this.olvColumn2.AspectName = "P1.Name";
             this.olvColumn2.CellPadding = null;
             this.olvColumn2.Groupable = false;
             this.olvColumn2.IsEditable = false;
-            this.olvColumn2.Text = "Anchors";
+            this.olvColumn2.Text = "Origin";
             this.olvColumn2.Width = 169;
             // 
             // olvColumn7
             // 
-            this.olvColumn7.AspectToStringFormat = "Delete";
+            this.olvColumn7.AspectName = "P2.Name";
+            this.olvColumn7.AspectToStringFormat = "";
             this.olvColumn7.CellPadding = null;
-            this.olvColumn7.Text = "";
+            this.olvColumn7.FillsFreeSpace = true;
+            this.olvColumn7.Text = "Destination";
             // 
             // tabDestroyPortals
             // 
@@ -847,6 +868,7 @@
             this.olvDestroy.UseFiltering = true;
             this.olvDestroy.View = System.Windows.Forms.View.Details;
             this.olvDestroy.CellEditStarting += new BrightIdeasSoftware.CellEditEventHandler(this.olvDestroy_CellEditStarting);
+            this.olvDestroy.FormatRow += new System.EventHandler<BrightIdeasSoftware.FormatRowEventArgs>(this.olv_FormatRow);
             this.olvDestroy.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.olvDestroy_ColumnClick);
             // 
             // olvDeleteColumn2
@@ -1004,6 +1026,8 @@
         private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showDebugFormToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadFromIntelMapToolStripMenuItem;
+        private BrightIdeasSoftware.OLVColumn olvColumn16;
+        private BrightIdeasSoftware.OLVColumn olvColumn18;
     }
 }
 

@@ -25,9 +25,9 @@ namespace EasyLinkLib {
     }
 
     public struct Link {
-        public int P1;
-        public int P2;
-        public Link(int p1, int p2) {
+        public PortalInfo P1;
+        public PortalInfo P2;
+        public Link(PortalInfo p1, PortalInfo p2) {
             this.P1 = p1;
             this.P2 = p2;
         }
@@ -167,11 +167,11 @@ namespace EasyLinkLib {
             linkCount++;
 
             if(this.Parent != null && this.Parent.LastLinks != null && this.Parent.LastLinks.Count > 0) {
-                int lastPortal = this.Parent.LastLinks[this.Parent.LastLinks.Count - 1].P1;
-                this.totalWay += (float)geohelper.calculateDistance(this.glob.pInfos[lastPortal], this.glob.pInfos[p1id]);
+                PortalInfo lastPortal = this.Parent.LastLinks[this.Parent.LastLinks.Count - 1].P1;
+                this.totalWay += (float)geohelper.calculateDistance(lastPortal, this.glob.pInfos[p1id]);
             }
             if (this.LastLinks == null) this.LastLinks = new List<Link>();
-            this.LastLinks.Add(new Link(p1id, p2id));
+            this.LastLinks.Add(new Link(this.glob.pInfos[p1id], this.glob.pInfos[p2id]));
 
             Field rightf = null;
             Field leftf = null;

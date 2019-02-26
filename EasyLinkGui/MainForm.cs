@@ -13,6 +13,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ using System.Windows.Forms;
 namespace EasyLinkGui {
     public partial class MainForm : Form {
         bool cancel = false;
-        
+
 
 
         Bitmap markerImg = null;
@@ -134,7 +135,7 @@ namespace EasyLinkGui {
         private void calculateBestMultiThread() {
             Lib.Logging.log("start calculateBestMultiThread");
             shared = new SharedCalcData();
-            if(gs.Global.Anchors.Count == 2) {
+            if (gs.Global.Anchors.Count == 2) {
                 int p1 = gs.Global.Anchors[0];
                 int p2 = gs.Global.Anchors[1];
                 gs.addLink(p1, p2);
@@ -154,7 +155,7 @@ namespace EasyLinkGui {
                 Thread d = new Thread(CalcThread);
                 d.IsBackground = true;
                 d.Priority = ThreadPriority.BelowNormal;
-                
+
 
                 lock (shared) {
                     shared.RunningThreads++;
@@ -166,21 +167,21 @@ namespace EasyLinkGui {
         public void CalcThread() {
             bool alreadyCountDown = false;
             int threadid = nextthreadid++;
-            try {                                
+            try {
                 Lib.Logging.log("thread.txt", "Starting new Thread: " + threadid);
                 int countEmpty = 0;
                 while (!cancel) {
                     GameState curToDo = null;
                     lock (shared) {
                         int targetThreads = (int)nudThreadCount.Value;
-                        while(targetThreads > shared.RunningThreads) {
+                        while (targetThreads > shared.RunningThreads) {
                             Thread d = new Thread(CalcThread);
                             d.IsBackground = true;
                             d.Priority = ThreadPriority.BelowNormal;
                             shared.RunningThreads++;
                             d.Start();
                         }
-                        if(shared.RunningThreads > targetThreads) {
+                        if (shared.RunningThreads > targetThreads) {
                             alreadyCountDown = true;
                             shared.RunningThreads--;
                             return;
@@ -228,8 +229,8 @@ namespace EasyLinkGui {
             } finally {
                 Lib.Logging.log("thread.txt", "Stop thread: " + threadid);
                 lock (shared) {
-                    if(!alreadyCountDown) shared.RunningThreads--;
-                    if(shared.RunningThreads == 0) {
+                    if (!alreadyCountDown) shared.RunningThreads--;
+                    if (shared.RunningThreads == 0) {
                         shared = new SharedCalcData();
                     }
                 }
@@ -261,7 +262,7 @@ namespace EasyLinkGui {
 
         private void Form1_Load(object sender, EventArgs e) {
             refresh();
-            
+
             gmap.ShowCenter = false;
             gmap.MaxZoom = 18;
             gmap.MinZoom = 2;
@@ -324,7 +325,7 @@ namespace EasyLinkGui {
             }
             return ret;
         }
-        
+
 
         private void bCalc_Click(object sender, EventArgs e) {
             //Thread d = new Thread(calculateBest);
@@ -438,14 +439,14 @@ namespace EasyLinkGui {
         private void bDbEnable_Click(object sender, EventArgs e) {
             List<PortalInfo> changed = new List<PortalInfo>();
 
-            for(int i = 0; i < olvPortals.Items.Count; i++) {
+            for (int i = 0; i < olvPortals.Items.Count; i++) {
                 OLVListItem item = (OLVListItem)olvPortals.Items[i];
                 ((PortalInfo)item.RowObject).Enabled = true;
                 changed.Add(((PortalInfo)item.RowObject));
             }
             ingressDatabase.updatePortals(changed);
             refreshPortals();
-            
+
         }
         List<PortalInfo> currentList = null;
         SharedGeoData sharedGeo = new SharedGeoData();
@@ -479,8 +480,8 @@ namespace EasyLinkGui {
         public void addEntities(List<CoreEntity> entities) {
             ingressDatabase.addEntities(entities);
             bool refreshExternLinks = false;
-            foreach(CoreEntity ent in entities) {
-                if(ent is LinkEntity) {
+            foreach (CoreEntity ent in entities) {
+                if (ent is LinkEntity) {
                     externLinks[ent.Guid] = (LinkEntity)ent;
                     refreshExternLinks = true;
                 }
@@ -510,19 +511,19 @@ namespace EasyLinkGui {
                         JObject ob = JObject.Parse(resp);
                         JToken obAdress = JObject.Parse(resp)["address"];
                         lock (sharedGeo) {
-                            if(sharedGeo.openGeoPortals.Count > 0 && todo == sharedGeo.openGeoPortals[0]) {
+                            if (sharedGeo.openGeoPortals.Count > 0 && todo == sharedGeo.openGeoPortals[0]) {
                                 todo.ReverseGeoCodingDone = true;
                                 todo.AddressName = Lib.Converter.toString(ob["display_name"]);
                                 todo.Country = Lib.Converter.toString(obAdress["country"]);
                                 todo.Road = Lib.Converter.toString(obAdress["road"]);
                                 todo.Postcode = Lib.Converter.toInt(obAdress["postcode"]);
                                 todo.Suburb = Lib.Converter.toString(obAdress["suburb"]);
-                                if(todo.Suburb.Length <= 0) todo.Suburb = Lib.Converter.toString(obAdress["state"]);
+                                if (todo.Suburb.Length <= 0) todo.Suburb = Lib.Converter.toString(obAdress["state"]);
                                 todo.County = Lib.Converter.toString(obAdress["county"]);
                                 todo.Village = Lib.Converter.toString(obAdress["village"]);
-                                if(todo.Village.Length <= 0) todo.Village = Lib.Converter.toString(obAdress["town"]);
-                                if(todo.Village.Length <= 0) todo.Village = Lib.Converter.toString(obAdress["city"]);
-                                if(todo.Village.Length <= 0) todo.Village = Lib.Converter.toString(obAdress["city_district"]);
+                                if (todo.Village.Length <= 0) todo.Village = Lib.Converter.toString(obAdress["town"]);
+                                if (todo.Village.Length <= 0) todo.Village = Lib.Converter.toString(obAdress["city"]);
+                                if (todo.Village.Length <= 0) todo.Village = Lib.Converter.toString(obAdress["city_district"]);
                                 todo.State = Lib.Converter.toString(obAdress["state"]);
                                 ingressDatabase.updatePortals(todo);
                                 sharedGeo.openGeoPortals.RemoveAt(0);
@@ -532,7 +533,7 @@ namespace EasyLinkGui {
                     } else {
                         Thread.Sleep(10000);
                     }
-                }catch(Exception ex) {
+                } catch (Exception ex) {
                     Lib.Logging.logException("", ex);
                 } finally {
                     //Thread.Sleep(2000);
@@ -559,7 +560,7 @@ namespace EasyLinkGui {
                     olvPortals.ModelFilter = null;
                 }
             }
-            if(shared.RunningThreads == 0) {
+            if (shared.RunningThreads == 0) {
                 bCalc.Enabled = true;
                 bCalcStop.Enabled = false;
             }
@@ -572,20 +573,20 @@ namespace EasyLinkGui {
 
                 Dictionary<string, bool> portalsOnMap = new Dictionary<string, bool>();
                 Dictionary<string, bool> filtered = new Dictionary<string, bool>();
-                if(tbDbSearch.Text.Length > 0) {
-                    for(int i = 0; i < olvPortals.Items.Count; i++) {
+                if (tbDbSearch.Text.Length > 0) {
+                    for (int i = 0; i < olvPortals.Items.Count; i++) {
                         PortalInfo ni = (PortalInfo)((OLVListItem)olvPortals.Items[i]).RowObject;
                         filtered[ni.Guid] = true;
                     }
                 }
                 for (int i = 0; i < gs.PortalData.Count; i++) {
                     PortalInfo ni = gs.PortalInfos[i];
-                    Bitmap img =  markerImg;
+                    Bitmap img = markerImg;
                     if (gs.PortalData[i].InTriangle) {
                         img = markerImgIn;
-                    }else if(gs.Global.Anchors.Count == 2){
+                    } else if (gs.Global.Anchors.Count == 2) {
                         foreach (int anchor in gs.Global.Anchors) {
-                            if(!gs.checkLink(i, anchor)) {
+                            if (!gs.checkLink(i, anchor)) {
                                 img = markerImgNoAnchor;
                                 break;
                             }
@@ -593,7 +594,8 @@ namespace EasyLinkGui {
                     }
                     if (filtered.ContainsKey(ni.Guid)) img = markerImgFiltered;
 
-                    GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), img);
+                    GMarkerGoogle marker =  new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), img);
+                    //GmapMarkerWithLabel marker = new GmapMarkerWithLabel(new PointLatLng(ni.Pos.Y, ni.Pos.X), ni.Name, img, gmap);
                     portalsOnMap[ni.Guid] = true;
                     portalMapping[ni.Guid] = i;
                     marker.Tag = ni;
@@ -634,14 +636,12 @@ namespace EasyLinkGui {
                     // gmap.Overlays.Add(polyOverlay);
                 }
 
-                int fromPortal = -1;
+                PortalInfo fromPortal = null;
                 points = new List<PointLatLng>();
                 foreach (Link link in gs.getTotalLinkList()) {
-                    int newPortal = link.P1;
-                    if (fromPortal != -1 && newPortal != fromPortal) {
-                        PortalInfo p1 = gs.PortalInfos[newPortal];
-
-                        points.Add(new PointLatLng(p1.Pos.Y, p1.Pos.X));
+                    PortalInfo newPortal = link.P1;
+                    if (fromPortal != null && newPortal != fromPortal) {
+                        points.Add(new PointLatLng(newPortal.Pos.Y, newPortal.Pos.X));
                     }
                     fromPortal = link.P1;
                 }
@@ -686,7 +686,7 @@ namespace EasyLinkGui {
 
                     GMapRoute polygon = new GMapRoute(points, "mypolygon");
                     polygon.Stroke = null;
-                   
+
                     if (destroyPortals.ContainsKey(link.OGuid) || destroyPortals.ContainsKey(link.DGuid)) {
                         polygon.Stroke = new Pen(Color.DarkRed, 3);
                         polygon.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
@@ -703,6 +703,8 @@ namespace EasyLinkGui {
 
 
                 gmap.Refresh();
+
+                refreshLinkList();
             }
         }
 
@@ -729,7 +731,7 @@ namespace EasyLinkGui {
 
         int startPortal = -1;
         private void gmap_OnMarkerClick(GMapMarker item, MouseEventArgs e) {
-            if(e.Button == MouseButtons.Right) {
+            if (e.Button == MouseButtons.Right) {
                 context = new ContextMenu();
                 MenuItem mn = new MenuItem();
                 PortalInfo ni = (PortalInfo)item.Tag;
@@ -819,6 +821,7 @@ namespace EasyLinkGui {
             foreach (string guid in anchors.Keys) {
                 anchorsList.Add(ingressDatabase.getByGuid(guid));
             }
+            if (gs == null || gs.Global == null) return;
             olvAnchors.SetObjects(anchorsList);
             gs.Global.setAnchors(anchorsList);
 
@@ -840,7 +843,7 @@ namespace EasyLinkGui {
         }
 
         private void Mn_AnchorClick(object sender, EventArgs e) {
-            if(sender is MenuItem) {
+            if (sender is MenuItem) {
                 MenuItem mn = (MenuItem)sender;
                 GMapMarker marker = (GMapMarker)mn.Tag;
                 PortalInfo pid = (PortalInfo)marker.Tag;
@@ -894,7 +897,7 @@ namespace EasyLinkGui {
             GameState newgs = gs.clone();
             newgs.Parent = gs;
             bool allsuc = true;
-            if(gs.Global.Anchors.Count == 2) {
+            if (gs.Global.Anchors.Count == 2) {
                 if (!gs.PortalData[gs.Global.Anchors[0]].SideLinks.ContainsKey(gs.Global.Anchors[1])) {
                     allsuc &= newgs.addLink(gs.Global.Anchors[0], gs.Global.Anchors[1]);
                 }
@@ -921,7 +924,7 @@ namespace EasyLinkGui {
         }
 
         private void olv_ItemsChanged(object sender, ItemsChangedEventArgs e) {
-            
+
         }
 
         private void olv_ItemChecked(object sender, ItemCheckedEventArgs e) {
@@ -952,7 +955,7 @@ namespace EasyLinkGui {
         private void bSaveGroup_Click(object sender, EventArgs e) {
             NewGroupNameForm ngnn = new NewGroupNameForm();
             if (lastGroupSave.Length > 0) ngnn.GroupName = lastGroupSave;
-            if(ngnn.ShowDialog() == DialogResult.OK) {
+            if (ngnn.ShowDialog() == DialogResult.OK) {
                 saveGroup(ngnn.GroupName);
             }
         }
@@ -976,8 +979,8 @@ namespace EasyLinkGui {
             gp.PreLinksP1 = new List<string>();
             gp.PreLinksP2 = new List<string>();
             for (int i = 0; i < linkList.Count; i++) {
-                gp.PreLinksP1.Add(gs.PortalInfos[linkList[i].P1].Guid);
-                gp.PreLinksP2.Add(gs.PortalInfos[linkList[i].P2].Guid);
+                gp.PreLinksP1.Add(linkList[i].P1.Guid);
+                gp.PreLinksP2.Add(linkList[i].P2.Guid);
             }
             lastGroupSave = groupname;
             ingressDatabase.upsertGroup(gp);
@@ -1016,7 +1019,10 @@ namespace EasyLinkGui {
             refreshDestryPortalList();
             refresh();
         }
-
+        private void refreshLinkList() {
+            if (gs == null) return;
+            olvLinks.SetObjects(gs.getTotalLinkList());
+        }
         private void refreshGroupList() {
             olvDeleteColumn1.AspectGetter = delegate {
                 return "Delete";
@@ -1041,7 +1047,7 @@ namespace EasyLinkGui {
                 Group pi = (Group)e.RowObject;
                 ingressDatabase.deleteGroup(pi);
                 refreshGroupList();
-            }else if (e.Column == olvColumnGroupName) {
+            } else if (e.Column == olvColumnGroupName) {
                 e.Cancel = true;
                 bLoadGroup_Click(sender, null);
             }
@@ -1058,7 +1064,7 @@ namespace EasyLinkGui {
         }
 
         private void olvDestroy_ColumnClick(object sender, ColumnClickEventArgs e) {
-            if(olvDestroy.Columns[e.Column] == olvDeleteColumn2) {
+            if (olvDestroy.Columns[e.Column] == olvDeleteColumn2) {
                 destroyPortals.Clear();
                 refreshDestryPortalList();
                 refreshGoogleMaps();
@@ -1074,6 +1080,30 @@ namespace EasyLinkGui {
             mv.Show();
             externLinks.Clear();
             ingressDatabase.deleteAllOtherLinks();
+        }
+
+        private void olv_FormatRow(object sender, FormatRowEventArgs e) {
+            if (e.Item.RowObject is PortalInfo) {
+                PortalInfo pi = (PortalInfo)e.Item.RowObject;
+                //e.Item.BackColor = Color.Wheat;
+                Color c = Color.White;
+                switch (pi.Team) {
+                    case IngressTeam.Enlightened:
+                        c = Color.LightGreen;
+                        break;
+                    case IngressTeam.Resistance:
+                        c = Color.LightBlue;
+                        break;
+                }
+                e.Item.BackColor = c;
+            }
+        }
+
+        private void olvLinks_Resize(object sender, EventArgs e) {
+            ObjectListView olv = (ObjectListView)sender;
+            for (int i = 0; i < olv.Columns.Count - 1; i++) {
+                olv.Columns[i].Width = olv.Width / olv.Columns.Count;
+            }
         }
     }
     public class DuplicateKeyComparer<TKey>
@@ -1108,6 +1138,52 @@ namespace EasyLinkGui {
     class SharedGeoData {
         public List<PortalInfo> openGeoPortals = new List<PortalInfo>();
         public List<PortalInfo> finisedGeoPortals = new List<PortalInfo>();
+    }
+    public class GmapMarkerWithLabel : GMarkerGoogle, ISerializable {
+        private Font font;
+        private GMarkerGoogle innerMarker;
+        private GMapControl gmap = null;
+        private int markerHeight = 0;
+
+        public string Caption;
+
+        public GmapMarkerWithLabel(PointLatLng p, string caption, Bitmap img, GMapControl gmap)
+            : base(p, img) {
+            font = new Font("Arial", 10);
+            innerMarker = new GMarkerGoogle(p, img);
+            this.gmap = gmap;
+            markerHeight = img.Height;
+
+            Caption = caption;
+        }
+        static int p = 0;
+        public override void OnRender(Graphics g) {
+            base.OnRender(g);
+            if(gmap.Zoom >= 17) g.DrawString(Caption, font, Brushes.Black, new PointF(this.LocalPosition.X, this.LocalPosition.Y + markerHeight));
+            return;
+            
+        }
+
+        public override void Dispose() {
+            if (innerMarker != null) {
+                innerMarker.Dispose();
+                innerMarker = null;
+            }
+
+            base.Dispose();
+        }
+
+        #region ISerializable Members
+
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
+            base.GetObjectData(info, context);
+        }
+
+        protected GmapMarkerWithLabel(SerializationInfo info, StreamingContext context)
+            : base(info, context) {
+        }
+
+        #endregion
     }
 
 }

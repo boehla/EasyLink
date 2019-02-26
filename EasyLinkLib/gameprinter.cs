@@ -83,15 +83,15 @@ namespace EasyLinkLib {
                 if (gs.PortalInfos[i].ShowLabel) g.DrawString(ni.Name + " / " + ni.Pos.X + " / " + ni.Pos.Y, new Font("Tahoma", 12), Brushes.Black, x1, y1 + PortalWidth);
             }
 
-            int fromPortal = -1;
+            PortalInfo fromPortal = null;
             foreach (Link link in gs.getTotalLinkList()) {
-                if(fromPortal != -1) {
-                    int newPortal = link.P1;
+                if(fromPortal != null) {
+                    PortalInfo newPortal = link.P1;
 
-                    float x1 = getXPer(gs.PortalInfos[fromPortal]) * width;
-                    float y1 = getYPer(gs.PortalInfos[fromPortal]) * height;
-                    float x2 = getXPer(gs.PortalInfos[newPortal]) * width;
-                    float y2 = getYPer(gs.PortalInfos[newPortal]) * height;
+                    float x1 = getXPer(fromPortal) * width;
+                    float y1 = getYPer(fromPortal) * height;
+                    float x2 = getXPer(newPortal) * width;
+                    float y2 = getYPer(newPortal) * height;
 
                     g.DrawLine(new Pen(new SolidBrush(Color.Yellow), 1), x1, y1, x2, y2);
                 }

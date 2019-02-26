@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static EasyLinkLib.geohelper;
 
+// decode source: https://github.com/iitc-project/ingress-intel-total-conversion/blob/0fabfb68943fc833153d89454220fa638a8b9fb6/code/entity_decode.js
 namespace EasyLinkLib {
     public enum IngressTeam { None, Enlightened, Resistance }
     public class IngressEntities {
@@ -46,10 +47,37 @@ namespace EasyLinkLib {
             }
         }
     }
+    /*
+     *team:          a[1],
+      latE6:         a[2],
+      lngE6:         a[3]
+    }
+  };
+
+  var SUMMARY_PORTAL_DATA_LENGTH = 14;
+  function summaryPortalData(a) {
+    return {
+      level:         a[4],
+      health:        a[5],
+      resCount:      a[6],
+      image:         a[7],
+      title:         a[8],
+      ornaments:     a[9],
+      mission:       a[10],
+      mission50plus: a[11],
+      artifactBrief: parseArtifactBrief(a[12]),
+      timestamp:     a[13]
+      */
     public class PortalEntity : CoreEntity {
         public PointD Pos { get; }
         public IngressTeam Team { get; }
         public string Name { get; }
+
+        public int Level { get; }
+        public double Health { get; }
+        public int ResCount { get; }
+        public string Image { get; }
+        public bool Mission { get; }
 
         public PortalEntity(JToken data) : base(data) {
             JToken details = data[2];
@@ -57,11 +85,26 @@ namespace EasyLinkLib {
 
             this.Team = getTeam(details[1]);
             this.Pos = new PointD(latlonConverter(Lib.Converter.toInt(details[3])), latlonConverter(Lib.Converter.toInt(details[2])));
+            this.Level = Lib.Converter.toInt(details[4]);
+            this.Health = Lib.Converter.toDouble(details[5]);
+            this.ResCount = Lib.Converter.toInt(details[6]);
+            this.Image = Lib.Converter.toString(details[7]);
             this.Name = Lib.Converter.toString(details[8]);
+
+            this.Mission = Lib.Converter.toBool(details[10]);
+
 
         }
     }
-
+    /*
+team:   ent[2][1],
+oGuid:  ent[2][2],
+oLatE6: ent[2][3],
+oLngE6: ent[2][4],
+dGuid:  ent[2][5],
+dLatE6: ent[2][6],
+dLngE6: ent[2][7]
+*/
     public class LinkEntity : CoreEntity {
         public IngressTeam Team { get; }
 
@@ -78,16 +121,8 @@ namespace EasyLinkLib {
         }
 
         public LinkEntity(JToken data) : base(data) {
-            /*
-    team:   ent[2][1],
-    oGuid:  ent[2][2],
-    oLatE6: ent[2][3],
-    oLngE6: ent[2][4],
-    dGuid:  ent[2][5],
-    dLatE6: ent[2][6],
-    dLngE6: ent[2][7]
-    */
-            JToken details = data[2];
+
+    JToken details = data[2];
             if (!Lib.Converter.toString(details[0]).Equals("e")) throw new Exception("This is not a Link!");
 
             this.Team = getTeam(details[1]);
@@ -128,15 +163,15 @@ namespace EasyLinkLib {
             return ret;
         }
     }
-
+    /*
+type: ent[2][0],
+team: ent[2][1],
+points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6: arr[2] }; })
+*/
     public class FieldEntity : CoreEntity {
 
         public FieldEntity(JToken data) : base(data) {
-            /*
-//    type: ent[2][0],
-    team: ent[2][1],
-    points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6: arr[2] }; })
-    */
+
             JToken details = data[2];
             if (!Lib.Converter.toString(details[0]).Equals("r")) throw new Exception("This is not a Field!");
         }

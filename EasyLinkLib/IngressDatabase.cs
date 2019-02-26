@@ -30,6 +30,13 @@ namespace EasyLinkLib {
 
         public string AddressName { get; set; }
 
+        public IngressTeam Team { get; set; }
+        public int Level { get; set; }
+        public double Health { get; set; }
+        public int ResCount { get; set; }
+        public string Image { get; set; }
+        public bool Mission { get; set; }
+
         [BsonIgnore]
         public PointD Pos {
             get { return new PointD(X, Y); }
@@ -37,6 +44,10 @@ namespace EasyLinkLib {
                 this.X = value.X;
                 this.Y = value.Y;
             }
+        }
+
+        public override string ToString() {
+            return this.Name;
         }
     }
     public class Group {
@@ -108,11 +119,26 @@ namespace EasyLinkLib {
                         p.Enabled = false;
                         p.Guid = pent.Guid;
                         p.ShowLabel = false;
+
+                        p.AddressName = "";
+                        p.Country = "";
+                        p.County = "";
+                        p.Road = "";
+                        p.Suburb = "";
+                        p.Village = "";
                     }
                     p.Lastrefresh = DateTime.UtcNow;
                     p.Pos = pent.Pos;
                     p.Name = pent.Name;
-                    upportals.Add(p);
+
+                    p.Team = pent.Team;
+                    p.Level = pent.Level;
+                    p.Health = pent.Health;
+                    p.ResCount = pent.ResCount;
+                    p.Image = pent.Image;
+                    p.Mission = pent.Mission;
+
+        upportals.Add(p);
                 }
                 if(ent is LinkEntity) {
                     otherLinks.Upsert(((LinkEntity)ent).parseToDataset());
@@ -177,6 +203,10 @@ namespace EasyLinkLib {
                 }
             }
             otherLinks.Upsert(upsertList);
+        }
+
+        public void makeBackup(string filename) { 
+            //db.FileStorage.
         }
     }
 }
