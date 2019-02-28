@@ -28,7 +28,6 @@ namespace EasyLinkGui {
             olvRequire.SetObjects(getRequireItems());
 
             olvRequire.Sort(olvRequireQuantity, SortOrder.Descending);
-            olvRequire.Sort()
         }
 
         private void ReportForm_Load(object sender, EventArgs e) {
