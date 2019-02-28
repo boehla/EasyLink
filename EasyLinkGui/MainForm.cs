@@ -46,17 +46,20 @@ namespace EasyLinkGui {
         public GameState GameState {
             get { return this.gs; }
         }
+        public SettingsDataset Settings { get; set; }
 
         public MainForm() {
             InitializeComponent();
 
             opts.load();
             Lib.Logging.log("Applicatoin started..");
-
+            
             dr = new GamePrinter(gs);
-            ingressDatabase = new IngressDatabase("db.bin");
 
-            List<PortalInfo> nodes = new List<PortalInfo>();
+            ingressDatabase = new IngressDatabase("db.bin");
+            Settings = ingressDatabase.getSettings();
+
+           List <PortalInfo> nodes = new List<PortalInfo>();
 
             opts.addUIElement(nudThreadCount);
             opts.loadUI();
@@ -618,7 +621,7 @@ namespace EasyLinkGui {
                         points.Add(new PointLatLng(p1.Pos.Y, p1.Pos.X));
                         points.Add(new PointLatLng(p2.Pos.Y, p2.Pos.X));
                         GMapRoute polygon = new GMapRoute(points, "mypolygon");
-                        polygon.Stroke = new Pen(Color.Red, 1);
+                        polygon.Stroke = new Pen(CoreEntity.getTeamColor(Settings.Team), 1);
                         mainOverlay.Routes.Add(polygon);
                     }
                 }
@@ -630,8 +633,8 @@ namespace EasyLinkGui {
                         points.Add(new PointLatLng(p1.Pos.Y, p1.Pos.X));
                     }
                     GMapPolygon polygon = new GMapPolygon(points, "mypolygon");
-                    polygon.Fill = new SolidBrush(Color.FromArgb(15, Color.Blue));
-                    polygon.Stroke = new Pen(Color.Blue, 1);
+                    polygon.Fill = new SolidBrush(Color.FromArgb(15, CoreEntity.getTeamColor(Settings.Team)));
+                    polygon.Stroke = new Pen(CoreEntity.getTeamColor(Settings.Team), 1);
                     mainOverlay.Polygons.Add(polygon);
                     // gmap.Overlays.Add(polyOverlay);
                 }
@@ -646,7 +649,7 @@ namespace EasyLinkGui {
                     fromPortal = link.P1;
                 }
                 GMapRoute todoroute = new GMapRoute(points, "mypolygon");
-                todoroute.Stroke = new Pen(Color.YellowGreen, 3);
+                todoroute.Stroke = new Pen(Color.Orange, 3);
                 mainOverlay.Routes.Add(todoroute);
 
                 externOverlay.Clear();
@@ -831,6 +834,10 @@ namespace EasyLinkGui {
             olvDeleteColumn2.AspectGetter = delegate {
                 return "Delete";
             };
+            olvDestroy.SetObjects(getDestoryPortals());
+            refreshGoogleMaps();
+        }
+        public List<PortalInfo> getDestoryPortals() {
             List<PortalInfo> destroyList = new List<PortalInfo>();
             foreach (string guid in destroyPortals.Keys) {
                 PortalInfo ni = ingressDatabase.getByGuid(guid);
@@ -838,8 +845,7 @@ namespace EasyLinkGui {
                 if (ni == null) continue;
                 destroyList.Add(ni);
             }
-            olvDestroy.SetObjects(destroyList);
-            refreshGoogleMaps();
+            return destroyList;
         }
 
         private void Mn_AnchorClick(object sender, EventArgs e) {
@@ -1103,6 +1109,21 @@ namespace EasyLinkGui {
             ObjectListView olv = (ObjectListView)sender;
             for (int i = 0; i < olv.Columns.Count - 1; i++) {
                 olv.Columns[i].Width = olv.Width / olv.Columns.Count;
+            }
+        }
+
+        ReportForm rf = null;
+        private void generateReportToolStripMenuItem_Click(object sender, EventArgs e) {
+            if(rf == null || rf.IsDisposed) rf = new ReportForm(this);
+            //rf.ShowDialog();
+            rf.Show();
+        }
+         
+        private void editToolStripMenuItem_Click(object sender, EventArgs e) {
+            SettingsForm sf = new SettingsForm(Settings);
+            if(sf.ShowDialog() == DialogResult.OK) {
+                this.Settings = sf.getNewSettings();
+                ingressDatabase.setSettings(this.Settings);
             }
         }
     }

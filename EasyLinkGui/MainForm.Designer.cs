@@ -43,6 +43,9 @@
             this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showDebugFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.generateReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.tcMain = new System.Windows.Forms.TabControl();
@@ -98,6 +101,8 @@
             this.olvDeleteColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -186,9 +191,12 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem,
             this.portaldatabaseToolStripMenuItem,
+            this.reportToolStripMenuItem,
             this.debugToolStripMenuItem,
-            this.infoToolStripMenuItem});
+            this.infoToolStripMenuItem,
+            this.toolStripMenuItem1});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1079, 24);
@@ -264,6 +272,26 @@
             this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
             this.infoToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
             this.infoToolStripMenuItem.Text = "Info";
+            // 
+            // reportToolStripMenuItem
+            // 
+            this.reportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.generateReportToolStripMenuItem});
+            this.reportToolStripMenuItem.Name = "reportToolStripMenuItem";
+            this.reportToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
+            this.reportToolStripMenuItem.Text = "Report";
+            // 
+            // generateReportToolStripMenuItem
+            // 
+            this.generateReportToolStripMenuItem.Name = "generateReportToolStripMenuItem";
+            this.generateReportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.generateReportToolStripMenuItem.Text = "Generate Report";
+            this.generateReportToolStripMenuItem.Click += new System.EventHandler(this.generateReportToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(12, 20);
             // 
             // openFileDialog1
             // 
@@ -722,7 +750,7 @@
             this.olvAnchors.Location = new System.Drawing.Point(3, 3);
             this.olvAnchors.Name = "olvAnchors";
             this.olvAnchors.ShowImagesOnSubItems = true;
-            this.olvAnchors.Size = new System.Drawing.Size(251, 218);
+            this.olvAnchors.Size = new System.Drawing.Size(251, 240);
             this.olvAnchors.Sorting = System.Windows.Forms.SortOrder.Descending;
             this.olvAnchors.TabIndex = 20;
             this.olvAnchors.UseCompatibleStateImageBehavior = false;
@@ -757,10 +785,10 @@
             this.tabControl2.Controls.Add(this.tabAnchors);
             this.tabControl2.Controls.Add(this.tabLinks);
             this.tabControl2.Controls.Add(this.tabDestroyPortals);
-            this.tabControl2.Location = new System.Drawing.Point(802, 49);
+            this.tabControl2.Location = new System.Drawing.Point(802, 27);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(265, 250);
+            this.tabControl2.Size = new System.Drawing.Size(265, 272);
             this.tabControl2.TabIndex = 13;
             // 
             // tabAnchors
@@ -769,7 +797,7 @@
             this.tabAnchors.Location = new System.Drawing.Point(4, 22);
             this.tabAnchors.Name = "tabAnchors";
             this.tabAnchors.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAnchors.Size = new System.Drawing.Size(257, 224);
+            this.tabAnchors.Size = new System.Drawing.Size(257, 246);
             this.tabAnchors.TabIndex = 0;
             this.tabAnchors.Text = "Anchors";
             this.tabAnchors.UseVisualStyleBackColor = true;
@@ -780,7 +808,7 @@
             this.tabLinks.Location = new System.Drawing.Point(4, 22);
             this.tabLinks.Name = "tabLinks";
             this.tabLinks.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLinks.Size = new System.Drawing.Size(257, 224);
+            this.tabLinks.Size = new System.Drawing.Size(257, 246);
             this.tabLinks.TabIndex = 1;
             this.tabLinks.Text = "Links";
             this.tabLinks.UseVisualStyleBackColor = true;
@@ -798,7 +826,7 @@
             this.olvLinks.Location = new System.Drawing.Point(3, 3);
             this.olvLinks.Name = "olvLinks";
             this.olvLinks.ShowImagesOnSubItems = true;
-            this.olvLinks.Size = new System.Drawing.Size(251, 218);
+            this.olvLinks.Size = new System.Drawing.Size(251, 240);
             this.olvLinks.Sorting = System.Windows.Forms.SortOrder.Descending;
             this.olvLinks.TabIndex = 21;
             this.olvLinks.UseCompatibleStateImageBehavior = false;
@@ -830,7 +858,7 @@
             this.tabDestroyPortals.Location = new System.Drawing.Point(4, 22);
             this.tabDestroyPortals.Name = "tabDestroyPortals";
             this.tabDestroyPortals.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDestroyPortals.Size = new System.Drawing.Size(257, 224);
+            this.tabDestroyPortals.Size = new System.Drawing.Size(257, 246);
             this.tabDestroyPortals.TabIndex = 2;
             this.tabDestroyPortals.Text = "Destroy";
             this.tabDestroyPortals.UseVisualStyleBackColor = true;
@@ -911,6 +939,21 @@
             // 
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.editToolStripMenuItem});
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editToolStripMenuItem.Text = "Edit..";
+            this.editToolStripMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -1028,6 +1071,11 @@
         private System.Windows.Forms.ToolStripMenuItem loadFromIntelMapToolStripMenuItem;
         private BrightIdeasSoftware.OLVColumn olvColumn16;
         private BrightIdeasSoftware.OLVColumn olvColumn18;
+        private System.Windows.Forms.ToolStripMenuItem reportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem generateReportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
     }
 }
 

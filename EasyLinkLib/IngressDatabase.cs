@@ -49,6 +49,15 @@ namespace EasyLinkLib {
         public override string ToString() {
             return this.Name;
         }
+
+        public override bool Equals(object obj) {
+            if (obj == null) return false;
+            if (!(obj is PortalInfo)) return false;
+
+            PortalInfo pi = (PortalInfo)obj;
+            return this.Guid.Equals(pi.Guid);
+        }
+
     }
     public class Group {
         [BsonId]
@@ -80,6 +89,17 @@ namespace EasyLinkLib {
         public double DPosY { get; set; }
         public string DGuid { get; set; }
     }
+    public class SettingsDataset {
+        [BsonId]
+        public string SettingsName { get; set; }
+
+        public IngressTeam Team { get; set; }
+
+        public SettingsDataset() {
+            this.SettingsName = "Default";
+            this.Team = IngressTeam.Resistance;
+        }
+    }
     public class IngressDatabase
     {
         LiteDatabase db = null;
@@ -89,6 +109,8 @@ namespace EasyLinkLib {
 
         LiteCollection<Group> groups = null;
         LiteCollection<LinkEntityDataset> otherLinks = null;
+
+        LiteCollection<SettingsDataset> settings = null;
         public IngressDatabase(string filename) {
             db = new LiteDatabase(filename);
             var engine = db.Engine;
@@ -104,14 +126,16 @@ namespace EasyLinkLib {
             groups.EnsureIndex(x => x.Name);
 
             otherLinks = db.GetCollection<LinkEntityDataset>("otherlinks");
-            otherLinks.EnsureIndex(x => x.Guid);          
-            
+            otherLinks.EnsureIndex(x => x.Guid);
+
+            settings = db.GetCollection<SettingsDataset>("settings");
+            settings.EnsureIndex(x => x.SettingsName);
         }
 
         public void addEntities(List<CoreEntity> coreList) {
             List<PortalInfo> upportals = new List<PortalInfo>();
-            foreach(CoreEntity ent in coreList) {
-                if(ent is PortalEntity) {
+            foreach (CoreEntity ent in coreList) {
+                if (ent is PortalEntity) {
                     PortalEntity pent = (PortalEntity)ent;
                     PortalInfo p = AllPortals.FindOne(x => x.Guid.Equals(ent.Guid));
                     if (p == null) {
@@ -138,9 +162,9 @@ namespace EasyLinkLib {
                     p.Image = pent.Image;
                     p.Mission = pent.Mission;
 
-        upportals.Add(p);
+                    upportals.Add(p);
                 }
-                if(ent is LinkEntity) {
+                if (ent is LinkEntity) {
                     otherLinks.Upsert(((LinkEntity)ent).parseToDataset());
                 }
 
@@ -207,6 +231,15 @@ namespace EasyLinkLib {
 
         public void makeBackup(string filename) { 
             //db.FileStorage.
+        }
+
+        public SettingsDataset getSettings() {
+            SettingsDataset ret = settings.FindById("Default");
+            if (ret == null) ret = new SettingsDataset();
+            return ret;
+        }
+        public void setSettings(SettingsDataset settingsset) {
+            settings.Upsert(settingsset);
         }
     }
 }

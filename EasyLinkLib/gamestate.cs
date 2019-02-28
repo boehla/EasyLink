@@ -13,10 +13,12 @@ namespace EasyLinkLib {
         public LinkLookupTbl linkLookupTbl = null;
 
         public List<int> Anchors = new List<int>();
+        public List<PortalInfo> AnchorsPortals = new List<PortalInfo>();
 
         public void setAnchors(List<PortalInfo> pls) {
             this.Anchors.Clear();
-            for(int i = 0; i < pInfos.Count; i++) {
+            AnchorsPortals = pls;
+            for (int i = 0; i < pInfos.Count; i++) {
                 foreach (PortalInfo anch in pls) {
                     if (pInfos[i].Guid.Equals(anch.Guid)) Anchors.Add(i);
                 }
@@ -24,7 +26,7 @@ namespace EasyLinkLib {
         }
     }
 
-    public struct Link {
+    public class Link {
         public PortalInfo P1;
         public PortalInfo P2;
         public Link(PortalInfo p1, PortalInfo p2) {
@@ -34,6 +36,9 @@ namespace EasyLinkLib {
 
         public override string ToString() {
             return string.Format("{0} -> {1}", P1, P2);
+        }
+        public Link() {
+
         }
     }
 
@@ -111,6 +116,7 @@ namespace EasyLinkLib {
             for(int i = 0; i < p.PreLinksP1.Count; i++) {
                 string guid1 = p.PreLinksP1[i];
                 string guid2 = p.PreLinksP2[i];
+                if (guid1 == null || guid2 == null) continue;
                 this.addLink(cacheId[guid1], cacheId[guid2]);
             }
         }
