@@ -267,13 +267,14 @@ namespace EasyLinkGui {
             refresh();
 
             gmap.ShowCenter = false;
-            gmap.MaxZoom = 18;
-            gmap.MinZoom = 2;
+            gmap.MaxZoom = 19;
+            gmap.MinZoom = 5;
             gmap.Zoom = 13;
             gmap.CanDragMap = true;
             gmap.DragButton = MouseButtons.Left;
             gmap.MouseWheelZoomEnabled = true;
             gmap.MouseWheelZoomType = MouseWheelZoomType.MousePositionWithoutCenter;
+            gmap.DisableFocusOnMouseEnter = true;
 
             //gmap.MapProvider = GMap.NET.MapProviders.BingMapProvider.Instance;
             gmap.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
@@ -563,10 +564,9 @@ namespace EasyLinkGui {
                     olvPortals.ModelFilter = null;
                 }
             }
-            if (shared.RunningThreads == 0) {
-                bCalc.Enabled = true;
-                bCalcStop.Enabled = false;
-            }
+            bool calcing = shared.RunningThreads == 0;
+            bCalc.Enabled = calcing;
+            bCalcStop.Enabled = !calcing;
         }
         Dictionary<string, PortalInfo> tmpPortals = new Dictionary<string, PortalInfo>();
         Dictionary<string, int> portalMapping = new Dictionary<string, int>();
@@ -1125,6 +1125,12 @@ namespace EasyLinkGui {
                 this.Settings = sf.getNewSettings();
                 ingressDatabase.setSettings(this.Settings);
             }
+        }
+
+        AboutForm abForm = null;
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (abForm == null || abForm.IsDisposed) abForm = new AboutForm();
+            abForm.Show();
         }
     }
     public class DuplicateKeyComparer<TKey>

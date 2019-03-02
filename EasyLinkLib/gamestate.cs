@@ -117,7 +117,14 @@ namespace EasyLinkLib {
                 string guid1 = p.PreLinksP1[i];
                 string guid2 = p.PreLinksP2[i];
                 if (guid1 == null || guid2 == null) continue;
-                this.addLink(cacheId[guid1], cacheId[guid2]);
+                if(!cacheId.ContainsKey(guid1) || !cacheId.ContainsKey(guid2)) {
+                    p.PreLinksP1.Clear();
+                    p.PreLinksP2.Clear();
+                    break;
+                } else {
+                    this.addLink(cacheId[guid1], cacheId[guid2]);
+                }
+                
             }
         }
 
@@ -407,7 +414,9 @@ namespace EasyLinkLib {
                 int to = this.LastLinks[this.Parent.LastLinks.Count - 1].P1;
                 return -geohelper.CalcDistance(PortalInfos[from], PortalInfos[to]);
             }*/
+            //return -TotalWay + this.getAPScore(); // perfekt for 2 anchors
             return -TotalWay + this.getAPScore();
+            return this.getAPScore() / (TotalLinks + 1); // perfekt for 2 anchors
             //return -TotalWay / (TotalLinks);
 
             int gen = 0;
