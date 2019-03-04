@@ -122,6 +122,9 @@ namespace EasyLinkGui {
                         toDo.Add((float)item.getSearchScore(), item);
                         allGamesViewed.Add(item.GetLongHashCode(), true);
                     }
+                    while(toDo.Count > 10000) {
+                        toDo.RemoveAt(toDo.Count - 1);
+                    }
                     Lib.Performance.setWatch("foreach", false);
                 } finally {
                     Lib.Performance.setWatch("while", false);
@@ -222,6 +225,10 @@ namespace EasyLinkGui {
                                 if (shared.allGamesViewed.ContainsKey(hash)) continue;
                             }
                             shared.toDo.Add(searchscore, item);
+
+                            while (shared.toDo.Count > 10000) {
+                                shared.toDo.RemoveAt(shared.toDo.Count - 1);
+                            }
 
                             shared.allGamesViewed[hash] = true;
                         }
@@ -403,8 +410,14 @@ namespace EasyLinkGui {
             gmap.Dispose();
         }
         private void bCreateGameState_Click(object sender, EventArgs e) {
+            Group p = getGroup();
+            p.PreLinksP1.Clear();
+            p.PreLinksP2.Clear();
+
             gs = new GameState();
             gs.loadPortals(ingressDatabase.getAllEnabled());
+            gs.loadGroup(p);
+
             refreshAnchorList();
             refresh();
         }
@@ -558,7 +571,7 @@ namespace EasyLinkGui {
                 if (search.Length > 0) {
                     olvPortals.ModelFilter = new ModelFilter(delegate (object x) {
                         PortalInfo myFile = x as PortalInfo;
-                        return myFile.Name.ToLowerInvariant().Contains(search.ToLowerInvariant()) || myFile.AddressName.ToLowerInvariant().Contains(search.ToLowerInvariant());
+                        return myFile.Name.ToLowerInvariant().Contains(search.ToLowerInvariant()) || (myFile.AddressName != null && myFile.AddressName.ToLowerInvariant().Contains(search.ToLowerInvariant()));
                     });
                 } else {
                     olvPortals.ModelFilter = null;
@@ -826,9 +839,7 @@ namespace EasyLinkGui {
             }
             if (gs == null || gs.Global == null) return;
             olvAnchors.SetObjects(anchorsList);
-            gs.Global.setAnchors(anchorsList);
-
-
+            GameState.loadGroup(getGroup());
         }
         private void refreshDestryPortalList() {
             olvDeleteColumn2.AspectGetter = delegate {
@@ -938,25 +949,7 @@ namespace EasyLinkGui {
             ingressDatabase.updatePortals((PortalInfo)item.RowObject);
             refreshPortals();
         }
-
-        private void olvAnchors_CellEditStarting(object sender, CellEditEventArgs e) {
-            if (e.Column == olvDeleteColumn) {
-                e.Cancel = true;        // we don't want to edit anything
-                PortalInfo pi = (PortalInfo)e.RowObject;
-                anchors.Remove(pi.Guid);
-                refreshAnchorList();
-            }
-        }
-        private void olvDestroy_CellEditStarting(object sender, CellEditEventArgs e) {
-            if (e.Column == olvDeleteColumn2) {
-                e.Cancel = true;        // we don't want to edit anything
-                PortalInfo pi = (PortalInfo)e.RowObject;
-                if (pi == null) return;
-                destroyPortals.Remove(pi.Guid);
-                refreshDestryPortalList();
-                refreshGoogleMaps();
-            }
-        }
+        
         string lastGroupSave = "";
         private void bSaveGroup_Click(object sender, EventArgs e) {
             NewGroupNameForm ngnn = new NewGroupNameForm();
@@ -992,6 +985,27 @@ namespace EasyLinkGui {
             ingressDatabase.upsertGroup(gp);
             refreshGroupList();
             refreshAnchorList();
+        }
+        private Group getGroup() {
+            Group gp = new Group();
+            gp.Name = "";
+            gp.Guids = new List<string>();
+            foreach (PortalInfo portalInfo in ingressDatabase.getAllEnabled()) {
+                gp.Guids.Add(portalInfo.Guid);
+            }
+            gp.AnchorGuids = new List<string>();
+            foreach (string anguid in anchors.Keys) {
+                gp.AnchorGuids.Add(anguid);
+            }
+            gp.DestroyGuids = destroyPortals.Keys.ToList();
+            List<Link> linkList = gs.getTotalLinkList();
+            gp.PreLinksP1 = new List<string>();
+            gp.PreLinksP2 = new List<string>();
+            for (int i = 0; i < linkList.Count; i++) {
+                gp.PreLinksP1.Add(linkList[i].P1.Guid);
+                gp.PreLinksP2.Add(linkList[i].P2.Guid);
+            }
+            return gp;
         }
         private void loadGroup(string groupname) {
             Group p = ingressDatabase.getGroup(groupname);
@@ -1131,6 +1145,24 @@ namespace EasyLinkGui {
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
             if (abForm == null || abForm.IsDisposed) abForm = new AboutForm();
             abForm.Show();
+        }
+
+        private void olvAnchors_CellClick(object sender, CellClickEventArgs e) {
+            if (e.Column == olvDeleteColumn) {
+                PortalInfo pi = (PortalInfo)e.Item.RowObject;
+                anchors.Remove(pi.Guid);
+                refreshAnchorList();
+            }
+        }
+
+        private void olvDestroy_CellClick(object sender, CellClickEventArgs e) {
+            if (e.Column == olvDeleteColumn2) {
+                PortalInfo pi = (PortalInfo)e.Item.RowObject;
+                if (pi == null) return;
+                destroyPortals.Remove(pi.Guid);
+                refreshDestryPortalList();
+                refreshGoogleMaps();
+            }
         }
     }
     public class DuplicateKeyComparer<TKey>

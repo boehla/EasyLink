@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyLinkGui", "EasyLinkGui\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyLinkLib", "EasyLinkLib\EasyLinkLib.csproj", "{2CA07431-512D-465D-BBA2-EB0AEB984BE3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyLinkProxy", "EasyLinkProxy\EasyLinkProxy.csproj", "{DBADD610-9743-449B-A501-71EA2C4410FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{2CA07431-512D-465D-BBA2-EB0AEB984BE3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2CA07431-512D-465D-BBA2-EB0AEB984BE3}.Release|x64.ActiveCfg = Release|x64
 		{2CA07431-512D-465D-BBA2-EB0AEB984BE3}.Release|x64.Build.0 = Release|x64
+		{DBADD610-9743-449B-A501-71EA2C4410FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBADD610-9743-449B-A501-71EA2C4410FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBADD610-9743-449B-A501-71EA2C4410FD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DBADD610-9743-449B-A501-71EA2C4410FD}.Debug|x64.Build.0 = Debug|Any CPU
+		{DBADD610-9743-449B-A501-71EA2C4410FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBADD610-9743-449B-A501-71EA2C4410FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBADD610-9743-449B-A501-71EA2C4410FD}.Release|x64.ActiveCfg = Release|Any CPU
+		{DBADD610-9743-449B-A501-71EA2C4410FD}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

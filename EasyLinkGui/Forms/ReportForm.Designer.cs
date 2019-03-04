@@ -26,6 +26,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReportForm));
             this.printPreviewControl1 = new System.Windows.Forms.PrintPreviewControl();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPreview = new System.Windows.Forms.TabPage();
+            this.bPrint = new System.Windows.Forms.Button();
+            this.tabEasyBuild = new System.Windows.Forms.TabPage();
             this.tabRequire = new System.Windows.Forms.TabPage();
             this.olvRequire = new BrightIdeasSoftware.ObjectListView();
             this.olvColumn1 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
@@ -35,25 +38,26 @@
             this.olvDestroy = new BrightIdeasSoftware.ObjectListView();
             this.olvDeleteColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn3 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn4 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.tabLink = new System.Windows.Forms.TabPage();
             this.olvLinks = new BrightIdeasSoftware.ObjectListView();
             this.olvColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn7 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.tabPreview = new System.Windows.Forms.TabPage();
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
-            this.bPrint = new System.Windows.Forms.Button();
             this.printPreviewDialog1 = new System.Windows.Forms.PrintPreviewDialog();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
-            this.olvColumn3 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvColumn4 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.pbQrcode = new System.Windows.Forms.PictureBox();
             this.tabControl1.SuspendLayout();
+            this.tabPreview.SuspendLayout();
+            this.tabEasyBuild.SuspendLayout();
             this.tabRequire.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvRequire)).BeginInit();
             this.tabDestroy.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvDestroy)).BeginInit();
             this.tabLink.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvLinks)).BeginInit();
-            this.tabPreview.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbQrcode)).BeginInit();
             this.SuspendLayout();
             // 
             // printPreviewControl1
@@ -77,6 +81,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPreview);
+            this.tabControl1.Controls.Add(this.tabEasyBuild);
             this.tabControl1.Controls.Add(this.tabRequire);
             this.tabControl1.Controls.Add(this.tabDestroy);
             this.tabControl1.Controls.Add(this.tabLink);
@@ -86,6 +91,39 @@
             this.tabControl1.Size = new System.Drawing.Size(776, 426);
             this.tabControl1.TabIndex = 1;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
+            // 
+            // tabPreview
+            // 
+            this.tabPreview.Controls.Add(this.bPrint);
+            this.tabPreview.Controls.Add(this.printPreviewControl1);
+            this.tabPreview.Location = new System.Drawing.Point(4, 22);
+            this.tabPreview.Name = "tabPreview";
+            this.tabPreview.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPreview.Size = new System.Drawing.Size(768, 400);
+            this.tabPreview.TabIndex = 3;
+            this.tabPreview.Text = "Print preview";
+            this.tabPreview.UseVisualStyleBackColor = true;
+            // 
+            // bPrint
+            // 
+            this.bPrint.Location = new System.Drawing.Point(6, 6);
+            this.bPrint.Name = "bPrint";
+            this.bPrint.Size = new System.Drawing.Size(75, 23);
+            this.bPrint.TabIndex = 1;
+            this.bPrint.Text = "Print";
+            this.bPrint.UseVisualStyleBackColor = true;
+            this.bPrint.Click += new System.EventHandler(this.bPrint_Click);
+            // 
+            // tabEasyBuild
+            // 
+            this.tabEasyBuild.Controls.Add(this.pbQrcode);
+            this.tabEasyBuild.Location = new System.Drawing.Point(4, 22);
+            this.tabEasyBuild.Name = "tabEasyBuild";
+            this.tabEasyBuild.Padding = new System.Windows.Forms.Padding(3);
+            this.tabEasyBuild.Size = new System.Drawing.Size(768, 400);
+            this.tabEasyBuild.TabIndex = 4;
+            this.tabEasyBuild.Text = "EasyBuild";
+            this.tabEasyBuild.UseVisualStyleBackColor = true;
             // 
             // tabRequire
             // 
@@ -203,6 +241,20 @@
             this.olvColumn15.Text = "Portal";
             this.olvColumn15.Width = 300;
             // 
+            // olvColumn3
+            // 
+            this.olvColumn3.AspectName = "Village";
+            this.olvColumn3.CellPadding = null;
+            this.olvColumn3.Text = "Ort";
+            this.olvColumn3.Width = 150;
+            // 
+            // olvColumn4
+            // 
+            this.olvColumn4.AspectName = "Suburb";
+            this.olvColumn4.CellPadding = null;
+            this.olvColumn4.Text = "Sub";
+            this.olvColumn4.Width = 150;
+            // 
             // tabLink
             // 
             this.tabLink.Controls.Add(this.olvLinks);
@@ -255,18 +307,6 @@
             this.olvColumn7.Text = "Destination";
             this.olvColumn7.Width = 300;
             // 
-            // tabPreview
-            // 
-            this.tabPreview.Controls.Add(this.bPrint);
-            this.tabPreview.Controls.Add(this.printPreviewControl1);
-            this.tabPreview.Location = new System.Drawing.Point(4, 22);
-            this.tabPreview.Name = "tabPreview";
-            this.tabPreview.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPreview.Size = new System.Drawing.Size(768, 400);
-            this.tabPreview.TabIndex = 3;
-            this.tabPreview.Text = "Print preview";
-            this.tabPreview.UseVisualStyleBackColor = true;
-            // 
             // listViewPrinter1
             // 
             // 
@@ -293,16 +333,6 @@
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
             this.listViewPrinter1.ListView = this.olvLinks;
             // 
-            // bPrint
-            // 
-            this.bPrint.Location = new System.Drawing.Point(6, 6);
-            this.bPrint.Name = "bPrint";
-            this.bPrint.Size = new System.Drawing.Size(75, 23);
-            this.bPrint.TabIndex = 1;
-            this.bPrint.Text = "Print";
-            this.bPrint.UseVisualStyleBackColor = true;
-            this.bPrint.Click += new System.EventHandler(this.bPrint_Click);
-            // 
             // printPreviewDialog1
             // 
             this.printPreviewDialog1.AutoScrollMargin = new System.Drawing.Size(0, 0);
@@ -317,19 +347,14 @@
             // 
             this.printDialog1.UseEXDialog = true;
             // 
-            // olvColumn3
+            // pbQrcode
             // 
-            this.olvColumn3.AspectName = "Village";
-            this.olvColumn3.CellPadding = null;
-            this.olvColumn3.Text = "Ort";
-            this.olvColumn3.Width = 150;
-            // 
-            // olvColumn4
-            // 
-            this.olvColumn4.AspectName = "Suburb";
-            this.olvColumn4.CellPadding = null;
-            this.olvColumn4.Text = "Sub";
-            this.olvColumn4.Width = 150;
+            this.pbQrcode.Location = new System.Drawing.Point(6, 6);
+            this.pbQrcode.Name = "pbQrcode";
+            this.pbQrcode.Size = new System.Drawing.Size(321, 321);
+            this.pbQrcode.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbQrcode.TabIndex = 0;
+            this.pbQrcode.TabStop = false;
             // 
             // ReportForm
             // 
@@ -341,13 +366,15 @@
             this.Text = "ReportForm";
             this.Load += new System.EventHandler(this.ReportForm_Load);
             this.tabControl1.ResumeLayout(false);
+            this.tabPreview.ResumeLayout(false);
+            this.tabEasyBuild.ResumeLayout(false);
             this.tabRequire.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvRequire)).EndInit();
             this.tabDestroy.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvDestroy)).EndInit();
             this.tabLink.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvLinks)).EndInit();
-            this.tabPreview.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbQrcode)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -376,5 +403,7 @@
         private System.Windows.Forms.PrintDialog printDialog1;
         private BrightIdeasSoftware.OLVColumn olvColumn3;
         private BrightIdeasSoftware.OLVColumn olvColumn4;
+        private System.Windows.Forms.TabPage tabEasyBuild;
+        private System.Windows.Forms.PictureBox pbQrcode;
     }
 }

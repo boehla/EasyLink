@@ -31,11 +31,15 @@ namespace EasyLinkGui {
         private void SettingsForm_Load(object sender, EventArgs e) {
             if (settings.Team == IngressTeam.Enlightened) rbEnlightened.Checked = true;
             else rbResistance.Checked = true;
+            tbEasyBuild.Text = settings.EasyLinkProxyHost;
+            tbPassword.Text = settings.EasyLinkPassword;
         }
 
         public SettingsDataset getNewSettings() {
             if (rbEnlightened.Checked) settings.Team = IngressTeam.Enlightened;
             else settings.Team = IngressTeam.Resistance;
+            settings.EasyLinkProxyHost = tbEasyBuild.Text;
+            settings.EasyLinkPassword = tbPassword.Text;
             return settings;
         }
     }

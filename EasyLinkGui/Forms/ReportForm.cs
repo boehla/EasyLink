@@ -1,13 +1,19 @@
 ﻿using BrightIdeasSoftware;
 using EasyLinkLib;
+using Newtonsoft.Json.Linq;
+using QRCoder;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,23 +21,105 @@ using System.Windows.Forms;
 namespace EasyLinkGui {
     public partial class ReportForm : Form {
         MainForm mf = null;
-        List<PortalInfo> destroyPortals = null;
+
+        public class ReportData {
+            public List<PortalInfo> DestroyPortals = null;
+            public List<Link> LinkList = null;
+            public List<Item> RequireList = null;
+        }
+
+        public ReportData rd = new ReportData();
+
         public ReportForm(MainForm mf) {
             InitializeComponent();
             this.mf = mf;
 
-            
+            rd.LinkList = mf.GameState.getTotalLinkList();
+            olvLinks.SetObjects(compressLinkList(rd.LinkList));
 
-            olvLinks.SetObjects(compressLinkList( mf.GameState.getTotalLinkList()));
-            destroyPortals = mf.getDestoryPortals();
-            olvDestroy.SetObjects(destroyPortals);
-            olvRequire.SetObjects(getRequireItems());
+            rd.DestroyPortals = mf.getDestoryPortals();
+            olvDestroy.SetObjects(rd.DestroyPortals);
+
+            rd.RequireList = getRequireItems();
+            olvRequire.SetObjects(rd.RequireList);
 
             olvRequire.Sort(olvRequireQuantity, SortOrder.Descending);
         }
+        
 
         private void ReportForm_Load(object sender, EventArgs e) {
             loadPreview();
+            
+            JObject ob = JObject.FromObject(rd);
+            string apidata = ob.ToString();
+
+            string key = getKey(apidata);
+            if(key.Length <= 0) {
+                Lib.Logging.log("Unable to get key from proxy!");
+                return;
+            }
+
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(mf.Settings.EasyLinkProxyHost + ";" + key, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new QRCode(qrCodeData);
+            pbQrcode.Image = qrCode.GetGraphic(20);
+        }
+
+        #region // TOOD make this with default webservices...
+        private string getKey(string apidata) {
+            string dat = SetData(Base64Encode(apidata));
+
+            string startstr = "<SetDataResult>";
+            string endstr = "</SetDataResult>";
+            if (dat.Contains(startstr) && dat.Contains(endstr)) {
+                int start = startstr.Length + dat.IndexOf(startstr);
+                int end = dat.IndexOf(endstr);
+                string key = dat.Substring(start, end - start);
+                return key;
+            }
+            return "";
+        }
+
+        public string SetData(string data) { 
+            WebRequest webRequest = WebRequest.Create(mf.Settings.EasyLinkProxyHost);
+            HttpWebRequest httpRequest = (HttpWebRequest)webRequest;
+            httpRequest.Method = "POST";
+            httpRequest.ContentType = "text/xml; charset=utf-8";
+            httpRequest.Headers.Add("SOAPAction: EasyLinkProxy/IEasyLink/SetData");
+            httpRequest.ProtocolVersion = HttpVersion.Version11;
+            httpRequest.Credentials = CredentialCache.DefaultCredentials;
+            Stream requestStream = httpRequest.GetRequestStream();
+            //Create Stream and Complete Request             
+            StreamWriter streamWriter = new StreamWriter(requestStream, Encoding.ASCII);
+            string hash = CreateMD5(data + mf.Settings.EasyLinkPassword);
+            string Reqdata = string.Format(@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:eas=""EasyLinkProxy"">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <eas:SetData>
+         <!--Optional:-->
+         <eas:data>{0}</eas:data><eas:hash>{1}</eas:hash>
+      </eas:SetData>
+   </soapenv:Body>
+</soapenv:Envelope>", data, hash);
+
+            streamWriter.Write(Reqdata);
+            streamWriter.Close();
+            //Get the Response    
+            HttpWebResponse wr = (HttpWebResponse)httpRequest.GetResponse();
+            StreamReader srd = new StreamReader(wr.GetResponseStream());
+            string resulXmlFromWebService = srd.ReadToEnd();
+            return resulXmlFromWebService;
+            
+        }
+        #endregion
+
+        public static string Base64Encode(string plainText) {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
+        public static string Base64Decode(string base64EncodedData) {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
 
         public ListViewPrinter getListPrinter(ObjectListView olv) {
@@ -50,25 +138,23 @@ namespace EasyLinkGui {
 
             return ret;
         }
+        public static string CreateMD5(string input) {
+            // Use input string to calculate MD5 hash
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create()) {
+                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
 
-        private List<Link> compressLinkList2(List<Link> input) {
-            List<Link> ret = new List<Link>();
-
-            if (mf.GameState.Global.Anchors.Count != 2) return input;
-            for(int i = 0; i < input.Count; i++) {
-                if(i < input.Count - 1 && input[i].P1 == input[i + 1].P1 && mf.GameState.Global.AnchorsPortals.Contains(input[i].P2) && mf.GameState.Global.AnchorsPortals.Contains(input[i + 1].P2)) {
-                    Link tmpLink = new Link();
-                    tmpLink.P1 = input[i].P1;
-                    tmpLink.P2 = new PortalInfo();
-                    tmpLink.P2.Name = "Anchors";
-                    ret.Add(tmpLink);
-                    i++;
-                } else {
-                    ret.Add(input[i]);
+                // Convert the byte array to hexadecimal string
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++) {
+                    sb.Append(hashBytes[i].ToString("X2"));
                 }
+                return sb.ToString();
             }
-            return ret;
         }
+
+
+
         private List<Link> compressLinkList(List<Link> input) {
             List<Link> ret = new List<Link>();
             
@@ -100,7 +186,7 @@ namespace EasyLinkGui {
                 if (!ret.ContainsKey(item.ItemKey)) ret[item.ItemKey] = item;
                 ret[item.ItemKey].Quantity++;
             }
-            foreach(PortalInfo p in destroyPortals) {
+            foreach(PortalInfo p in rd.DestroyPortals) {
                 if (p.Team == IngressTeam.None) continue;
                 Item item = new Item("Wapeon");
 

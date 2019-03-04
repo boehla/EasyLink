@@ -94,10 +94,14 @@ namespace EasyLinkLib {
         public string SettingsName { get; set; }
 
         public IngressTeam Team { get; set; }
+        public string EasyLinkProxyHost { get; set; }
+        public string EasyLinkPassword { get; set; }
 
         public SettingsDataset() {
             this.SettingsName = "Default";
             this.Team = IngressTeam.Resistance;
+            this.EasyLinkProxyHost = "http://hut.keinbrot.com:3950/";
+            this.EasyLinkPassword = "n47Y7JUNDKpQ2y7EaQfd";
         }
     }
     public class IngressDatabase

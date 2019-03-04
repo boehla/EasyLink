@@ -47,6 +47,7 @@
             this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showDebugFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
@@ -103,7 +104,6 @@
             this.olvDeleteColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -305,6 +305,13 @@
             this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
             this.infoToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
             this.infoToolStripMenuItem.Text = "Info";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -774,11 +781,11 @@
             this.olvAnchors.UseCompatibleStateImageBehavior = false;
             this.olvAnchors.UseFiltering = true;
             this.olvAnchors.View = System.Windows.Forms.View.Details;
-            this.olvAnchors.CellEditStarting += new BrightIdeasSoftware.CellEditEventHandler(this.olvAnchors_CellEditStarting);
+            this.olvAnchors.CellClick += new System.EventHandler<BrightIdeasSoftware.CellClickEventArgs>(this.olvAnchors_CellClick);
             // 
             // olvDeleteColumn
             // 
-            this.olvDeleteColumn.AspectToStringFormat = "Delete";
+            this.olvDeleteColumn.AspectToStringFormat = "";
             this.olvDeleteColumn.CellPadding = null;
             this.olvDeleteColumn.Groupable = false;
             this.olvDeleteColumn.Searchable = false;
@@ -792,7 +799,6 @@
             this.olvColumn6.AspectName = "Name";
             this.olvColumn6.CellPadding = null;
             this.olvColumn6.Groupable = false;
-            this.olvColumn6.IsEditable = false;
             this.olvColumn6.Text = "Anchors";
             this.olvColumn6.Width = 169;
             // 
@@ -913,7 +919,7 @@
             this.olvDestroy.UseCompatibleStateImageBehavior = false;
             this.olvDestroy.UseFiltering = true;
             this.olvDestroy.View = System.Windows.Forms.View.Details;
-            this.olvDestroy.CellEditStarting += new BrightIdeasSoftware.CellEditEventHandler(this.olvDestroy_CellEditStarting);
+            this.olvDestroy.CellClick += new System.EventHandler<BrightIdeasSoftware.CellClickEventArgs>(this.olvDestroy_CellClick);
             this.olvDestroy.FormatRow += new System.EventHandler<BrightIdeasSoftware.FormatRowEventArgs>(this.olv_FormatRow);
             this.olvDestroy.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.olvDestroy_ColumnClick);
             // 
@@ -957,13 +963,6 @@
             // 
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
-            // 
-            // aboutToolStripMenuItem
-            // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.aboutToolStripMenuItem.Text = "About";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // MainForm
             // 
