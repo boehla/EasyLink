@@ -46,55 +46,82 @@ namespace EasyLinkGui {
 
             olvRequire.Sort(olvRequireQuantity, SortOrder.Descending);
         }
-        
+
 
         private void ReportForm_Load(object sender, EventArgs e) {
             loadPreview();
-            
+
             JObject ob = JObject.FromObject(rd);
             string apidata = ob.ToString();
 
-            string key = setData(apidata);
-            if(key.Length <= 0) {
-                Lib.Logging.log("Unable to get key from proxy!");
-                return;
+            putDataToProxy(apidata);
+        }
+
+        HttpWebRequest request;
+        public void putDataToProxy(string data) {
+            try {
+                data = Base64Encode(data);
+                string hash = CreateMD5(data + mf.Settings.EasyLinkPassword);
+                string url = mf.Settings.EasyLinkProxyHost + "SetData";
+
+                lProxyStatus.Text = string.Format("Starting uploading to {0}", url);
+
+                request = (HttpWebRequest)WebRequest.Create(url);
+                request.UserAgent = @"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4";
+                request.Timeout = 10000;
+                request.Method = "POST";
+                request.ContentType = "application/json";
+                Stream dataStream = request.GetRequestStream();
+                JObject obt = new JObject();
+                obt["key"] = hash;
+                obt["data"] = data;
+                string reqdat = obt.ToString(Newtonsoft.Json.Formatting.None);
+                byte[] dat = Encoding.ASCII.GetBytes(reqdat);
+                dataStream.Write(dat, 0, dat.Length);
+                dataStream.Close();
+                request.BeginGetResponse(new AsyncCallback(FinishWebRequest), null);
+            } catch (Exception ex) {
+                Lib.Logging.logException("", ex);
+                lProxyStatus.Text = string.Format("Uploading failed...: {0}", ex.Message);
             }
-
-            QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(mf.Settings.EasyLinkProxyHost + "GetData/" + key, QRCodeGenerator.ECCLevel.Q);
-            QRCode qrCode = new QRCode(qrCodeData);
-            pbQrcode.Image = qrCode.GetGraphic(20);
         }
-        public string setData(string data) {
-            data = Base64Encode(data);
-            string hash = CreateMD5(data + mf.Settings.EasyLinkPassword);
-            string url = mf.Settings.EasyLinkProxyHost + "SetData";
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.UserAgent = @"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4";
-            request.Timeout = 10000;
-            request.Method = "POST";
-            request.ContentType = "application/json";
-            Stream dataStream = request.GetRequestStream();
-            JObject obt = new JObject();
-            obt["key"] = hash;
-            obt["data"] = data;
-            string reqdat = obt.ToString(Newtonsoft.Json.Formatting.None);
-            byte[] dat = Encoding.ASCII.GetBytes(reqdat);
-            dataStream.Write(dat, 0, dat.Length);
-            dataStream.Close();
-            WebResponse response = request.GetResponse();
-            dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-            string responseFromServer = reader.ReadToEnd();
-
-            reader.Close();
-            dataStream.Close();
-            response.Close();
-
-            JObject ob = JObject.Parse(responseFromServer);
-            return Lib.Converter.toString(ob["SetDataResult"]["Result"]);
+        void StartWebRequest() {
+            request.BeginGetResponse(new AsyncCallback(FinishWebRequest), null);
         }
+
+        void FinishWebRequest(IAsyncResult result) {
+            try {
+                request.EndGetResponse(result);
+
+                WebResponse response = request.GetResponse();
+                Stream dataStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+                string responseFromServer = reader.ReadToEnd();
+
+                reader.Close();
+                dataStream.Close();
+                response.Close();
+
+                JObject ob = JObject.Parse(responseFromServer);
+                string key = Lib.Converter.toString(ob["SetDataResult"]["Result"]);
+
+                if (key.Length <= 0) {
+                    Lib.Logging.log("Unable to get key from proxy!");
+                    return;
+                }
+                lProxyStatus.Text = string.Format("Upload successfully!");
+
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(mf.Settings.EasyLinkProxyHost + "GetData/" + key, QRCodeGenerator.ECCLevel.Q);
+                QRCode qrCode = new QRCode(qrCodeData);
+                pbQrcode.Image = qrCode.GetGraphic(20);
+            } catch (Exception ex) {
+                Lib.Logging.logException("", ex);
+                lProxyStatus.Text = string.Format("Uploading failed...: {0}", ex.Message);
+            }
+        }
+    
 
         public static string Base64Encode(string plainText) {
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);

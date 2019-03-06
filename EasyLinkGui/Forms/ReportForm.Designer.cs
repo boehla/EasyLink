@@ -29,6 +29,7 @@
             this.tabPreview = new System.Windows.Forms.TabPage();
             this.bPrint = new System.Windows.Forms.Button();
             this.tabEasyBuild = new System.Windows.Forms.TabPage();
+            this.pbQrcode = new System.Windows.Forms.PictureBox();
             this.tabRequire = new System.Windows.Forms.TabPage();
             this.olvRequire = new BrightIdeasSoftware.ObjectListView();
             this.olvColumn1 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
@@ -47,17 +48,17 @@
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
             this.printPreviewDialog1 = new System.Windows.Forms.PrintPreviewDialog();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
-            this.pbQrcode = new System.Windows.Forms.PictureBox();
+            this.lProxyStatus = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPreview.SuspendLayout();
             this.tabEasyBuild.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbQrcode)).BeginInit();
             this.tabRequire.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvRequire)).BeginInit();
             this.tabDestroy.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvDestroy)).BeginInit();
             this.tabLink.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvLinks)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbQrcode)).BeginInit();
             this.SuspendLayout();
             // 
             // printPreviewControl1
@@ -116,6 +117,7 @@
             // 
             // tabEasyBuild
             // 
+            this.tabEasyBuild.Controls.Add(this.lProxyStatus);
             this.tabEasyBuild.Controls.Add(this.pbQrcode);
             this.tabEasyBuild.Location = new System.Drawing.Point(4, 22);
             this.tabEasyBuild.Name = "tabEasyBuild";
@@ -124,6 +126,15 @@
             this.tabEasyBuild.TabIndex = 4;
             this.tabEasyBuild.Text = "EasyBuild";
             this.tabEasyBuild.UseVisualStyleBackColor = true;
+            // 
+            // pbQrcode
+            // 
+            this.pbQrcode.Location = new System.Drawing.Point(6, 43);
+            this.pbQrcode.Name = "pbQrcode";
+            this.pbQrcode.Size = new System.Drawing.Size(321, 321);
+            this.pbQrcode.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbQrcode.TabIndex = 0;
+            this.pbQrcode.TabStop = false;
             // 
             // tabRequire
             // 
@@ -347,14 +358,14 @@
             // 
             this.printDialog1.UseEXDialog = true;
             // 
-            // pbQrcode
+            // lProxyStatus
             // 
-            this.pbQrcode.Location = new System.Drawing.Point(6, 6);
-            this.pbQrcode.Name = "pbQrcode";
-            this.pbQrcode.Size = new System.Drawing.Size(321, 321);
-            this.pbQrcode.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pbQrcode.TabIndex = 0;
-            this.pbQrcode.TabStop = false;
+            this.lProxyStatus.AutoSize = true;
+            this.lProxyStatus.Location = new System.Drawing.Point(6, 3);
+            this.lProxyStatus.Name = "lProxyStatus";
+            this.lProxyStatus.Size = new System.Drawing.Size(35, 13);
+            this.lProxyStatus.TabIndex = 1;
+            this.lProxyStatus.Text = "label1";
             // 
             // ReportForm
             // 
@@ -368,13 +379,14 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPreview.ResumeLayout(false);
             this.tabEasyBuild.ResumeLayout(false);
+            this.tabEasyBuild.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbQrcode)).EndInit();
             this.tabRequire.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvRequire)).EndInit();
             this.tabDestroy.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvDestroy)).EndInit();
             this.tabLink.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvLinks)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbQrcode)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -405,5 +417,6 @@
         private BrightIdeasSoftware.OLVColumn olvColumn4;
         private System.Windows.Forms.TabPage tabEasyBuild;
         private System.Windows.Forms.PictureBox pbQrcode;
+        private System.Windows.Forms.Label lProxyStatus;
     }
 }
