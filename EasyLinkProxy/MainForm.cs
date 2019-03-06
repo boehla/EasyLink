@@ -24,7 +24,7 @@ namespace EasyLinkProxy {
             EasyWebResponse GetData(string key);
 
             [OperationContract]
-            [WebInvoke(UriTemplate = "SetData", ResponseFormat = WebMessageFormat.Json, BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json)]
+            [WebInvoke(UriTemplate = "SetData", ResponseFormat = WebMessageFormat.Json, BodyStyle = WebMessageBodyStyle.Wrapped, RequestFormat = WebMessageFormat.Json)]
             EasyWebResponse SetData(string key, string data);
         }
         public class DemoService : IDemoService {
