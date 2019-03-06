@@ -16,6 +16,7 @@ using System.Reflection;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 
 namespace EasyLinkGui {
@@ -53,65 +54,47 @@ namespace EasyLinkGui {
             JObject ob = JObject.FromObject(rd);
             string apidata = ob.ToString();
 
-            string key = getKey(apidata);
+            string key = setData(apidata);
             if(key.Length <= 0) {
                 Lib.Logging.log("Unable to get key from proxy!");
                 return;
             }
 
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(mf.Settings.EasyLinkProxyHost + ";" + key, QRCodeGenerator.ECCLevel.Q);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(mf.Settings.EasyLinkProxyHost + "GetData/" + key, QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
             pbQrcode.Image = qrCode.GetGraphic(20);
         }
-
-        #region // TOOD make this with default webservices...
-        private string getKey(string apidata) {
-            string dat = SetData(Base64Encode(apidata));
-
-            string startstr = "<SetDataResult>";
-            string endstr = "</SetDataResult>";
-            if (dat.Contains(startstr) && dat.Contains(endstr)) {
-                int start = startstr.Length + dat.IndexOf(startstr);
-                int end = dat.IndexOf(endstr);
-                string key = dat.Substring(start, end - start);
-                return key;
-            }
-            return "";
-        }
-
-        public string SetData(string data) { 
-            WebRequest webRequest = WebRequest.Create(mf.Settings.EasyLinkProxyHost);
-            HttpWebRequest httpRequest = (HttpWebRequest)webRequest;
-            httpRequest.Method = "POST";
-            httpRequest.ContentType = "text/xml; charset=utf-8";
-            httpRequest.Headers.Add("SOAPAction: EasyLinkProxy/IEasyLink/SetData");
-            httpRequest.ProtocolVersion = HttpVersion.Version11;
-            httpRequest.Credentials = CredentialCache.DefaultCredentials;
-            Stream requestStream = httpRequest.GetRequestStream();
-            //Create Stream and Complete Request             
-            StreamWriter streamWriter = new StreamWriter(requestStream, Encoding.ASCII);
+        public string setData(string data) {
+            data = Base64Encode(data);
             string hash = CreateMD5(data + mf.Settings.EasyLinkPassword);
-            string Reqdata = string.Format(@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:eas=""EasyLinkProxy"">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <eas:SetData>
-         <!--Optional:-->
-         <eas:data>{0}</eas:data><eas:hash>{1}</eas:hash>
-      </eas:SetData>
-   </soapenv:Body>
-</soapenv:Envelope>", data, hash);
+            string url = mf.Settings.EasyLinkProxyHost + "SetData";
 
-            streamWriter.Write(Reqdata);
-            streamWriter.Close();
-            //Get the Response    
-            HttpWebResponse wr = (HttpWebResponse)httpRequest.GetResponse();
-            StreamReader srd = new StreamReader(wr.GetResponseStream());
-            string resulXmlFromWebService = srd.ReadToEnd();
-            return resulXmlFromWebService;
-            
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.UserAgent = @"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4";
+            request.Timeout = 10000;
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            Stream dataStream = request.GetRequestStream();
+            JObject obt = new JObject();
+            obt["key"] = hash;
+            obt["data"] = data;
+            string reqdat = obt.ToString(Newtonsoft.Json.Formatting.None);
+            byte[] dat = Encoding.ASCII.GetBytes(reqdat);
+            dataStream.Write(dat, 0, dat.Length);
+            dataStream.Close();
+            WebResponse response = request.GetResponse();
+            dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+
+            JObject ob = JObject.Parse(responseFromServer);
+            return Lib.Converter.toString(ob["SetDataResult"]["Result"]);
         }
-        #endregion
 
         public static string Base64Encode(string plainText) {
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
@@ -141,7 +124,7 @@ namespace EasyLinkGui {
         public static string CreateMD5(string input) {
             // Use input string to calculate MD5 hash
             using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create()) {
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
 
                 // Convert the byte array to hexadecimal string
@@ -201,9 +184,7 @@ namespace EasyLinkGui {
                 if (!ret.ContainsKey(item.ItemKey)) ret[item.ItemKey] = item;
                 ret[item.ItemKey].Quantity++;
             }
-
             return ret.Values.ToList();
-
         }
 
         public class Item {
