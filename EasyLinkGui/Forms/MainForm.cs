@@ -42,7 +42,16 @@ namespace EasyLinkGui {
         List<GameState> sameBest = new List<GameState>();
 
         public IngressDatabase ingressDatabase = null;
-
+        
+        public string LastGroupNameSave {
+            get {
+                return opts.get("LastGroupNameSave", "").Value;
+            }
+            set {
+                if (value.Equals("AutoSave")) return;
+                opts.set("LastGroupNameSave", value);
+            }
+        }
         public GameState GameState {
             get { return this.gs; }
         }
@@ -950,10 +959,10 @@ namespace EasyLinkGui {
             refreshPortals();
         }
         
-        string lastGroupSave = "";
+        
         private void bSaveGroup_Click(object sender, EventArgs e) {
             NewGroupNameForm ngnn = new NewGroupNameForm();
-            if (lastGroupSave.Length > 0) ngnn.GroupName = lastGroupSave;
+            if (LastGroupNameSave.Length > 0) ngnn.GroupName = LastGroupNameSave;
             if (ngnn.ShowDialog() == DialogResult.OK) {
                 saveGroup(ngnn.GroupName);
             }
@@ -981,7 +990,7 @@ namespace EasyLinkGui {
                 gp.PreLinksP1.Add(linkList[i].P1.Guid);
                 gp.PreLinksP2.Add(linkList[i].P2.Guid);
             }
-            lastGroupSave = groupname;
+            LastGroupNameSave = groupname;
             ingressDatabase.upsertGroup(gp);
             refreshGroupList();
             refreshAnchorList();
@@ -1015,7 +1024,7 @@ namespace EasyLinkGui {
                 enabledPortals[guid] = true;
             }
 
-            lastGroupSave = p.Name;
+            LastGroupNameSave = p.Name;
             List<PortalInfo> allP = ingressDatabase.getAll();
             foreach (PortalInfo portal in allP) {
                 portal.Enabled = enabledPortals.ContainsKey(portal.Guid);
@@ -1058,7 +1067,7 @@ namespace EasyLinkGui {
         private void olvGroup_SelectedIndexChanged(object sender, EventArgs e) {
             OLVListItem olv = olvGroup.SelectedItem;
             if (olv == null) return;
-            lastGroupSave = ((Group)olv.RowObject).Name;
+            LastGroupNameSave = ((Group)olv.RowObject).Name;
         }
 
         private void olvGroup_CellEditStarting(object sender, CellEditEventArgs e) {

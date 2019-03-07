@@ -24,16 +24,31 @@ namespace EasyLinkGui {
         MainForm mf = null;
 
         public class ReportData {
+            public string EasyLinkVersion = "";
+            public string Name = "";
+            public string Id = "";
+            public double AP = 0;
+            public double Area = 0;
+            public int FieldCount = 0;
+
             public List<PortalInfo> DestroyPortals = null;
             public List<Link> LinkList = null;
             public List<Item> RequireList = null;
         }
 
-        public ReportData rd = new ReportData();
+        public ReportData rd = null;
 
         public ReportForm(MainForm mf) {
             InitializeComponent();
             this.mf = mf;
+
+            rd = new ReportData();
+            rd.EasyLinkVersion = AboutForm.Version.ToString();
+            rd.Name = mf.LastGroupNameSave;
+            rd.AP = mf.GameState.getAPScore();
+            rd.Area = mf.GameState.TotalArea;
+            rd.Id = CreateMD5(rd.Name.ToLower());
+            rd.FieldCount = mf.GameState.TotalFields;
 
             rd.LinkList = mf.GameState.getTotalLinkList();
             olvLinks.SetObjects(compressLinkList(rd.LinkList));

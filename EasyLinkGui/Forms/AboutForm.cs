@@ -25,5 +25,14 @@ namespace EasyLinkGui {
             Version ver = assemName.Version;
             lVersion.Text = string.Format("Application {0}, Version {1}", assemName.Name, ver.ToString());
         }
+
+        public static Version Version {
+            get {
+                Assembly assem = Assembly.GetEntryAssembly();
+                AssemblyName assemName = assem.GetName();
+                Version ver = assemName.Version;
+                return ver;
+            }
+        }
     }
 }

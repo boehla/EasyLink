@@ -71,9 +71,15 @@ namespace EasyLinkLib {
         public List<Field> Fields {
             get { return this.fields; }
         }
+        /// <summary>
+        /// in m
+        /// </summary>
         public float TotalWay {
             get { return this.totalWay; }
         }
+        /// <summary>
+        /// in m²
+        /// </summary>
         public float TotalArea {
             get { return this.totalArea; }
         }
