@@ -55,10 +55,10 @@
             this.linkLabel1.AutoSize = true;
             this.linkLabel1.Location = new System.Drawing.Point(12, 428);
             this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(126, 13);
+            this.linkLabel1.Size = new System.Drawing.Size(254, 13);
             this.linkLabel1.TabIndex = 0;
             this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "https://t.me/CryptoJunky";
+            this.linkLabel1.Text = "https://t.me/joinchat/AExhwBZUJ2BjAUEocRm9xQ";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llGithubLink_LinkClicked);
             // 
             // AboutForm
