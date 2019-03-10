@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Deployment.Application;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -23,16 +24,14 @@ namespace EasyLinkGui {
             Assembly assem = Assembly.GetEntryAssembly();
             AssemblyName assemName = assem.GetName();
             Version ver = assemName.Version;
-            lVersion.Text = string.Format("Application {0}, Version {1}", assemName.Name, ver.ToString());
+            lVersion.Text = string.Format("Application {0}, Version {1}", assemName.Name, GetVersion());
         }
-
-        public static Version Version {
-            get {
-                Assembly assem = Assembly.GetEntryAssembly();
-                AssemblyName assemName = assem.GetName();
-                Version ver = assemName.Version;
-                return ver;
+        static public string GetVersion() {
+            if (ApplicationDeployment.IsNetworkDeployed) {
+                return ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
             }
+
+            return "Debug";
         }
     }
 }

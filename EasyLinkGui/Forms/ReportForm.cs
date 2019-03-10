@@ -43,7 +43,7 @@ namespace EasyLinkGui {
             this.mf = mf;
 
             rd = new ReportData();
-            rd.EasyLinkVersion = AboutForm.Version.ToString();
+            rd.EasyLinkVersion = AboutForm.GetVersion();
             rd.Name = mf.LastGroupNameSave;
             rd.AP = mf.GameState.getAPScore();
             rd.Area = mf.GameState.TotalArea;
