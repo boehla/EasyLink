@@ -264,6 +264,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Content Include="Screenshots\AddAnchors.png" />
+    <Content Include="Screenshots\AddDestoryPortals.png" />
+    <Content Include="Screenshots\AddedAllDestory.png" />
+    <Content Include="Screenshots\AutoLink.png" />
+    <Content Include="Screenshots\EnalbePortals.png" />
+    <Content Include="Screenshots\GenerateReport.png" />
+    <Content Include="Screenshots\IntelMap.png" />
+    <Content Include="Screenshots\LoadFromIntel.png" />
+    <Content Include="Screenshots\PortalFilter.png" />
+    <Content Include="Screenshots\Report.png" />
+    <Content Include="Screenshots\SetStartLink.png" />
+    <Content Include="Screenshots\StartAutolink.png" />
     <Content Include="snapshot_blob.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
