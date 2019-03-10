@@ -170,7 +170,20 @@ namespace EasyLinkLib {
                     upportals.Add(p);
                 }
                 if (ent is LinkEntity) {
-                    otherLinks.Upsert(((LinkEntity)ent).parseToDataset());
+                    LinkEntity le = (LinkEntity)ent;
+                    otherLinks.Upsert(le.parseToDataset());
+                    PortalInfo p = AllPortals.FindById(le.OGuid);
+                    if (p != null) {
+                        p.Team = le.Team;
+                        AllPortals.Upsert(p);
+                    }
+                    p = AllPortals.FindById(le.DGuid);
+                    if (p != null) {
+                        p.Team = le.Team;
+                        AllPortals.Upsert(p);
+                    }
+
+
                 }
 
             }

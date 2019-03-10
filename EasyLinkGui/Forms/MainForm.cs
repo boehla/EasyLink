@@ -683,6 +683,7 @@ namespace EasyLinkGui {
                         p1tmp = new PortalInfo();
                         p1tmp.Guid = p1tmp.Name = link.OGuid;
                         p1tmp.Pos = new geohelper.PointD(link.OPos.X, link.OPos.Y);
+                        p1tmp.Team = link.Team;
                         tmpPortals[p1tmp.Guid] = p1tmp;
                     }
                     PortalInfo p2tmp = ingressDatabase.getByGuid(link.DGuid);
@@ -690,6 +691,7 @@ namespace EasyLinkGui {
                         p2tmp = new PortalInfo();
                         p2tmp.Guid = p2tmp.Name = link.DGuid;
                         p2tmp.Pos = new geohelper.PointD(link.DPos.X, link.DPos.Y);
+                        p2tmp.Team = link.Team;
                         tmpPortals[p2tmp.Guid] = p2tmp;
                     }
 
@@ -942,6 +944,7 @@ namespace EasyLinkGui {
 
         private void gmap_OnMarkerDoubleClick(GMapMarker marker, MouseEventArgs e) {
             PortalInfo pid = (PortalInfo)marker.Tag;
+            if (!portalMapping.ContainsKey(pid.Guid)) return;
             linkToAnchors(portalMapping[pid.Guid]);
         }
 
