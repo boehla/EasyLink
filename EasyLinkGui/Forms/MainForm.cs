@@ -330,6 +330,8 @@ namespace EasyLinkGui {
             foreach (MapOverlay suit in (MapOverlay[])Enum.GetValues(typeof(MapOverlay))) {
                 overLays[suit] = new GMapOverlay();
                 gmap.Overlays.Add(overLays[suit]);
+
+                clbMapLayers.Items.Add(new MapLayerCheckItem(suit.ToString(), suit), opts.get("MapLayerCheckItem_" + (int)suit, true).BoolValue);
             }
 
             refreshGroupList();
@@ -752,7 +754,7 @@ namespace EasyLinkGui {
                     }
                     lDestroyStatus.Text = string.Format("Remaining crossing links: {0}", remainDestorys);
                     lDestroyStatus.ForeColor = remainDestorys <= 0 ? Color.DarkGreen : Color.DarkRed;
-                    overLays[MapOverlay.gameWay].Routes.Add(polygon);
+                    overLays[MapOverlay.externLinks].Routes.Add(polygon);
                 }
 
 
@@ -1318,6 +1320,31 @@ namespace EasyLinkGui {
                 gmap.Zoom -= 1;
             }
         }
+
+        private void bToogleLayers_Click(object sender, EventArgs e) {
+            clbMapLayers.Visible = !clbMapLayers.Visible;
+        }
+
+        private void clbMapLayers_ItemCheck(object sender, ItemCheckEventArgs e) {
+            MapLayerCheckItem mo = (MapLayerCheckItem)clbMapLayers.Items[e.Index];
+            bool ischeckd = e.NewValue == CheckState.Checked;
+            opts.set("MapLayerCheckItem_" + (int)mo.Overlay, ischeckd);
+            overLays[mo.Overlay].IsVisibile = ischeckd;
+        }
+
+        class MapLayerCheckItem {
+            public string Name = "";
+            public MapOverlay Overlay;
+
+            public MapLayerCheckItem(string name, MapOverlay overlay) {
+                this.Name = name;
+                this.Overlay = overlay;
+            }
+
+            public override string ToString() {
+                return this.Name;
+            }
+        }
     }
     public class DuplicateKeyComparer<TKey>
         :
@@ -1398,5 +1425,6 @@ namespace EasyLinkGui {
 
         #endregion
     }
+
 
 }

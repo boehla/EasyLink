@@ -81,6 +81,8 @@
             this.bDbDisable = new System.Windows.Forms.Button();
             this.tbDbSearch = new System.Windows.Forms.TextBox();
             this.tabMap = new System.Windows.Forms.TabPage();
+            this.bToogleLayers = new System.Windows.Forms.Button();
+            this.clbMapLayers = new System.Windows.Forms.CheckedListBox();
             this.gmap = new GMap.NET.WindowsForms.GMapControl();
             this.cbShowLastHandled = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -641,6 +643,8 @@
             // 
             // tabMap
             // 
+            this.tabMap.Controls.Add(this.bToogleLayers);
+            this.tabMap.Controls.Add(this.clbMapLayers);
             this.tabMap.Controls.Add(this.gmap);
             this.tabMap.Controls.Add(this.cbShowLastHandled);
             this.tabMap.Controls.Add(this.label1);
@@ -656,6 +660,28 @@
             this.tabMap.TabIndex = 1;
             this.tabMap.Text = "EasyLink Map";
             this.tabMap.UseVisualStyleBackColor = true;
+            // 
+            // bToogleLayers
+            // 
+            this.bToogleLayers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bToogleLayers.Location = new System.Drawing.Point(650, 36);
+            this.bToogleLayers.Name = "bToogleLayers";
+            this.bToogleLayers.Size = new System.Drawing.Size(120, 23);
+            this.bToogleLayers.TabIndex = 16;
+            this.bToogleLayers.Text = "Toogle layers";
+            this.bToogleLayers.UseVisualStyleBackColor = true;
+            this.bToogleLayers.Click += new System.EventHandler(this.bToogleLayers_Click);
+            // 
+            // clbMapLayers
+            // 
+            this.clbMapLayers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.clbMapLayers.FormattingEnabled = true;
+            this.clbMapLayers.Location = new System.Drawing.Point(650, 65);
+            this.clbMapLayers.Name = "clbMapLayers";
+            this.clbMapLayers.Size = new System.Drawing.Size(120, 184);
+            this.clbMapLayers.TabIndex = 15;
+            this.clbMapLayers.Visible = false;
+            this.clbMapLayers.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbMapLayers_ItemCheck);
             // 
             // gmap
             // 
@@ -1088,6 +1114,8 @@
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.Button bToogleLayers;
+        private System.Windows.Forms.CheckedListBox clbMapLayers;
     }
 }
 
