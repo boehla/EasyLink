@@ -213,7 +213,7 @@ namespace EasyLinkGui {
             }
             foreach(PortalInfo p in rd.DestroyPortals) {
                 if (p.Team == IngressTeam.None) continue;
-                Item item = new Item("Wapeon");
+                Item item = new Item("Weapon");
 
                 if(p.Team != mf.Settings.Team) {
                     item.Subname = "Xmp";
@@ -313,15 +313,24 @@ namespace EasyLinkGui {
             
             if (pdi.ShowDialog() == DialogResult.OK) {
                 pdi.Document = printPreviewControl1.Document;
+                printPreviewControl1.Document.PrinterSettings = pdi.PrinterSettings;
                 printPreviewControl1.Document.Print();
-            } else {
-                MessageBox.Show("Print Cancelled");
             }
+        }
 
-            return;
+        private void bGenPDF_Click(object sender, EventArgs e) {
+            string pdfPrinter = "";
+            foreach (String strPrinter in PrinterSettings.InstalledPrinters) {
+                if (strPrinter.Contains("PDF")) {
+                    pdfPrinter = strPrinter;
+                }
+            }
+            if(pdfPrinter.Length <= 0) {
+                MessageBox.Show("No pdf printer found!");
+                return;
+            }
+            printPreviewControl1.Document.PrinterSettings.PrinterName = pdfPrinter;
             printPreviewControl1.Document.Print();
-            printPreviewDialog1.Document = printPreviewControl1.Document;
-            printPreviewDialog1.ShowDialog();
         }
     }
 

@@ -117,9 +117,9 @@ namespace EasyLinkLib {
 
         LiteCollection<SettingsDataset> settings = null;
         public IngressDatabase(string filename) {
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(filename));
             db = new LiteDatabase(filename);
             var engine = db.Engine;
-            
             if (engine.UserVersion == 0) { // first 
                 engine.UserVersion = 1;
             }
@@ -198,6 +198,9 @@ namespace EasyLinkLib {
 
         public List<PortalInfo> getAllEnabled() {
             return AllPortals.Find(x => x.Enabled).ToList();
+        }
+        public List<PortalInfo> getAllDisabled() {
+            return AllPortals.Find(x => !x.Enabled).ToList();
         }
         public List<PortalInfo> getAll() {
             return AllPortals.FindAll().ToList();

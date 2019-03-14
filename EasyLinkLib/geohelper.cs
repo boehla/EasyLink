@@ -384,9 +384,9 @@ namespace EasyLinkLib {
         }
         public bool isOutside(double lonX, double latY) {
             if (lonX > this.LonXMax) return true;
-            if (lonX < this.LonXMax) return true;
+            if (lonX < this.LonXMin) return true;
             if (latY > this.LatYMax) return true;
-            if (latY < this.LatYMax) return true;
+            if (latY < this.LatYMin) return true;
             return false;
         }
     }

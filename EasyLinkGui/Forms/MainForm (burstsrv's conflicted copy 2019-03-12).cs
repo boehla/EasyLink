@@ -24,18 +24,22 @@ namespace EasyLinkGui {
     public partial class MainForm : Form {
         bool cancel = false;
 
-        enum BitmapIcon { normalPortal, inFieldPortal, notLinkableToAnchor, filtered, disabledPortal, selectPoly };
-        Dictionary<BitmapIcon, Bitmap> bitMapBuffer = new Dictionary<BitmapIcon, Bitmap>();
 
-        enum MapOverlay { gamePortals, gameLinks, gameFields, gameWay, externLinks, selected, disabled };
-        Dictionary<MapOverlay, GMapOverlay> overLays = new Dictionary<MapOverlay, GMapOverlay>();
 
-        ContextMenu context = null;
+        Bitmap markerImg = null;
+        Bitmap markerImgIn = null;
+        Bitmap markerImgNoAnchor = null;
+        Bitmap markerImgFiltered = null;
+        GMapOverlay mainOverlay = new GMapOverlay("");
+        GMapOverlay externOverlay = new GMapOverlay("");
+        GMapOverlay markOverlay = new GMapOverlay("");
+
+        ContextMenu context = new ContextMenu();
 
         GameState gs = new GameState();
         GamePrinter dr = null;
         List<GameState> nextSols = new List<GameState>();
-        Lib.Options opts = new Lib.Options("dat\\BestField.json");
+        Lib.Options opts = new Lib.Options("BestField.json");
 
         List<GameState> sameBest = new List<GameState>();
 
@@ -63,7 +67,7 @@ namespace EasyLinkGui {
             
             dr = new GamePrinter(gs);
 
-            ingressDatabase = new IngressDatabase("dat\\db.bin");
+            ingressDatabase = new IngressDatabase("db.bin");
             Settings = ingressDatabase.getSettings();
 
            List <PortalInfo> nodes = new List<PortalInfo>();
@@ -87,33 +91,6 @@ namespace EasyLinkGui {
                 hashcodes[item.GetHashCode()] = item;
             }
             Lib.Logging.log(string.Format("{0:0.0000%} Collisions", cols * 1d / test.Count));
-        }
-
-        private Bitmap getIcon(BitmapIcon b) {
-            if (bitMapBuffer.ContainsKey(b)) return bitMapBuffer[b];
-            Bitmap ret = null;
-
-            int size = 10;
-            switch (b) {
-                case BitmapIcon.filtered:
-                    ret = DrawFilledCircle(Color.Green, size * 2, size * 2);
-                    break;
-                case BitmapIcon.disabledPortal:
-                    ret = DrawEmptyCircle(Color.FromArgb(150, Color.Black), size, size);
-                    break;
-                case BitmapIcon.inFieldPortal:
-                    ret = DrawFilledCircle(Color.DarkGray, size, size);
-                    break;
-                case BitmapIcon.notLinkableToAnchor:
-                    ret = DrawFilledCircle(Color.LightPink, size, size);
-                    break;
-                default:
-                case BitmapIcon.normalPortal:
-                    ret = DrawFilledCircle(Color.Black, size, size);
-                    break;
-            }
-            bitMapBuffer[b] = ret;
-            return ret;
         }
 
 
@@ -325,13 +302,17 @@ namespace EasyLinkGui {
             gmap.Position = new PointLatLng((double)opts.get("gmap_pos_lat", 47.45043).DecimalValue, (double)opts.get("gmap_pos_lon", 9.83109).DecimalValue);
             gmap.Zoom = (double)opts.get("gmap_zoom", gmap.Zoom).DecimalValue;
 
+            int size = 8;
+            markerImg = DrawFilledRectangle(Color.Black, size, size);
+            markerImgIn = DrawFilledRectangle(Color.DarkRed, size, size);
+            markerImgNoAnchor = DrawFilledRectangle(Color.Gray, size, size);
+            markerImgFiltered = DrawFilledRectangle(Color.Green, size * 2, size * 2);
+
             loadGroup("AutoSave");
 
-            foreach (MapOverlay suit in (MapOverlay[])Enum.GetValues(typeof(MapOverlay))) {
-                overLays[suit] = new GMapOverlay();
-                gmap.Overlays.Add(overLays[suit]);
-            }
-
+            gmap.Overlays.Add(mainOverlay);
+            gmap.Overlays.Add(externOverlay);
+            gmap.Overlays.Add(markOverlay);
             refreshGroupList();
             addEntities(ingressDatabase.getAllOtherLinks());
 
@@ -345,23 +326,12 @@ namespace EasyLinkGui {
             ingressDatabase.updatePortals(all); */
         }
 
-        private Bitmap DrawFilledCircle(Color c, int x, int y) {
+        private Bitmap DrawFilledRectangle(Color c, int x, int y) {
             Bitmap bmp = new Bitmap(x, y);
-            int border = 1;
             using (Graphics graph = Graphics.FromImage(bmp)) {
-                Rectangle ImageSize = new Rectangle(border, border, x - border * 2, y - border * 2);
+                Rectangle ImageSize = new Rectangle(0, 0, x, y);
+                //graph.FillRectangle(new SolidBrush(c), ImageSize);
                 graph.FillEllipse(new SolidBrush(c), ImageSize);
-            }
-            return bmp;
-        }
-        private Bitmap DrawEmptyCircle(Color c, int x, int y) {
-            Bitmap bmp = new Bitmap(x, y);
-            int border = 1;
-            using (Graphics graph = Graphics.FromImage(bmp)) {
-                Pen p = new Pen(c);
-
-                Rectangle ImageSize = new Rectangle(border, border, x - border * 2, y- border*2);
-                graph.DrawEllipse(p, ImageSize);
             }
             return bmp;
         }
@@ -420,6 +390,9 @@ namespace EasyLinkGui {
                 }
             }
             if (refreshPortals.Count > 0) olvPortals.RefreshObject(refreshPortals);
+
+
+
         }
 
         private string maxLength(string va, int max) {
@@ -430,6 +403,7 @@ namespace EasyLinkGui {
         private void bShowParent_Click(object sender, EventArgs e) {
             if (gs.Parent != null) {
                 gs = gs.Parent;
+                //refresh();
             }
         }
 
@@ -444,6 +418,7 @@ namespace EasyLinkGui {
             opts.saveUI();
             opts.saveIfNeeded();
             saveGroup("AutoSave");
+            //ingressDatabase.WriteXml(opts.get("portalxsdfile", "portals.xsd").Value); TODO
             gmap.Dispose();
         }
         private void bCreateGameState_Click(object sender, EventArgs e) {
@@ -460,7 +435,12 @@ namespace EasyLinkGui {
 
             refreshAnchorList();
             refresh();
-            refreshDisabledPortals();
+        }
+
+        private void saveCopyAsToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK) {
+                //ingressDatabase.WriteXml(saveFileDialog1.FileName);
+            }
         }
 
         private void clearAllToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -620,7 +600,7 @@ namespace EasyLinkGui {
         Dictionary<string, int> portalMapping = new Dictionary<string, int>();
         private void refreshGoogleMaps() {
             if (gs != null && gmap != null && gmap.Overlays.Count > 0) {
-                overLays[MapOverlay.gamePortals].Clear();
+                mainOverlay.Clear();
 
                 Dictionary<string, bool> portalsOnMap = new Dictionary<string, bool>();
                 Dictionary<string, bool> filtered = new Dictionary<string, bool>();
@@ -632,18 +612,19 @@ namespace EasyLinkGui {
                 }
                 for (int i = 0; i < gs.PortalData.Count; i++) {
                     PortalInfo ni = gs.PortalInfos[i];
-                    Bitmap img = getIcon(BitmapIcon.normalPortal);
-                    if (filtered.ContainsKey(ni.Guid)) img = getIcon(BitmapIcon.filtered);
-                    else if (gs.PortalData[i].InTriangle) {
-                        img = getIcon(BitmapIcon.inFieldPortal);
+                    Bitmap img = markerImg;
+                    if (gs.PortalData[i].InTriangle) {
+                        img = markerImgIn;
                     } else if (gs.Global.Anchors.Count == 2) {
                         foreach (int anchor in gs.Global.Anchors) {
                             if (!gs.checkLink(i, anchor)) {
-                                img = getIcon(BitmapIcon.notLinkableToAnchor);
+                                img = markerImgNoAnchor;
                                 break;
                             }
                         }
                     }
+                    if (filtered.ContainsKey(ni.Guid)) img = markerImgFiltered;
+
                     GMarkerGoogle marker =  new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), img);
                     //GmapMarkerWithLabel marker = new GmapMarkerWithLabel(new PointLatLng(ni.Pos.Y, ni.Pos.X), ni.Name, img, gmap);
                     portalsOnMap[ni.Guid] = true;
@@ -651,11 +632,11 @@ namespace EasyLinkGui {
                     marker.Tag = ni;
                     marker.ToolTipText = ni.Name;
                     //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
-                    overLays[MapOverlay.gamePortals].Markers.Add(marker);
+                    mainOverlay.Markers.Add(marker);
                 }
                 List<PointLatLng> points = new List<PointLatLng>();
 
-                overLays[MapOverlay.gameLinks].Clear();
+
                 Pen linkPen = new Pen(new SolidBrush(Color.Blue), 3);
                 for (int i = 0; i < gs.PortalInfos.Count; i++) {
                     PortalInfo p1 = gs.PortalInfos[i];
@@ -669,11 +650,10 @@ namespace EasyLinkGui {
                         points.Add(new PointLatLng(p2.Pos.Y, p2.Pos.X));
                         GMapRoute polygon = new GMapRoute(points, "mypolygon");
                         polygon.Stroke = new Pen(CoreEntity.getTeamColor(Settings.Team), 1);
-                        overLays[MapOverlay.gameLinks].Routes.Add(polygon);
+                        mainOverlay.Routes.Add(polygon);
                     }
                 }
 
-                overLays[MapOverlay.gameFields].Clear();
                 foreach (Field f in gs.Fields) {
                     points = new List<PointLatLng>();
                     foreach (int pid in f.NodesIds) {
@@ -683,7 +663,7 @@ namespace EasyLinkGui {
                     GMapPolygon polygon = new GMapPolygon(points, "mypolygon");
                     polygon.Fill = new SolidBrush(Color.FromArgb(15, CoreEntity.getTeamColor(Settings.Team)));
                     polygon.Stroke = new Pen(CoreEntity.getTeamColor(Settings.Team), 1);
-                    overLays[MapOverlay.gameFields].Polygons.Add(polygon);
+                    mainOverlay.Polygons.Add(polygon);
                     // gmap.Overlays.Add(polyOverlay);
                 }
 
@@ -696,12 +676,11 @@ namespace EasyLinkGui {
                     }
                     fromPortal = link.P1;
                 }
-                overLays[MapOverlay.gameWay].Clear();
                 GMapRoute todoroute = new GMapRoute(points, "mypolygon");
                 todoroute.Stroke = new Pen(Color.Orange, 3);
-                overLays[MapOverlay.gameWay].Routes.Add(todoroute);
+                mainOverlay.Routes.Add(todoroute);
 
-                overLays[MapOverlay.externLinks].Clear();
+                externOverlay.Clear();
                 tmpPortals.Clear();
                 int remainDestorys = 0;
                 foreach (LinkEntity link in externLinks.Values) {
@@ -724,11 +703,11 @@ namespace EasyLinkGui {
 
                     foreach (PortalInfo pid in new PortalInfo[] { p1tmp, p2tmp }) {
                         if (!portalsOnMap.ContainsKey(pid.Guid)) {
-                            GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(pid.Pos.Y, pid.Pos.X), getIcon(BitmapIcon.disabledPortal));
+                            GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(pid.Pos.Y, pid.Pos.X), markerImg);
                             marker.Tag = pid;
                             marker.ToolTipText = pid.Name;
                             //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
-                            overLays[MapOverlay.externLinks].Markers.Add(marker);
+                            externOverlay.Markers.Add(marker);
                         }
                     }
 
@@ -752,7 +731,7 @@ namespace EasyLinkGui {
                     }
                     lDestroyStatus.Text = string.Format("Remaining crossing links: {0}", remainDestorys);
                     lDestroyStatus.ForeColor = remainDestorys <= 0 ? Color.DarkGreen : Color.DarkRed;
-                    overLays[MapOverlay.gameWay].Routes.Add(polygon);
+                    externOverlay.Routes.Add(polygon);
                 }
 
 
@@ -813,7 +792,7 @@ namespace EasyLinkGui {
                         PortalInfo startni = gs.PortalInfos[startPortal];
                         mn = new MenuItem();
                         mn.Tag = item;
-                        mn.Text = "Link from " + startni.Name + " to here";
+                        mn.Text = "Link to " + startni.Name;
                         mn.Click += Mn_LinkToClick;
                         context.MenuItems.Add(mn);
                     }
@@ -847,8 +826,25 @@ namespace EasyLinkGui {
                     mn.Click += Mn_DestroyClick;
                     context.MenuItems.Add(mn);
                 }
+
+
+
+                //context.MenuItems.Add("-");
+
                 context.Show(gmap, e.Location);
+
+
             }
+            /*
+            if (e.Button == MouseButtons.Left) {
+                if (startPortal == -1) {
+                    startPortal = (int)item.Tag;
+                } else {
+                    if (gs.addLink(startPortal, (int)item.Tag).Length <= 0) refresh();
+                    startPortal = -1;
+
+                }
+            }*/
         }
         Dictionary<string, bool> anchors = new Dictionary<string, bool>();
         Dictionary<string, bool> destroyPortals = new Dictionary<string, bool>();
@@ -1129,6 +1125,7 @@ namespace EasyLinkGui {
         private void olv_FormatRow(object sender, FormatRowEventArgs e) {
             if (e.Item.RowObject is PortalInfo) {
                 PortalInfo pi = (PortalInfo)e.Item.RowObject;
+                //e.Item.BackColor = Color.Wheat;
                 Color c = Color.White;
                 switch (pi.Team) {
                     case IngressTeam.Enlightened:
@@ -1218,26 +1215,6 @@ namespace EasyLinkGui {
                 loadGameState();
             }
         }
-        private void Mn_EnableInPolyClick(object sender, EventArgs e) {
-            if (sender is MenuItem) {
-                PointD[] poly = new PointD[tmpPoly.Count];
-                Border b = new Border();
-                for (int i = 0; i < tmpPoly.Count; i++) {
-                    poly[i] = new PointD(tmpPoly[i].Lng, tmpPoly[i].Lat);
-                    b.addValue(poly[i]);
-                }
-                List<PortalInfo> allPortals = ingressDatabase.getAll();
-                foreach (PortalInfo pid in allPortals) {
-                    bool isOut = b.isOutside(pid.Pos);
-                    if (!isOut) isOut = !geohelper.PointInPolygon(poly, pid);
-                    if(!isOut && !pid.Enabled) {
-                        pid.Enabled = true;
-                        ingressDatabase.updatePortals(pid);
-                    }
-                }
-                loadGameState();
-            }
-        }
         List<PointLatLng> tmpPoly = new List<PointLatLng>();
         private void gmap_MouseClick(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Right) {
@@ -1251,50 +1228,30 @@ namespace EasyLinkGui {
                 mn.Text = "Add to poly";
                 mn.Click += Mn_AddPolyClick;
                 context.MenuItems.Add(mn);
-
+                
                 mn = new MenuItem();
                 mn.Text = "Delete Poly";
                 mn.Click += Mn_DeletePolyClick;
                 context.MenuItems.Add(mn);
 
-                context.MenuItems.Add("-");
-
-                if (tmpPoly.Count >= 3) {
+                if(tmpPoly.Count >= 3) {
                     mn = new MenuItem();
                     mn.Text = "Disable in poly";
                     mn.Click += Mn_DisableInPolyClick;
                     context.MenuItems.Add(mn);
                 }
-
-                if (tmpPoly.Count >= 3) {
-                    mn = new MenuItem();
-                    mn.Text = "Enable in poly";
-                    mn.Click += Mn_EnableInPolyClick;
-                    context.MenuItems.Add(mn);
-                }
-
+                
                 context.Show(gmap, e.Location);
             }
         }
-        private void refreshDisabledPortals() {
-            overLays[MapOverlay.disabled].Clear();
 
-            Bitmap img = getIcon(BitmapIcon.disabledPortal);
-            foreach (PortalInfo ni in ingressDatabase.getAllDisabled()) { 
-                GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), img);
-                marker.Tag = ni;
-                marker.ToolTipText = ni.Name;
-                marker.Bitmap = getIcon(BitmapIcon.disabledPortal);
-                overLays[MapOverlay.disabled].Markers.Add(marker);
-            }
-        }
         private void refreshMarkPoly() {
-            overLays[MapOverlay.selected].Clear();
+            markOverlay.Clear();
 
             foreach (PointLatLng pid in tmpPoly) {
-                GMarkerGoogle marker = new GMarkerGoogle(pid, getIcon(BitmapIcon.selectPoly));
+                GMarkerGoogle marker = new GMarkerGoogle(pid, markerImg);
                 marker.Tag = pid;
-                overLays[MapOverlay.selected].Markers.Add(marker);
+                markOverlay.Markers.Add(marker);
             }
 
             if (tmpPoly.Count > 2) {
@@ -1303,19 +1260,7 @@ namespace EasyLinkGui {
 
                 polygon.Fill = new SolidBrush(Color.FromArgb(30, Color.Yellow));
                 polygon.Stroke = new Pen(CoreEntity.getTeamColor(Settings.Team), 1);
-                overLays[MapOverlay.selected].Polygons.Add(polygon);
-            }
-        }
-
-        private void gmap_MouseDoubleClick(object sender, MouseEventArgs e) {
-            PointLatLng pt = gmap.FromLocalToLatLng(e.X, e.Y);
-
-            gmap.Position = pt;
-
-            if (e.Button.Equals(MouseButtons.Left)) {
-                gmap.Zoom += 1;
-            } else if (e.Button.Equals(MouseButtons.Right)) {
-                gmap.Zoom -= 1;
+                markOverlay.Polygons.Add(polygon);
             }
         }
     }

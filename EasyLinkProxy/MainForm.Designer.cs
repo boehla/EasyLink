@@ -23,14 +23,17 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            this.components = new System.ComponentModel.Container();
             this.bDebug = new System.Windows.Forms.Button();
             this.lStatus = new System.Windows.Forms.Label();
             this.tbUrl = new System.Windows.Forms.TextBox();
             this.bRestart = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.tbPassword = new System.Windows.Forms.TextBox();
+            this.lCount = new System.Windows.Forms.Label();
+            this.timer = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,9 +52,9 @@
             this.lStatus.AutoSize = true;
             this.lStatus.Location = new System.Drawing.Point(12, 129);
             this.lStatus.Name = "lStatus";
-            this.lStatus.Size = new System.Drawing.Size(35, 13);
+            this.lStatus.Size = new System.Drawing.Size(61, 13);
             this.lStatus.TabIndex = 1;
-            this.lStatus.Text = "label1";
+            this.lStatus.Text = "Status XXX";
             // 
             // tbUrl
             // 
@@ -85,15 +88,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Settings";
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 25);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(20, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Url";
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -103,6 +97,15 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "Password";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 25);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(20, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Url";
+            // 
             // tbPassword
             // 
             this.tbPassword.Location = new System.Drawing.Point(72, 51);
@@ -111,12 +114,28 @@
             this.tbPassword.TabIndex = 2;
             this.tbPassword.Text = "n47Y7JUNDKpQ2y7EaQfd";
             // 
+            // lCount
+            // 
+            this.lCount.AutoSize = true;
+            this.lCount.Location = new System.Drawing.Point(288, 41);
+            this.lCount.Name = "lCount";
+            this.lCount.Size = new System.Drawing.Size(47, 13);
+            this.lCount.TabIndex = 1;
+            this.lCount.Text = "Count: 0";
+            // 
+            // timer
+            // 
+            this.timer.Enabled = true;
+            this.timer.Interval = 1000;
+            this.timer.Tick += new System.EventHandler(this.timer_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(375, 154);
+            this.ClientSize = new System.Drawing.Size(375, 150);
             this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.lCount);
             this.Controls.Add(this.lStatus);
             this.Controls.Add(this.bDebug);
             this.Name = "MainForm";
@@ -140,6 +159,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox tbPassword;
+        private System.Windows.Forms.Label lCount;
+        private System.Windows.Forms.Timer timer;
     }
 }
 

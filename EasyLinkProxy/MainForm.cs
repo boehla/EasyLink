@@ -126,6 +126,10 @@ namespace EasyLinkProxy {
             opts.saveUI();
             opts.saveIfNeeded();
         }
+
+        private void timer_Tick(object sender, EventArgs e) {
+            lCount.Text = string.Format("Count: {0:n0}", DemoService.Valbuffer.TotalCount);
+        }
     }
 
     public class EasyWebResponse {

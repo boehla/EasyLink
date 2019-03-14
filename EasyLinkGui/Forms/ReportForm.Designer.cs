@@ -29,6 +29,7 @@
             this.tabPreview = new System.Windows.Forms.TabPage();
             this.bPrint = new System.Windows.Forms.Button();
             this.tabEasyBuild = new System.Windows.Forms.TabPage();
+            this.lProxyStatus = new System.Windows.Forms.Label();
             this.pbQrcode = new System.Windows.Forms.PictureBox();
             this.tabRequire = new System.Windows.Forms.TabPage();
             this.olvRequire = new BrightIdeasSoftware.ObjectListView();
@@ -48,7 +49,7 @@
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
             this.printPreviewDialog1 = new System.Windows.Forms.PrintPreviewDialog();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
-            this.lProxyStatus = new System.Windows.Forms.Label();
+            this.bGenPDF = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPreview.SuspendLayout();
             this.tabEasyBuild.SuspendLayout();
@@ -95,6 +96,7 @@
             // 
             // tabPreview
             // 
+            this.tabPreview.Controls.Add(this.bGenPDF);
             this.tabPreview.Controls.Add(this.bPrint);
             this.tabPreview.Controls.Add(this.printPreviewControl1);
             this.tabPreview.Location = new System.Drawing.Point(4, 22);
@@ -126,6 +128,15 @@
             this.tabEasyBuild.TabIndex = 4;
             this.tabEasyBuild.Text = "EasyBuild";
             this.tabEasyBuild.UseVisualStyleBackColor = true;
+            // 
+            // lProxyStatus
+            // 
+            this.lProxyStatus.AutoSize = true;
+            this.lProxyStatus.Location = new System.Drawing.Point(6, 3);
+            this.lProxyStatus.Name = "lProxyStatus";
+            this.lProxyStatus.Size = new System.Drawing.Size(35, 13);
+            this.lProxyStatus.TabIndex = 1;
+            this.lProxyStatus.Text = "label1";
             // 
             // pbQrcode
             // 
@@ -358,14 +369,15 @@
             // 
             this.printDialog1.UseEXDialog = true;
             // 
-            // lProxyStatus
+            // bGenPDF
             // 
-            this.lProxyStatus.AutoSize = true;
-            this.lProxyStatus.Location = new System.Drawing.Point(6, 3);
-            this.lProxyStatus.Name = "lProxyStatus";
-            this.lProxyStatus.Size = new System.Drawing.Size(35, 13);
-            this.lProxyStatus.TabIndex = 1;
-            this.lProxyStatus.Text = "label1";
+            this.bGenPDF.Location = new System.Drawing.Point(87, 6);
+            this.bGenPDF.Name = "bGenPDF";
+            this.bGenPDF.Size = new System.Drawing.Size(75, 23);
+            this.bGenPDF.TabIndex = 2;
+            this.bGenPDF.Text = "Save as Pdf";
+            this.bGenPDF.UseVisualStyleBackColor = true;
+            this.bGenPDF.Click += new System.EventHandler(this.bGenPDF_Click);
             // 
             // ReportForm
             // 
@@ -418,5 +430,6 @@
         private System.Windows.Forms.TabPage tabEasyBuild;
         private System.Windows.Forms.PictureBox pbQrcode;
         private System.Windows.Forms.Label lProxyStatus;
+        private System.Windows.Forms.Button bGenPDF;
     }
 }
