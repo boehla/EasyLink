@@ -241,6 +241,16 @@ namespace EasyLinkLib {
             return false;
         }
         public static bool FindIntersection(PortalInfo s1, PortalInfo e1, PortalInfo s2, PortalInfo e2) {
+            Border b1 = new Border();
+            b1.addValue(s1.Pos);
+            b1.addValue(e1.Pos);
+
+            Border b2 = new Border();
+            b2.addValue(s2.Pos);
+            b2.addValue(e2.Pos);
+
+            //if (!b1.overlaps(b2)) return false; // not even overlaps -> no collision possible!
+
             return FindIntersection(new Vector(s1), new Vector(e1), new Vector(s2), new Vector(e2));
         }
         // Author: https://www.codeproject.com/Tips/862988/Find-the-Intersection-Point-of-Two-Line-Segments
@@ -387,6 +397,14 @@ namespace EasyLinkLib {
             if (lonX < this.LonXMin) return true;
             if (latY > this.LatYMax) return true;
             if (latY < this.LatYMin) return true;
+            return false;
+        }
+
+        public bool overlaps(Border b) {
+            if (!this.isOutside(new PointD(b.LonXMin, b.LatYMin))) return true;
+            if (!this.isOutside(new PointD(b.LonXMax, b.LatYMin))) return true;
+            if (!this.isOutside(new PointD(b.LonXMin, b.LatYMax))) return true;
+            if (!this.isOutside(new PointD(b.LonXMax, b.LatYMax))) return true;
             return false;
         }
     }

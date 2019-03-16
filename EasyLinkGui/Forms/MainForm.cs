@@ -187,10 +187,10 @@ namespace EasyLinkGui {
         private void calculateBestMultiThread() {
             Lib.Logging.log("start calculateBestMultiThread");
             shared = new SharedCalcData();
-            if (gs.Global.Anchors.Count == 2) {
-                int p1 = gs.Global.Anchors[0];
-                int p2 = gs.Global.Anchors[1];
-                gs.addLink(p1, p2);
+            if (gs.Global.AnchorsPortals.Count == 2) {
+                PortalInfo p1 = gs.Global.AnchorsPortals[0];
+                PortalInfo p2 = gs.Global.AnchorsPortals[1];
+                gs.addLink(p1.Guid, p2.Guid);
             }
 
             lock (shared) {
@@ -652,9 +652,9 @@ namespace EasyLinkGui {
                     if (filtered.ContainsKey(ni.Guid)) img = getIcon(BitmapIcon.filtered);
                     else if (gs.PortalData[i].InTriangle) {
                         img = getIcon(BitmapIcon.inFieldPortal);
-                    } else if (gs.Global.Anchors.Count == 2) {
-                        foreach (int anchor in gs.Global.Anchors) {
-                            if (!gs.checkLink(i, anchor)) {
+                    } else if (gs.Global.AnchorsPortals.Count == 2) {
+                        foreach (PortalInfo anchor in gs.Global.AnchorsPortals) {
+                            if (!gs.checkLink(gs.PortalInfos[i].Guid, anchor.Guid)) {
                                 img = getIcon(BitmapIcon.notLinkableToAnchor);
                                 break;
                             }
@@ -822,7 +822,7 @@ namespace EasyLinkGui {
 
                     context.MenuItems.Add("-");
 
-                    if (gs.Global.Anchors.Count > 0) {
+                    if (gs.Global.AnchorsPortals.Count > 0) {
                         mn = new MenuItem();
                         mn.Tag = item;
                         mn.Text = "Link to anchors";
@@ -979,9 +979,9 @@ namespace EasyLinkGui {
             GameState newgs = gs.clone();
             newgs.Parent = gs;
             bool allsuc = true;
-            if (gs.Global.Anchors.Count == 2) {
-                if (!gs.PortalData[gs.Global.Anchors[0]].SideLinks.ContainsKey(gs.Global.Anchors[1])) {
-                    allsuc &= newgs.addLink(gs.Global.Anchors[0], gs.Global.Anchors[1]);
+            if (gs.Global.AnchorsPortals.Count == 2) {
+                if (!gs.getPortalDataByGuid(gs.Global.AnchorsPortals[0].Guid).SideLinks.ContainsKey(gs.getIndexByGuid(gs.Global.AnchorsPortals[1].Guid))) {
+                    allsuc &= newgs.addLink(gs.Global.AnchorsPortals[0].Guid, gs.Global.AnchorsPortals[1].Guid);
                 }
             }
             foreach (PortalInfo lid in gs.Global.AnchorsPortals) {

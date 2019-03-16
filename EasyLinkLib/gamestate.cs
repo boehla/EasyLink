@@ -12,7 +12,7 @@ namespace EasyLinkLib {
         public Border borders = new Border();
         public LinkLookupTbl linkLookupTbl = null;
 
-        public List<int> Anchors = new List<int>();
+        //public List<int> Anchors = new List<int>();
         public List<PortalInfo> AnchorsPortals = new List<PortalInfo>();
 
         public Dictionary<string, int> PortalMapping = new Dictionary<string, int>();
@@ -92,6 +92,19 @@ namespace EasyLinkLib {
             get { return this.fields.Count; }
         }
 
+        public PortalInfo getPortalByGuid(string guid) {
+            if (!Global.PortalMapping.ContainsKey(guid)) return null;
+            return PortalInfos[Global.PortalMapping[guid]];
+        }
+        public int getIndexByGuid(string guid) {
+            if (!Global.PortalMapping.ContainsKey(guid)) return -1;
+            return Global.PortalMapping[guid];
+        }
+        public Portal getPortalDataByGuid(string guid) {
+            if (!Global.PortalMapping.ContainsKey(guid)) return null;
+            return pData[Global.PortalMapping[guid]];
+        }
+
         public void loadPortals(List<PortalInfo> pInfos) {
 
             glob = new GlobData();
@@ -108,11 +121,11 @@ namespace EasyLinkLib {
             glob.linkLookupTbl = new LinkLookupTbl(this);
         }
         public void loadGroup(Group p) {
-            this.Global.Anchors.Clear();
+            this.Global.AnchorsPortals.Clear();
             foreach (string item in p.AnchorGuids) {
                 for (int i = 0; i < this.PortalInfos.Count; i++) {
                     if (this.PortalInfos[i].Guid.Equals(item)) {
-                        this.Global.Anchors.Add(i);
+                        this.Global.AnchorsPortals.Add(this.getPortalByGuid(item));
                         this.PortalData[i].KeysLeft = 1000000;
                     }
                 }
@@ -155,6 +168,9 @@ namespace EasyLinkLib {
         public bool isLinkCrossing(PointD p1, PointD p2) {
             return geohelper.crossLink(this, p1, p2);
         }
+        public bool checkLink(string p1id, string p2id) {
+            return checkLink(glob.PortalMapping[p1id], glob.PortalMapping[p2id]);
+        }
         public bool checkLink(int p1id, int p2id) {
             if (p1id == p2id) return false;
             if (p1id < 0 || p2id < 0) return false;
@@ -169,7 +185,7 @@ namespace EasyLinkLib {
 
             //if(geohelper.crossLink(this, p1id, p2id)) return "cannot link because it would cross other link!";
             if (glob.linkLookupTbl.crossLink(this, p1id, p2id)) {
-                if (Global.Anchors.Count == 2) {
+                if (Global.AnchorsPortals.Count == 2) {
                     //this.PortalData[p1id].InTriangle = true;
                 }
                 return false;
@@ -178,6 +194,7 @@ namespace EasyLinkLib {
             return true;
         }
         public bool addLink(string p1id, string p2id) {
+            if ((getIndexByGuid(p1id) < 0) && (getIndexByGuid(p2id) < 0)) return false;
             return addLink(Global.PortalMapping[p1id], Global.PortalMapping[p2id]);
         }
         public bool addLink(int p1id, int p2id) {
@@ -252,15 +269,16 @@ namespace EasyLinkLib {
             GameState gs = this.clone();
             gs.Parent = this;
 
-            if(glob.Anchors != null && glob.Anchors.Count > 0) {
-                if (glob.Anchors.Count == 2) {
+            if(glob.AnchorsPortals != null && glob.AnchorsPortals.Count > 0) {
+                if (glob.AnchorsPortals.Count == 2) {
                     for (int p1 = 0; p1 < this.pData.Count; p1++) {
                         if (!gs.pData[p1].OutLinkPossible) continue;
-                        if (this.glob.Anchors.Contains(p1)) continue;
+                        if (this.glob.AnchorsPortals.Contains(gs.PortalInfos[p1])) continue;
                         gs = this.clone();
                         gs.Parent = this;
                         bool allSucessfully = true;
-                        foreach (int p2 in this.Global.Anchors) {
+                        foreach (PortalInfo p2Portal in this.Global.AnchorsPortals) {
+                            int p2 = Global.PortalMapping[p2Portal.Guid];
                             if (p1 == p2) continue;
                             
                             if (!gs.addLink(p1, p2)) {
@@ -277,8 +295,8 @@ namespace EasyLinkLib {
                             gs.Parent = this;
                         }
                     }
-                } else if (glob.Anchors.Count == 1) {
-                    int anchor = glob.Anchors[0];
+                } else if (glob.AnchorsPortals.Count == 1) {
+                    int anchor = glob.PortalMapping[glob.AnchorsPortals[0].Guid];
                     for (int p1 = 0; p1 < this.pData.Count; p1++) {
                         if (p1 == anchor) continue;
                         if (!gs.pData[p1].OutLinkPossible) continue;
@@ -480,7 +498,7 @@ namespace EasyLinkLib {
 
     }
     public class Portal {
-        public int KeysLeft = 0;
+        public int KeysLeft = 999;
         public bool InTriangle = false;
         public Dictionary<int, bool> SideLinks = new Dictionary<int, bool>();
         public int Outlinkscount = 0;
