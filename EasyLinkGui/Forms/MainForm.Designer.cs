@@ -106,6 +106,7 @@
             this.olvDeleteColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
+            this.olvColumn19 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -446,6 +447,7 @@
             this.olvPortals.AllColumns.Add(this.olvColumn4);
             this.olvPortals.AllColumns.Add(this.olvColumn17);
             this.olvPortals.AllColumns.Add(this.olvColumn1);
+            this.olvPortals.AllColumns.Add(this.olvColumn19);
             this.olvPortals.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -468,7 +470,8 @@
             this.olvColumn5,
             this.olvColumn4,
             this.olvColumn17,
-            this.olvColumn1});
+            this.olvColumn1,
+            this.olvColumn19});
             this.olvPortals.EmptyListMsg = "Portaldatabase is empty. First load from [Portaldatabase] - [Load from intal map]" +
     "";
             this.olvPortals.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -992,6 +995,13 @@
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
             // 
+            // olvColumn19
+            // 
+            this.olvColumn19.AspectName = "MapTile";
+            this.olvColumn19.CellPadding = null;
+            this.olvColumn19.IsEditable = false;
+            this.olvColumn19.Text = "MapTile";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1116,6 +1126,7 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Button bToogleLayers;
         private System.Windows.Forms.CheckedListBox clbMapLayers;
+        private BrightIdeasSoftware.OLVColumn olvColumn19;
     }
 }
 

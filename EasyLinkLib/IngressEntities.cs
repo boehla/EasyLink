@@ -16,11 +16,13 @@ namespace EasyLinkLib {
         public string Guid { get; set; }
         public DateTime Date { get; set; }
         public DateTime CreateDate { get; set; }
-        public CoreEntity(JToken data) {
+        public string MapTile { get; set; }
+        public CoreEntity(JToken data, string maptile) {
             if (data == null) return;
             Guid = Lib.Converter.toString(data[0]);
             Date = Lib.Converter.toDateTime(Lib.Converter.toLong(data[1]) / 1000, DateTime.MinValue, "1970");
             CreateDate = DateTime.UtcNow;
+            this.MapTile = maptile;
         }
         public double latlonConverter(int val) {
             return val / 1e6;
@@ -79,7 +81,7 @@ namespace EasyLinkLib {
         public string Image { get; }
         public bool Mission { get; }
 
-        public PortalEntity(JToken data) : base(data) {
+        public PortalEntity(JToken data, string maptile) : base(data, maptile) {
             JToken details = data[2];
             if (!Lib.Converter.toString(details[0]).Equals("p")) throw new Exception("This is not a portal!");
 
@@ -120,7 +122,7 @@ dLngE6: ent[2][7]
             }
         }
 
-        public LinkEntity(JToken data) : base(data) {
+        public LinkEntity(JToken data, string maptile) : base(data, maptile) {
 
     JToken details = data[2];
             if (!Lib.Converter.toString(details[0]).Equals("e")) throw new Exception("This is not a Link!");
@@ -133,7 +135,7 @@ dLngE6: ent[2][7]
             this.DGuid = Lib.Converter.toString(details[5]);
             this.DPos = new PointD(latlonConverter(Lib.Converter.toInt(details[7])), latlonConverter(Lib.Converter.toInt(details[6])));
         }
-        public LinkEntity(LinkEntityDataset val) : base(null) {
+        public LinkEntity(LinkEntityDataset val) : base(null, val.MapTile) {
             this.Guid = val.Guid;
             this.Team = (IngressTeam)val.Team;
             this.CreateDate = val.LastRefresh;
@@ -170,7 +172,7 @@ points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6
 */
     public class FieldEntity : CoreEntity {
 
-        public FieldEntity(JToken data) : base(data) {
+        public FieldEntity(JToken data, string maptile) : base(data, maptile) {
 
             JToken details = data[2];
             if (!Lib.Converter.toString(details[0]).Equals("r")) throw new Exception("This is not a Field!");

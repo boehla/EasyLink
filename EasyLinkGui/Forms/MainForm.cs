@@ -24,7 +24,7 @@ namespace EasyLinkGui {
     public partial class MainForm : Form {
         bool cancel = false;
 
-        enum BitmapIcon { normalPortal, inFieldPortal, notLinkableToAnchor, filtered, disabledPortal, selectPoly };
+        enum BitmapIcon { normalPortalNeutral, normalPortalEn, normalPortalRes, inFieldPortal, notLinkableToAnchor, filtered, disabledPortalNeutral, disabledPortalEn, disabledPortalRes, selectPoly };
         Dictionary<BitmapIcon, Bitmap> bitMapBuffer = new Dictionary<BitmapIcon, Bitmap>();
 
         enum MapOverlay { gamePortals, gameLinks, gameFields, gameWay, externLinks, selected, disabled };
@@ -98,8 +98,14 @@ namespace EasyLinkGui {
                 case BitmapIcon.filtered:
                     ret = DrawFilledCircle(Color.Green, size * 2, size * 2);
                     break;
-                case BitmapIcon.disabledPortal:
+                case BitmapIcon.disabledPortalNeutral:
                     ret = DrawEmptyCircle(Color.FromArgb(150, Color.Black), size, size);
+                    break;
+                case BitmapIcon.disabledPortalEn:
+                    ret = DrawEmptyCircle(Color.FromArgb(150, CoreEntity.getTeamColor(IngressTeam.Enlightened)), size, size);
+                    break;
+                case BitmapIcon.disabledPortalRes:
+                    ret = DrawEmptyCircle(Color.FromArgb(150, CoreEntity.getTeamColor(IngressTeam.Resistance)), size, size);
                     break;
                 case BitmapIcon.inFieldPortal:
                     ret = DrawFilledCircle(Color.DarkGray, size, size);
@@ -107,8 +113,14 @@ namespace EasyLinkGui {
                 case BitmapIcon.notLinkableToAnchor:
                     ret = DrawFilledCircle(Color.LightPink, size, size);
                     break;
+                case BitmapIcon.normalPortalEn:
+                    ret = DrawFilledCircle(CoreEntity.getTeamColor(IngressTeam.Enlightened), size, size);
+                    break;
+                case BitmapIcon.normalPortalRes:
+                    ret = DrawFilledCircle(CoreEntity.getTeamColor(IngressTeam.Resistance), size, size);
+                    break;
                 default:
-                case BitmapIcon.normalPortal:
+                case BitmapIcon.normalPortalNeutral:
                     ret = DrawFilledCircle(Color.Black, size, size);
                     break;
             }
@@ -305,8 +317,6 @@ namespace EasyLinkGui {
         }
 
         private void Form1_Load(object sender, EventArgs e) {
-            refresh();
-
             gmap.ShowCenter = false;
             gmap.MaxZoom = 19;
             gmap.MinZoom = 5;
@@ -325,7 +335,7 @@ namespace EasyLinkGui {
             gmap.Position = new PointLatLng((double)opts.get("gmap_pos_lat", 47.45043).DecimalValue, (double)opts.get("gmap_pos_lon", 9.83109).DecimalValue);
             gmap.Zoom = (double)opts.get("gmap_zoom", gmap.Zoom).DecimalValue;
 
-            loadGroup("AutoSave");
+            
 
             foreach (MapOverlay suit in (MapOverlay[])Enum.GetValues(typeof(MapOverlay))) {
                 overLays[suit] = new GMapOverlay();
@@ -334,17 +344,13 @@ namespace EasyLinkGui {
                 clbMapLayers.Items.Add(new MapLayerCheckItem(suit.ToString(), suit), opts.get("MapLayerCheckItem_" + (int)suit, true).BoolValue);
             }
 
+            loadGroup("AutoSave");
             refreshGroupList();
             addEntities(ingressDatabase.getAllOtherLinks());
 
             refreshDestryPortalList();
-
-            /*
-            List<PortalInfo> all = ingressDatabase.getAll();
-            foreach (PortalInfo item in all) {
-                item.ReverseGeoCodingDone = false;
-            }
-            ingressDatabase.updatePortals(all); */
+            
+            refresh();
         }
 
         private Bitmap DrawFilledCircle(Color c, int x, int y) {
@@ -517,6 +523,7 @@ namespace EasyLinkGui {
                     }
                 }
             }
+            refreshDisabledPortals();
         }
 
         private void bDbDisable_Click(object sender, EventArgs e) {
@@ -619,7 +626,6 @@ namespace EasyLinkGui {
             bCalcStop.Enabled = !calcing;
         }
         Dictionary<string, PortalInfo> tmpPortals = new Dictionary<string, PortalInfo>();
-        Dictionary<string, int> portalMapping = new Dictionary<string, int>();
         private void refreshGoogleMaps() {
             if (gs != null && gmap != null && gmap.Overlays.Count > 0) {
                 overLays[MapOverlay.gamePortals].Clear();
@@ -634,7 +640,15 @@ namespace EasyLinkGui {
                 }
                 for (int i = 0; i < gs.PortalData.Count; i++) {
                     PortalInfo ni = gs.PortalInfos[i];
-                    Bitmap img = getIcon(BitmapIcon.normalPortal);
+                    Bitmap img = getIcon(BitmapIcon.normalPortalNeutral);
+                    if (ni.Team != IngressTeam.None && ni.Lastrefresh.AddDays(1) > DateTime.UtcNow) {
+                        if (ni.Team == IngressTeam.Enlightened) {
+                            img = getIcon(BitmapIcon.normalPortalEn);
+                        } else if (ni.Team == IngressTeam.Resistance) {
+                            img = getIcon(BitmapIcon.normalPortalRes);
+                        }
+                    }
+
                     if (filtered.ContainsKey(ni.Guid)) img = getIcon(BitmapIcon.filtered);
                     else if (gs.PortalData[i].InTriangle) {
                         img = getIcon(BitmapIcon.inFieldPortal);
@@ -649,7 +663,6 @@ namespace EasyLinkGui {
                     GMarkerGoogle marker =  new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), img);
                     //GmapMarkerWithLabel marker = new GmapMarkerWithLabel(new PointLatLng(ni.Pos.Y, ni.Pos.X), ni.Name, img, gmap);
                     portalsOnMap[ni.Guid] = true;
-                    portalMapping[ni.Guid] = i;
                     marker.Tag = ni;
                     marker.ToolTipText = ni.Name;
                     //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
@@ -726,7 +739,15 @@ namespace EasyLinkGui {
 
                     foreach (PortalInfo pid in new PortalInfo[] { p1tmp, p2tmp }) {
                         if (!portalsOnMap.ContainsKey(pid.Guid)) {
-                            GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(pid.Pos.Y, pid.Pos.X), getIcon(BitmapIcon.disabledPortal));
+                            Bitmap icon = getIcon(BitmapIcon.disabledPortalNeutral);
+                            if (pid.Team != IngressTeam.None && pid.Lastrefresh.AddDays(1) > DateTime.UtcNow) {
+                                if (pid.Team == IngressTeam.Enlightened) {
+                                    icon = getIcon(BitmapIcon.disabledPortalEn);
+                                } else if (pid.Team == IngressTeam.Resistance) {
+                                    icon = getIcon(BitmapIcon.disabledPortalRes);
+                                }
+                            }                       
+                            GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(pid.Pos.Y, pid.Pos.X), icon);
                             marker.Tag = pid;
                             marker.ToolTipText = pid.Name;
                             //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
@@ -782,18 +803,18 @@ namespace EasyLinkGui {
         private void gmap_OnMarkerEnter(GMapMarker item) {
             if (item.Tag is PortalInfo) {
                 PortalInfo ni = (PortalInfo)item.Tag;
-                if (!portalMapping.ContainsKey(ni.Guid)) return;
-                tsslMousePosition.Text = string.Format("{0}: {1}", ni.Name, portalMapping[ni.Guid]);
+                tsslMousePosition.Text = string.Format("{0}", ni.Name);
             }
         }
 
-        int startPortal = -1;
+        string startPortal = "";
         private void gmap_OnMarkerClick(GMapMarker item, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
                 context = new ContextMenu();
                 MenuItem mn = new MenuItem();
                 PortalInfo ni = (PortalInfo)item.Tag;
-                if (portalMapping.ContainsKey(ni.Guid)) {
+
+                if (ingressDatabase.getByGuid(ni.Guid) != null) { // Check if we have this portal already in database, otherwise it is a tmp portal (existing link)
                     mn.Tag = item;
                     mn.Text = "Add as anchor";
                     mn.Click += Mn_AnchorClick;
@@ -811,8 +832,8 @@ namespace EasyLinkGui {
                         context.MenuItems.Add("-");
                     }
 
-                    if (startPortal != -1) {
-                        PortalInfo startni = gs.PortalInfos[startPortal];
+                    if (startPortal.Length > 0) {
+                        PortalInfo startni = ingressDatabase.getByGuid(startPortal);
                         mn = new MenuItem();
                         mn.Tag = item;
                         mn.Text = "Link from " + startni.Name + " to here";
@@ -836,12 +857,19 @@ namespace EasyLinkGui {
 
                     context.MenuItems.Add("-");
 
-                    mn = new MenuItem();
-                    mn.Tag = item;
-                    mn.Text = "Deactivate";
-                    mn.Click += Mn_DeactiveClick;
-                    context.MenuItems.Add(mn);
-
+                    if (ni.Enabled) {
+                        mn = new MenuItem();
+                        mn.Tag = item;
+                        mn.Text = "Disable";
+                        mn.Click += Mn_DeactiveClick;
+                        context.MenuItems.Add(mn);
+                    } else {
+                        mn = new MenuItem();
+                        mn.Tag = item;
+                        mn.Text = "Enable";
+                        mn.Click += Mn_EnableClick;
+                        context.MenuItems.Add(mn);
+                    }
                 } else {
                     mn = new MenuItem();
                     mn.Tag = item;
@@ -898,7 +926,7 @@ namespace EasyLinkGui {
                 MenuItem mn = (MenuItem)sender;
                 GMapMarker marker = (GMapMarker)mn.Tag;
                 PortalInfo pid = (PortalInfo)marker.Tag;
-                startPortal = portalMapping[pid.Guid];
+                startPortal = pid.Guid;
             }
         }
         private void Mn_LinkToClick(object sender, EventArgs e) {
@@ -906,7 +934,7 @@ namespace EasyLinkGui {
                 MenuItem mn = (MenuItem)sender;
                 GMapMarker marker = (GMapMarker)mn.Tag;
                 PortalInfo pid = (PortalInfo)marker.Tag;
-                if (gs.addLink(startPortal, portalMapping[pid.Guid])) refresh();
+                if (gs.addLink(startPortal, pid.Guid)) refresh();
             }
         }
         private void Mn_DestroyClick(object sender, EventArgs e) {
@@ -918,6 +946,17 @@ namespace EasyLinkGui {
                 refreshDestryPortalList();
             }
         }
+        private void Mn_EnableClick(object sender, EventArgs e) {
+            if (sender is MenuItem) {
+                MenuItem mn = (MenuItem)sender;
+                GMapMarker marker = (GMapMarker)mn.Tag;
+                PortalInfo pid = (PortalInfo)marker.Tag;
+                pid.Enabled = true;
+                ingressDatabase.updatePortals(pid);
+                loadGameState();
+                refreshDisabledPortals();
+            }
+        }
         private void Mn_DeactiveClick(object sender, EventArgs e) {
             if (sender is MenuItem) {
                 MenuItem mn = (MenuItem)sender;
@@ -925,6 +964,7 @@ namespace EasyLinkGui {
                 PortalInfo pid = (PortalInfo)marker.Tag;
                 pid.Enabled = false;
                 ingressDatabase.updatePortals(pid);
+                loadGameState();
             }
         }
         private void Mn_LinkToAnchors(object sender, EventArgs e) {
@@ -932,10 +972,10 @@ namespace EasyLinkGui {
                 MenuItem mn = (MenuItem)sender;
                 GMapMarker marker = (GMapMarker)mn.Tag;
                 PortalInfo pid = (PortalInfo)marker.Tag;
-                linkToAnchors(portalMapping[pid.Guid]);
+                linkToAnchors(pid.Guid);
             }
         }
-        private void linkToAnchors(int id) {
+        private void linkToAnchors(string id) {
             GameState newgs = gs.clone();
             newgs.Parent = gs;
             bool allsuc = true;
@@ -944,8 +984,8 @@ namespace EasyLinkGui {
                     allsuc &= newgs.addLink(gs.Global.Anchors[0], gs.Global.Anchors[1]);
                 }
             }
-            foreach (int lid in gs.Global.Anchors) {
-                if (!newgs.addLink(id, lid)) {
+            foreach (PortalInfo lid in gs.Global.AnchorsPortals) {
+                if (!newgs.addLink(id, lid.Guid)) {
                     allsuc = false;
                     break;
                 }
@@ -958,8 +998,8 @@ namespace EasyLinkGui {
 
         private void gmap_OnMarkerDoubleClick(GMapMarker marker, MouseEventArgs e) {
             PortalInfo pid = (PortalInfo)marker.Tag;
-            if (!portalMapping.ContainsKey(pid.Guid)) return;
-            linkToAnchors(portalMapping[pid.Guid]);
+            if (!gs.Global.PortalMapping.ContainsKey(pid.Guid)) return;
+            linkToAnchors(pid.Guid);
         }
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e) {
@@ -1280,13 +1320,21 @@ namespace EasyLinkGui {
         }
         private void refreshDisabledPortals() {
             overLays[MapOverlay.disabled].Clear();
+            
+            foreach (PortalInfo ni in ingressDatabase.getAllDisabled()) {
+                Bitmap img = getIcon(BitmapIcon.disabledPortalNeutral);
+                if (ni.Team != IngressTeam.None && ni.Lastrefresh.AddDays(1) > DateTime.UtcNow) {
+                    if (ni.Team == IngressTeam.Enlightened) {
+                        img = getIcon(BitmapIcon.disabledPortalEn);
+                    } else if (ni.Team == IngressTeam.Resistance) {
+                        img = getIcon(BitmapIcon.disabledPortalRes);
+                    }
+                }
 
-            Bitmap img = getIcon(BitmapIcon.disabledPortal);
-            foreach (PortalInfo ni in ingressDatabase.getAllDisabled()) { 
                 GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), img);
                 marker.Tag = ni;
                 marker.ToolTipText = ni.Name;
-                marker.Bitmap = getIcon(BitmapIcon.disabledPortal);
+                marker.Bitmap = img;
                 overLays[MapOverlay.disabled].Markers.Add(marker);
             }
         }

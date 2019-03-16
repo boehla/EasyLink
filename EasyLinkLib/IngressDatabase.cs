@@ -38,6 +38,8 @@ namespace EasyLinkLib {
         public string Image { get; set; }
         public bool Mission { get; set; }
 
+        public string MapTile { get; set; }
+
         [BsonIgnore]
         public PointD Pos {
             get { return new PointD(X, Y); }
@@ -89,6 +91,8 @@ namespace EasyLinkLib {
         public double DPosX { get; set; }
         public double DPosY { get; set; }
         public string DGuid { get; set; }
+
+        public string MapTile { get; set; }
     }
     public class SettingsDataset {
         [BsonId]
@@ -166,6 +170,7 @@ namespace EasyLinkLib {
                     p.ResCount = pent.ResCount;
                     p.Image = pent.Image;
                     p.Mission = pent.Mission;
+                    p.MapTile = pent.MapTile;
 
                     upportals.Add(p);
                 }

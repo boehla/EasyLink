@@ -14,6 +14,8 @@ namespace EasyLinkLib {
 
         public List<int> Anchors = new List<int>();
         public List<PortalInfo> AnchorsPortals = new List<PortalInfo>();
+
+        public Dictionary<string, int> PortalMapping = new Dictionary<string, int>();
     }
 
     public class Link {
@@ -97,9 +99,11 @@ namespace EasyLinkLib {
             pData = new List<Portal>(pInfos.Count);
             fields = new List<Field>();
             glob.borders = new Border();
+            glob.PortalMapping.Clear();
             for(int i = 0; i < pInfos.Count; i++) {
                 pData.Add(new Portal());
                 glob.borders.addValue(pInfos[i].Pos);
+                glob.PortalMapping[pInfos[i].Guid] = i;
             }
             glob.linkLookupTbl = new LinkLookupTbl(this);
         }
@@ -173,7 +177,9 @@ namespace EasyLinkLib {
 
             return true;
         }
-
+        public bool addLink(string p1id, string p2id) {
+            return addLink(Global.PortalMapping[p1id], Global.PortalMapping[p2id]);
+        }
         public bool addLink(int p1id, int p2id) {
             if (!checkLink(p1id, p2id)) return false;
 

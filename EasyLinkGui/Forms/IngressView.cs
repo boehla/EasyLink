@@ -74,9 +74,9 @@ namespace EasyLinkGui {
                     if (maps.Value["gameEntities"] == null) continue;
                     foreach (JToken gameentity in maps.Value["gameEntities"]) {
                         switch (Lib.Converter.toString(gameentity[2][0])) {
-                            case "p": if(cbLoadPortals.Checked) ret.Add(new PortalEntity(gameentity)); break;
-                            case "e": if(cbLoadLinks.Checked) ret.Add(new LinkEntity(gameentity)); break;
-                            //case "r": if(cbLoadPortals.Checked) ret.Add(new PortalEntity(gameentity)); break;
+                            case "p": if(cbLoadPortals.Checked) ret.Add(new PortalEntity(gameentity, maps.Name)); break;
+                            case "e": if(cbLoadLinks.Checked) ret.Add(new LinkEntity(gameentity, maps.Name)); break;
+                                //case "r": if(cbLoadPortals.Checked) ret.Add(new PortalEntity(gameentitygameentity, maps.Name)); break;
                         }
                     }
                 }
@@ -317,6 +317,15 @@ namespace EasyLinkGui {
             //MemoryStreamResponseFilter memFilter;
             public override IResponseFilter GetResourceResponseFilter(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response) {
                 var url = new Uri(request.Url);
+
+                if (request.PostData != null) {
+                    string dat = "";
+                    foreach (var va in request.PostData.Elements) {
+                        if (dat.Length > 0) dat += "\r\n";
+                        dat += Encoding.ASCII.GetString(va.Bytes);
+                    }
+                    Lib.Logging.log("intelrequest.txt", url + ": " + dat);
+                }
 
                 if (url.Equals("https://intel.ingress.com/r/getEntities")) {
                     return new MemoryStreamResponseFilter(mv);
