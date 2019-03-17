@@ -76,11 +76,14 @@
             this.olvColumn4 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn17 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn1 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn19 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.bDbInvert = new System.Windows.Forms.Button();
             this.bDbEnable = new System.Windows.Forms.Button();
             this.bDbDisable = new System.Windows.Forms.Button();
             this.tbDbSearch = new System.Windows.Forms.TextBox();
             this.tabMap = new System.Windows.Forms.TabPage();
+            this.lbMapProviders = new System.Windows.Forms.ListBox();
+            this.bToogleProviders = new System.Windows.Forms.Button();
             this.bToogleLayers = new System.Windows.Forms.Button();
             this.clbMapLayers = new System.Windows.Forms.CheckedListBox();
             this.gmap = new GMap.NET.WindowsForms.GMapControl();
@@ -106,7 +109,6 @@
             this.olvDeleteColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
-            this.olvColumn19 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -601,6 +603,13 @@
             this.olvColumn1.IsEditable = false;
             this.olvColumn1.Text = "Guid";
             // 
+            // olvColumn19
+            // 
+            this.olvColumn19.AspectName = "MapTile";
+            this.olvColumn19.CellPadding = null;
+            this.olvColumn19.IsEditable = false;
+            this.olvColumn19.Text = "MapTile";
+            // 
             // bDbInvert
             // 
             this.bDbInvert.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -646,6 +655,8 @@
             // 
             // tabMap
             // 
+            this.tabMap.Controls.Add(this.lbMapProviders);
+            this.tabMap.Controls.Add(this.bToogleProviders);
             this.tabMap.Controls.Add(this.bToogleLayers);
             this.tabMap.Controls.Add(this.clbMapLayers);
             this.tabMap.Controls.Add(this.gmap);
@@ -663,6 +674,28 @@
             this.tabMap.TabIndex = 1;
             this.tabMap.Text = "EasyLink Map";
             this.tabMap.UseVisualStyleBackColor = true;
+            // 
+            // lbMapProviders
+            // 
+            this.lbMapProviders.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbMapProviders.FormattingEnabled = true;
+            this.lbMapProviders.Location = new System.Drawing.Point(524, 65);
+            this.lbMapProviders.Name = "lbMapProviders";
+            this.lbMapProviders.Size = new System.Drawing.Size(120, 186);
+            this.lbMapProviders.TabIndex = 17;
+            this.lbMapProviders.Visible = false;
+            this.lbMapProviders.SelectedValueChanged += new System.EventHandler(this.lbMapProviders_SelectedValueChanged);
+            // 
+            // bToogleProviders
+            // 
+            this.bToogleProviders.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bToogleProviders.Location = new System.Drawing.Point(524, 36);
+            this.bToogleProviders.Name = "bToogleProviders";
+            this.bToogleProviders.Size = new System.Drawing.Size(120, 23);
+            this.bToogleProviders.TabIndex = 16;
+            this.bToogleProviders.Text = "Toogle providers";
+            this.bToogleProviders.UseVisualStyleBackColor = true;
+            this.bToogleProviders.Click += new System.EventHandler(this.bToogleProviders_Click);
             // 
             // bToogleLayers
             // 
@@ -995,13 +1028,6 @@
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
             // 
-            // olvColumn19
-            // 
-            this.olvColumn19.AspectName = "MapTile";
-            this.olvColumn19.CellPadding = null;
-            this.olvColumn19.IsEditable = false;
-            this.olvColumn19.Text = "MapTile";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1127,6 +1153,8 @@
         private System.Windows.Forms.Button bToogleLayers;
         private System.Windows.Forms.CheckedListBox clbMapLayers;
         private BrightIdeasSoftware.OLVColumn olvColumn19;
+        private System.Windows.Forms.ListBox lbMapProviders;
+        private System.Windows.Forms.Button bToogleProviders;
     }
 }
 

@@ -50,6 +50,14 @@ namespace EasyLinkGui {
                 opts.set("LastGroupNameSave", value);
             }
         }
+        public int MapProviderID {
+            get {
+                return opts.get("MapProvider", GMap.NET.MapProviders.GoogleMapProvider.Instance.DbId).IntValue;
+            }
+            set {
+                opts.set("MapProvider", value);
+            }
+        }
         public GameState GameState {
             get { return this.gs; }
         }
@@ -317,6 +325,17 @@ namespace EasyLinkGui {
         }
 
         private void Form1_Load(object sender, EventArgs e) {
+            lbMapProviders.Items.Add(new MapProvider(GMap.NET.MapProviders.GoogleMapProvider.Instance));
+            lbMapProviders.Items.Add(new MapProvider(GMap.NET.MapProviders.GoogleSatelliteMapProvider.Instance));
+            lbMapProviders.Items.Add(new MapProvider(GMap.NET.MapProviders.GoogleTerrainMapProvider.Instance));
+
+            lbMapProviders.Items.Add(new MapProvider(GMap.NET.MapProviders.BingOSMapProvider.Instance));
+            lbMapProviders.Items.Add(new MapProvider(GMap.NET.MapProviders.BingHybridMapProvider.Instance));
+            lbMapProviders.Items.Add(new MapProvider(GMap.NET.MapProviders.BingSatelliteMapProvider.Instance));
+            
+            lbMapProviders.Items.Add(new MapProvider(GMap.NET.MapProviders.OpenStreetMapProvider.Instance));
+            lbMapProviders.Items.Add(new MapProvider(GMap.NET.MapProviders.OpenStreet4UMapProvider.Instance));
+            
             gmap.ShowCenter = false;
             gmap.MaxZoom = 19;
             gmap.MinZoom = 5;
@@ -327,10 +346,20 @@ namespace EasyLinkGui {
             gmap.MouseWheelZoomType = MouseWheelZoomType.MousePositionWithoutCenter;
             gmap.DisableFocusOnMouseEnter = true;
 
-            //gmap.MapProvider = GMap.NET.MapProviders.BingMapProvider.Instance;
-            gmap.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
+            MapProvider curProv = null;
+            foreach (MapProvider item in lbMapProviders.Items) {
+                if (item.ID.Equals(MapProviderID)) {
+                    gmap.MapProvider = item.Provider;
+                    curProv = item;
+                }
+            }
+            if(curProv == null) {
+                curProv = (MapProvider)lbMapProviders.Items[0];
+            }
+            lbMapProviders.SelectedItem = curProv;
+            gmap.MapProvider = curProv.Provider;
+
             GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerAndCache;
-            //gmap.SetCurrentPositionByKeywords("Maputo, Mozambique");
 
             gmap.Position = new PointLatLng((double)opts.get("gmap_pos_lat", 47.45043).DecimalValue, (double)opts.get("gmap_pos_lon", 9.83109).DecimalValue);
             gmap.Zoom = (double)opts.get("gmap_zoom", gmap.Zoom).DecimalValue;
@@ -453,6 +482,8 @@ namespace EasyLinkGui {
             opts.saveIfNeeded();
             saveGroup("AutoSave");
             gmap.Dispose();
+            //ingressDatabase.Close();
+            Application.Exit();
         }
         private void bCreateGameState_Click(object sender, EventArgs e) {
             loadGameState();
@@ -1092,6 +1123,7 @@ namespace EasyLinkGui {
                     anchors[anguid] = true;
                 }
             }
+            destroyPortals.Clear();
             if (p.DestroyGuids != null) {
                 foreach (string destroyPortal in p.DestroyGuids) {
                     destroyPortals[destroyPortal] = true;
@@ -1104,6 +1136,8 @@ namespace EasyLinkGui {
             refreshAnchorList();
             refreshDestryPortalList();
             refresh();
+
+            this.Text = "EasyLink - " + LastGroupNameSave;
         }
         private void refreshLinkList() {
             if (gs == null) return;
@@ -1393,6 +1427,16 @@ namespace EasyLinkGui {
                 return this.Name;
             }
         }
+
+        private void bToogleProviders_Click(object sender, EventArgs e) {
+            lbMapProviders.Visible = !lbMapProviders.Visible;
+        }
+
+        private void lbMapProviders_SelectedValueChanged(object sender, EventArgs e) {
+            MapProvider pro = (MapProvider)lbMapProviders.SelectedItem;
+            gmap.MapProvider = pro.Provider;
+            MapProviderID = pro.ID;
+        }
     }
     public class DuplicateKeyComparer<TKey>
         :
@@ -1474,5 +1518,25 @@ namespace EasyLinkGui {
         #endregion
     }
 
+    public class MapProvider {
+        public int ID {
+            get { return this.Provider.DbId; }
+        }
+        public string Description;
+        public GMap.NET.MapProviders.GMapProvider Provider;
+
+        public MapProvider(GMap.NET.MapProviders.GMapProvider provider) {
+            this.Provider = provider;
+        }
+        public MapProvider(string desc, GMap.NET.MapProviders.GMapProvider provider) {
+            this.Description = desc;
+            this.Provider = provider;
+        }
+
+        public override string ToString() {
+            if (!Lib.Converter.isEmpty(this.Description)) return this.Description;
+            return Provider.Name;
+        }
+    }
 
 }

@@ -28,6 +28,8 @@
             this.pWebView = new System.Windows.Forms.Panel();
             this.cbLoadPortals = new System.Windows.Forms.CheckBox();
             this.cbLoadLinks = new System.Windows.Forms.CheckBox();
+            this.bSubmitPasscode = new System.Windows.Forms.Button();
+            this.tbPasscode = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // timer1
@@ -66,11 +68,33 @@
             this.cbLoadLinks.Text = "Load links";
             this.cbLoadLinks.UseVisualStyleBackColor = true;
             // 
+            // bSubmitPasscode
+            // 
+            this.bSubmitPasscode.Location = new System.Drawing.Point(399, 13);
+            this.bSubmitPasscode.Name = "bSubmitPasscode";
+            this.bSubmitPasscode.Size = new System.Drawing.Size(75, 23);
+            this.bSubmitPasscode.TabIndex = 2;
+            this.bSubmitPasscode.Text = "button1";
+            this.bSubmitPasscode.UseVisualStyleBackColor = true;
+            this.bSubmitPasscode.Visible = false;
+            this.bSubmitPasscode.Click += new System.EventHandler(this.bSubmitPasscode_Click);
+            // 
+            // tbPasscode
+            // 
+            this.tbPasscode.Location = new System.Drawing.Point(293, 15);
+            this.tbPasscode.Name = "tbPasscode";
+            this.tbPasscode.Size = new System.Drawing.Size(100, 20);
+            this.tbPasscode.TabIndex = 3;
+            this.tbPasscode.Text = "2d8zaxjwl2";
+            this.tbPasscode.Visible = false;
+            // 
             // IngressView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(561, 366);
+            this.Controls.Add(this.tbPasscode);
+            this.Controls.Add(this.bSubmitPasscode);
             this.Controls.Add(this.cbLoadLinks);
             this.Controls.Add(this.cbLoadPortals);
             this.Controls.Add(this.pWebView);
@@ -89,5 +113,7 @@
         private System.Windows.Forms.Panel pWebView;
         private System.Windows.Forms.CheckBox cbLoadPortals;
         private System.Windows.Forms.CheckBox cbLoadLinks;
+        private System.Windows.Forms.Button bSubmitPasscode;
+        private System.Windows.Forms.TextBox tbPasscode;
     }
 }

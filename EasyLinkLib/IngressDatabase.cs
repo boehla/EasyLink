@@ -267,5 +267,9 @@ namespace EasyLinkLib {
         public void setSettings(SettingsDataset settingsset) {
             settings.Upsert(settingsset);
         }
+        public void Close() {
+            db.Engine.Dispose();
+            db.Dispose();
+        }
     }
 }

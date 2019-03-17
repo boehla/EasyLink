@@ -43,8 +43,8 @@ namespace EasyLinkLib {
         }
         public static Color getTeamColor(IngressTeam team) {
             switch (team) {
-                case IngressTeam.Enlightened: return Color.Green;
-                case IngressTeam.Resistance: return Color.Blue;
+                case IngressTeam.Enlightened: return Color.FromArgb(1, 191, 2);
+                case IngressTeam.Resistance: return Color.FromArgb(0, 136, 255);
                 default: return Color.Gray;
             }
         }

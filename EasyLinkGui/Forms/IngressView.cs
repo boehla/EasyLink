@@ -14,16 +14,42 @@ using CefSharp.Handler;
 using CefSharp.WinForms;
 using Newtonsoft.Json.Linq;
 using EasyLinkLib;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Specialized;
 
 namespace EasyLinkGui {
     public partial class IngressView : Form {
         MainForm mf = null;
         public List<string> responses = new List<string>();
 
+        IRequest OrgKeyRequest = null;
+
         public void addResponse(string resp) {
             lock (responses) {
                 responses.Add(resp);
             }
+        }
+
+        private IRequest cloneRequest(IRequest req) {
+            IRequest ret = browser.GetMainFrame().CreateRequest();
+
+            ret.Url = req.Url;
+            ret.Method = req.Method;
+            ret.InitializePostData();
+            NameValueCollection headers = new NameValueCollection();
+            
+            //ret.Headers.Add(req.Headers);
+            foreach (string hkey in req.Headers.AllKeys) {
+                ret.Headers[hkey] = req.Headers[hkey].ToString();
+                headers.Add(hkey, req.Headers[hkey].ToString());
+            }
+            ret.Headers = headers;
+            foreach (var hkey in req.PostData.Elements) {
+                var element = ret.PostData.CreatePostDataElement();
+                element.Bytes = hkey.Bytes;
+                ret.PostData.AddElement(element);
+            }
+            return ret;
         }
 
         private  ChromiumWebBrowser browser;
@@ -32,7 +58,8 @@ namespace EasyLinkGui {
             InitializeComponent();
 
             CefSettings settings = new CefSettings();
-            settings.CachePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CEF";
+            settings.CachePath = "\\CEF";
+            //settings.CachePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CEF";
 
             if (!Cef.IsInitialized) {
                 Cef.Initialize(settings);
@@ -317,6 +344,7 @@ namespace EasyLinkGui {
             //MemoryStreamResponseFilter memFilter;
             public override IResponseFilter GetResourceResponseFilter(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response) {
                 var url = new Uri(request.Url);
+                string urlStr = url.ToString();
 
                 if (request.PostData != null) {
                     string dat = "";
@@ -326,7 +354,9 @@ namespace EasyLinkGui {
                     }
                     Lib.Logging.log("intelrequest.txt", url + ": " + dat);
                 }
-
+                if (url.Equals("https://intel.ingress.com/r/redeemReward")) {
+                    mv.OrgKeyRequest = mv.cloneRequest(request);
+                }
                 if (url.Equals("https://intel.ingress.com/r/getEntities")) {
                     return new MemoryStreamResponseFilter(mv);
                     //if (memFilter == null) memFilter = new MemoryStreamResponseFilter();
@@ -345,6 +375,27 @@ namespace EasyLinkGui {
 
         private void IngressView_Load(object sender, EventArgs e) {
 
+        }
+
+        private void bSubmitPasscode_Click(object sender, EventArgs e) {
+            IFrame frame = browser.GetMainFrame();
+
+           
+
+            if (OrgKeyRequest == null) return;
+            if (OrgKeyRequest.PostData == null) return;
+            if (OrgKeyRequest.PostData.Elements.Count != 1) return;
+
+            IRequest request = cloneRequest(OrgKeyRequest);
+
+            string dat = Encoding.ASCII.GetString(request.PostData.Elements[0].Bytes);
+            JObject ob = JObject.Parse(dat);
+            ob["passcode"] = tbPasscode.Text;
+
+            request.PostData.Elements[0].Bytes = Encoding.ASCII.GetBytes(ob.ToString(Newtonsoft.Json.Formatting.None));
+
+
+            frame.LoadRequest(request);
         }
     }
 
