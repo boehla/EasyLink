@@ -345,6 +345,8 @@ namespace EasyLinkGui {
             gmap.MouseWheelZoomEnabled = true;
             gmap.MouseWheelZoomType = MouseWheelZoomType.MousePositionWithoutCenter;
             gmap.DisableFocusOnMouseEnter = true;
+            gmap.IgnoreMarkerOnMouseWheel = true;
+            gmap.MapScaleInfoEnabled = true;
 
             MapProvider curProv = null;
             foreach (MapProvider item in lbMapProviders.Items) {
@@ -696,6 +698,7 @@ namespace EasyLinkGui {
                     portalsOnMap[ni.Guid] = true;
                     marker.Tag = ni;
                     marker.ToolTipText = ni.Name;
+                    marker.Offset = new Point(-img.Width / 2, -img.Height / 2);
                     //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
                     overLays[MapOverlay.gamePortals].Markers.Add(marker);
                 }
@@ -781,6 +784,7 @@ namespace EasyLinkGui {
                             GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(pid.Pos.Y, pid.Pos.X), icon);
                             marker.Tag = pid;
                             marker.ToolTipText = pid.Name;
+                            marker.Offset = new Point(-icon.Width / 2, -icon.Height / 2);
                             //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
                             overLays[MapOverlay.externLinks].Markers.Add(marker);
                         }
@@ -808,7 +812,6 @@ namespace EasyLinkGui {
                     lDestroyStatus.ForeColor = remainDestorys <= 0 ? Color.DarkGreen : Color.DarkRed;
                     overLays[MapOverlay.externLinks].Routes.Add(polygon);
                 }
-
 
                 gmap.Refresh();
 
@@ -1369,6 +1372,7 @@ namespace EasyLinkGui {
                 marker.Tag = ni;
                 marker.ToolTipText = ni.Name;
                 marker.Bitmap = img;
+                marker.Offset = new Point(-img.Width / 2, -img.Height / 2);
                 overLays[MapOverlay.disabled].Markers.Add(marker);
             }
         }
@@ -1394,7 +1398,7 @@ namespace EasyLinkGui {
         private void gmap_MouseDoubleClick(object sender, MouseEventArgs e) {
             PointLatLng pt = gmap.FromLocalToLatLng(e.X, e.Y);
 
-            gmap.Position = pt;
+            //gmap.Position = pt;
 
             if (e.Button.Equals(MouseButtons.Left)) {
                 gmap.Zoom += 1;
