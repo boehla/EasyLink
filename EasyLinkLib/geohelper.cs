@@ -66,7 +66,26 @@ namespace EasyLinkLib {
             }
 
             public override string ToString() {
-                return string.Format("{0} / {1}", this.Y, this.X);
+                return string.Format("{0},{1}", Lib.Converter.toString(this.Y), Lib.Converter.toString(this.X));
+            }
+            public bool Valid {
+                get { return Math.Abs(X) + Math.Abs(Y) > 0.00001; }
+            }
+        }
+        public struct RectangleD {
+            public double Top;
+            public double Bottom;
+            public double Left;
+            public double Right;
+            public RectangleD(double Left, double Right, double Bottom, double Top) {
+                this.Left = Left;
+                this.Right = Right;
+                this.Bottom = Bottom;
+                this.Top = Top;
+            }
+
+            public override string ToString() {
+                return string.Format("{0} / {1} / {2} / {3}", this.Left, this.Right, this.Bottom, this.Top);
             }
         }
 

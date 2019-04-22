@@ -20,7 +20,7 @@ namespace EasyLinkLib {
                 tmp = tmp >> 1;
                 bitcount++;
             }
-            if (bitcount * 4 >= 32) {
+            if (bitcount * 4 >= 32 || gs.PortalInfos.Count > 30) {
                 filename = "linklookup.bin";
                 //if (File.Exists(filename)) File.Delete(filename);
                 //fs = new FileStream(filename, FileMode.OpenOrCreate);

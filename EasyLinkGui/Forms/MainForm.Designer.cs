@@ -110,6 +110,7 @@
             this.olvDeleteColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
+            this.olvColumn21 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -912,11 +913,13 @@
             // 
             // olvLinks
             // 
+            this.olvLinks.AllColumns.Add(this.olvColumn21);
             this.olvLinks.AllColumns.Add(this.olvColumn2);
             this.olvLinks.AllColumns.Add(this.olvColumn7);
             this.olvLinks.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.SingleClick;
             this.olvLinks.CheckedAspectName = "";
             this.olvLinks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.olvColumn21,
             this.olvColumn2,
             this.olvColumn7});
             this.olvLinks.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -937,6 +940,7 @@
             this.olvColumn2.CellPadding = null;
             this.olvColumn2.Groupable = false;
             this.olvColumn2.IsEditable = false;
+            this.olvColumn2.Sortable = false;
             this.olvColumn2.Text = "Origin";
             this.olvColumn2.Width = 169;
             // 
@@ -946,6 +950,7 @@
             this.olvColumn7.AspectToStringFormat = "";
             this.olvColumn7.CellPadding = null;
             this.olvColumn7.FillsFreeSpace = true;
+            this.olvColumn7.Sortable = false;
             this.olvColumn7.Text = "Destination";
             // 
             // tabDestroyPortals
@@ -1036,6 +1041,13 @@
             // 
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
+            // 
+            // olvColumn21
+            // 
+            this.olvColumn21.AspectName = "Index";
+            this.olvColumn21.CellPadding = null;
+            this.olvColumn21.Groupable = false;
+            this.olvColumn21.Text = "Index";
             // 
             // MainForm
             // 
@@ -1165,6 +1177,7 @@
         private System.Windows.Forms.ListBox lbMapProviders;
         private System.Windows.Forms.Button bToogleProviders;
         private BrightIdeasSoftware.OLVColumn olvColumn20;
+        private BrightIdeasSoftware.OLVColumn olvColumn21;
     }
 }
 
