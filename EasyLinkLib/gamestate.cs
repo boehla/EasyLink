@@ -38,7 +38,7 @@ namespace EasyLinkLib {
 
     public class GameState {
         // global Info
-        GlobData glob = null;
+        GlobData glob = new GlobData();
 
         private List<Portal> pData = new List<Portal>();
         private List<Field> fields = new List<Field>();

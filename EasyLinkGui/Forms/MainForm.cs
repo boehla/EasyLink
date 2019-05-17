@@ -866,15 +866,21 @@ namespace EasyLinkGui {
                 // only for debugging:
                 List<PointD> allPoints = new List<PointD>();
                 Dictionary<PointD, bool> anchors = new Dictionary<PointD, bool>();
-                foreach (PortalInfo item in GameState.Global.AnchorsPortals) {
-                    anchors[item.Pos] = true;
+                if (GameState.Global != null) {
+                    foreach (PortalInfo item in GameState.Global.AnchorsPortals) {
+                        anchors[item.Pos] = true;
+                    }
                 }
                 foreach (PortalInfo pInfo in this.GameState.PortalInfos) {
                     if (!anchors.ContainsKey(pInfo.Pos)){
                         if(gs.TotalLinks == 0) {
-                            if (!gs.getPortalDataByGuid(pInfo.Guid).OutLinkPossible) continue;
+                            if (!gs.getPortalDataByGuid(pInfo.Guid).OutLinkPossible) {
+                                //continue;
+                            }
                         } else {
-                            if (gs.getPortalDataByGuid(pInfo.Guid).OutLinkPossible) continue;
+                            if (gs.getPortalDataByGuid(pInfo.Guid).OutLinkPossible) {
+                                //continue;
+                            }
                         }
                         
                         //if (!gs.linkToAllAnchorsPossible(pInfo)) continue;
@@ -882,9 +888,38 @@ namespace EasyLinkGui {
                     allPoints.Add(pInfo.Pos);
                 }
 
-                List<PointD> tmphull = ConvexHull.MakeConvexHull(allPoints);
+                //List<PointD> tmphull = ConvexHull.MakeConvexHull(allPoints);
 
-                if (tmphull.Count > 0 && anchors.Count == 1) {
+                if (anchors.Count == 1) {
+                    SortedList<double, PointD> anglePoints = new SortedList<double, PointD>();
+                    PointD anchor = anchors.Keys.ToArray()[0];
+                    foreach (PointD p in allPoints) {
+                        if (p.Equals(anchor)) continue;
+                        double angl = geohelper.GetAngle(p, anchor);
+                        anglePoints.Add(angl, p);
+                    }
+                    double biggestAngleKey = 0;
+                    double biggestAngleDiff = 0;
+                    for (int i = 0; i < anglePoints.Count; i++) {
+                        double anglediff = anglePoints.Keys[i] - anglePoints.Keys[(i + 1) % anglePoints.Count];
+                        anglediff = Math.Abs(anglediff);
+                        //if (anglediff < 0) anglediff += 2 * Math.PI;
+                        if (anglediff > biggestAngleDiff) {
+                            biggestAngleDiff = anglediff;
+                            biggestAngleKey = anglePoints.Keys[(i + 1) % anglePoints.Count];
+                        }
+                    }
+                    int startInd = anglePoints.IndexOfKey(biggestAngleKey);
+                    for (int i = 0; i < anglePoints.Count; i++) {
+                        double key = anglePoints.Keys[(i + startInd) % anglePoints.Count];
+                        PointD p = anglePoints[key];
+                        gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anchor]);
+                        for(int j = 0; j < i; j++) {
+                            double jkey = anglePoints.Keys[(startInd + j) % anglePoints.Count];
+                            gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anglePoints[jkey]]);
+                        }
+                    }
+                    /*
                     List<Triangle> remainTriangles = new List<Triangle>();
                     Triangle tmptr = new Triangle();
                     tmptr.subHull = tmphull;
@@ -972,6 +1007,7 @@ namespace EasyLinkGui {
                         GameState.addLink(item.Guid, GameState.Global.AnchorsPortals[0].Guid);
                     }
                     linkFromTriangle(0, tmptr, this.GameState);
+                    */
                 }
 
                 gmap.Refresh();
