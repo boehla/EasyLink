@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -18,12 +19,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 using static EasyLinkLib.geohelper;
 
 namespace EasyLinkGui {
     public partial class MainForm : Form {
-        bool cancel = false;
-
         enum BitmapIcon { normalPortalNeutral, normalPortalEn, normalPortalRes, inFieldPortal, notLinkableToAnchor, filtered, disabledPortalNeutral, disabledPortalEn, disabledPortalRes, selectPoly };
         Dictionary<BitmapIcon, Bitmap> bitMapBuffer = new Dictionary<BitmapIcon, Bitmap>();
 
@@ -145,210 +145,8 @@ namespace EasyLinkGui {
 
 
         
-
-        SharedCalcData shared = new SharedCalcData();
-        private void calculateBestMultiThread() {
-            Lib.Logging.log("start calculateBestMultiThread");
-            shared = new SharedCalcData();
-            if (gs.Global.AnchorsPortals.Count == 2) {
-                PortalInfo p1 = gs.Global.AnchorsPortals[0];
-                PortalInfo p2 = gs.Global.AnchorsPortals[1];
-                gs.addLink(p1.Guid, p2.Guid);
-            }
-
-            lock (shared) {
-                if (shared.RunningThreads > 0) {
-                    Lib.Logging.log("ignore calulate command because there are still some threads running!!");
-                }
-
-                shared.toDo.Add(0, gs);
-                shared.allGamesViewed.Add(gs.GetLongHashCode(), false);
-                shared.startCalc = DateTime.UtcNow;
-            }
-
-            List<PointD> allPoints = new List<PointD>();
-            Dictionary<PointD, PortalInfo> allMap = new Dictionary<PointD, PortalInfo>();
-            Dictionary<PointD, bool> anchors = new Dictionary<PointD, bool>();
-            foreach (PortalInfo item in GameState.Global.AnchorsPortals) {
-                anchors[item.Pos] = true;
-                allMap[item.Pos] = item;
-            }
-            foreach (PortalInfo pInfo in this.GameState.PortalInfos) {
-                if (!anchors.ContainsKey(pInfo.Pos)) {
-                }
-                allMap[pInfo.Pos] = pInfo;
-                allPoints.Add(pInfo.Pos);
-            }
-
-            List<List<PortalInfo>> layers = new List<List<PortalInfo>>();
-            while (allPoints.Count > GameState.Global.AnchorsPortals.Count) {
-                layers.Add(new List<PortalInfo>());
-
-
-                List<PointD> hull = ConvexHull.MakeConvexHull(allPoints);
-
-                List<PointD> toDel = new List<PointD>();
-                foreach (PointD p in allPoints) {
-                    if (hull.Contains(p)) continue;
-                    if (!geohelper.PointInPolygon(hull.ToArray(), p.X, p.Y)) toDel.Add(p);
-                }
-                foreach (PointD item in toDel) {
-                    allPoints.Remove(item);
-                }
-
-
-                foreach (PointD hullp in hull) {
-                    if (!anchors.ContainsKey(hullp)) {
-                        allPoints.Remove(hullp);
-                        layers[layers.Count - 1].Add(allMap[hullp]);
-                    }
-                }
-                if (hull.Count <= 2) break;
-            }
-            SortedList<float, GameState> toDo = new SortedList<float, GameState>(new DuplicateKeyComparer<float>());
-            toDo.Add(10000, gs.clone());
-            GameState best = gs;
-            for(int i = 0; i < layers.Count; i++) {
-                List<PortalInfo> layerPortals = layers[layers.Count - 1 - i];
-                List<GameState> newGames = new List<GameState>();
-                foreach (GameState game in toDo.Values) {
-                    PortalInfo nearest = null;
-                    double nearestDist = double.MaxValue;
-                    foreach (PortalInfo item in layerPortals) {
-                    
-                    
-                        lock (shared) {
-                            shared.lastHandled = game;
-                        }
-                        if (game.linkToAllAnchorsPossible(item)) {
-                            double curDist = double.MaxValue * 0.9;
-                            if(game.Parent.LastLinks.Count > 0) {
-                                PortalInfo lastPortal = game.Parent.LastLinks[game.Parent.LastLinks.Count - 1].P1;
-                                curDist = geohelper.calculateDistance(lastPortal, item);
-                            }
-                            if (nearestDist > curDist) {
-                                nearest = item;
-                                nearestDist = curDist;
-                            }
-                        }
-                    }
-                    if(nearest != null) {
-                        game.linkToAllAnchors(nearest);
-                        if (best.getAPScore() < game.getAPScore()) {
-                            best = game;
-                            lock (shared) {
-                                shared.bestGame = best;
-                            }
-                        }
-                            /*
-                            GameState tmpGame = game.clone();
-                            tmpGame.linkToAllAnchors(nearest);
-                            newGames.Add(tmpGame);
-                            if (best.getAPScore() < tmpGame.getAPScore()) {
-                                best = tmpGame;
-                                lock (shared) {
-                                    shared.bestGame = best;
-                                }
-                            }*/
-                        }
-                }
-                foreach (GameState ngame in newGames) {
-                    //toDo.Add(ngame.TotalFields, ngame);
-                }
-                while (toDo.Count > 500) toDo.RemoveAt(toDo.Count - 1);
-            }
-            //gs = best;
-            /*
-            for (int i = 0; i < (int)nudThreadCount.Value; i++) {
-                Thread d = new Thread(CalcThread);
-                d.IsBackground = true;
-                d.Priority = ThreadPriority.BelowNormal;
-
-
-                lock (shared) {
-                    shared.RunningThreads++;
-                }
-                d.Start();
-            }
-            */
-        }
         static int nextthreadid = 0;
-        public void CalcThread() {
-            bool alreadyCountDown = false;
-            int threadid = nextthreadid++;
-            try {
-                Lib.Logging.log("thread.txt", "Starting new Thread: " + threadid);
-                int countEmpty = 0;
-                while (!cancel) {
-                    GameState curToDo = null;
-                    lock (shared) {
-                        int targetThreads = (int)nudThreadCount.Value;
-                        while (targetThreads > shared.RunningThreads) {
-                            Thread d = new Thread(CalcThread);
-                            d.IsBackground = true;
-                            d.Priority = ThreadPriority.BelowNormal;
-                            shared.RunningThreads++;
-                            d.Start();
-                        }
-                        if (shared.RunningThreads > targetThreads) {
-                            alreadyCountDown = true;
-                            shared.RunningThreads--;
-                            return;
-                        }
-                        if (shared.toDo.Count > 0) {
-                            curToDo = shared.toDo.ElementAt(0).Value;
-                            shared.toDo.RemoveAt(0);
-                            countEmpty = 0;
-                        }
-                    }
-                    if (curToDo == null) {
-                        Thread.Sleep(1000);
-                        countEmpty++;
-                        if (countEmpty > 5) return;
-                        continue;
-                    }
-                    lock (shared) {
-                        shared.lastHandled = curToDo;
-                    }
-                    Lib.Performance.setWatch("GetAllPossible", true);
-                    List<GameState> nextgs = curToDo.getAllPossible();
-                    Lib.Performance.setWatch("GetAllPossible", false);
-
-
-                    foreach (GameState item in nextgs) {
-                        long hash = item.GetLongHashCode();
-                        float gamescore = (float)item.getGameScore();
-                        float searchscore = (float)item.getSearchScore();
-                        lock (shared) {
-                            if (shared.bestGame == null || gamescore >= shared.bestVal) {
-                                shared.bestVal = gamescore;
-                                shared.bestGame = item;
-                                shared.resultTime = DateTime.UtcNow;
-                            } else {
-                                if (shared.allGamesViewed.ContainsKey(hash)) continue;
-                            }
-                            shared.toDo.Add(searchscore, item);
-
-                            while (shared.toDo.Count > 10000) {
-                                shared.toDo.RemoveAt(shared.toDo.Count - 1);
-                            }
-
-                            shared.allGamesViewed[hash] = true;
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                Lib.Logging.logException("", ex);
-            } finally {
-                Lib.Logging.log("thread.txt", "Stop thread: " + threadid);
-                lock (shared) {
-                    if (!alreadyCountDown) shared.RunningThreads--;
-                    if (shared.RunningThreads == 0) {
-                        shared = new SharedCalcData();
-                    }
-                }
-            }
-        }
+       
 
         private void refresh() {
             refreshGoogleMaps();
@@ -362,10 +160,11 @@ namespace EasyLinkGui {
             sb.Append(string.Format("TotalFields: {0}\r\n", gs.Fields.Count));
             sb.Append(string.Format("TotalArea: {0:0.0}km²\r\n", gs.TotalArea / 1000 / 1000));
             sb.Append(string.Format("TotalWay: {0:0}m\r\n", gs.TotalWay));
-            lock (shared) {
+            /*
+            lock (shared) { //TODO
                 sb.Append(string.Format("CalcTime: {0}\r\n", Lib.Converter.formatTimeSpan(shared.resultTime - shared.startCalc)));
 
-            }
+            }*/
             tbGameInfos.Text = sb.ToString();
 
             List<Link> linkList = gs.getTotalLinkList();
@@ -418,10 +217,12 @@ namespace EasyLinkGui {
             
 
             foreach (MapOverlay suit in (MapOverlay[])Enum.GetValues(typeof(MapOverlay))) {
+                bool val = opts.get("MapLayerCheckItem_" + (int)suit, true).BoolValue;
                 overLays[suit] = new GMapOverlay();
+                overLays[suit].IsVisibile = val;
                 gmap.Overlays.Add(overLays[suit]);
-
-                clbMapLayers.Items.Add(new MapLayerCheckItem(suit.ToString(), suit), opts.get("MapLayerCheckItem_" + (int)suit, true).BoolValue);
+                
+                clbMapLayers.Items.Add(new MapLayerCheckItem(suit.ToString(), suit), val);
             }
 
             loadGroup("AutoSave");
@@ -468,22 +269,56 @@ namespace EasyLinkGui {
         }
 
 
+        private void onCalcFinishedMain(GameState gs) {
+            if (gs != null) {
+                this.gs = gs;
+                refreshGoogleMaps();
+            }
+            
+            bCalc.Enabled = true;
+            bCalcStop.Enabled = false;
+        }
+        private void onNewBestGameMain(GameState gs) {
+            if (gs == null) return;
+            this.gs = gs;
+            refreshGoogleMaps();
+        }
+        public void onCalculationFinished(GameState gs) {
+            try {
+                this.Invoke(new Action(() => onCalcFinishedMain(gs)));
+            }catch(Exception ex) {
+                Lib.Logging.logException("", ex);
+            }
+        }
+        public void OnNewBestGameState(GameState gs) {
+            try {
+                this.Invoke(new Action(() => onNewBestGameMain(gs)));
+            } catch (Exception ex) {
+                Lib.Logging.logException("", ex);
+            }
+        }
+        Algos.AlgoDummy autoLinkAlgo = null;
         private void bCalc_Click(object sender, EventArgs e) {
             //Thread d = new Thread(calculateBest);
+            if(gs.Global.AnchorsPortals.Count == 1) {
+                autoLinkAlgo = new Algos.MaxField();
+            } else {
+                autoLinkAlgo = new Algos.AgloBStart();
+            }
+            autoLinkAlgo.OnCalculationFinish += onCalculationFinished;
+            autoLinkAlgo.OnNewBestGameState += OnNewBestGameState;
+            autoLinkAlgo.startCalc(gs);
+
+
             bCalc.Enabled = false;
             bCalcStop.Enabled = true;
-            cancel = false;
-            Thread d = new Thread(calculateBestMultiThread);
-            d.Name = "calculateBest";
-            d.IsBackground = true;
-            d.Start();
-
         }
         GameState lastPrinted = null;
         private void timer_Tick(object sender, EventArgs e) {
             long totaltested = 0;
             double highestTodo = 0;
             int todocount = 0;
+            /* TODO
             lock (shared) {
                 if (cbShowLastHandled.Checked && shared.lastHandled != null) {
                     gs = shared.lastHandled;
@@ -494,7 +329,7 @@ namespace EasyLinkGui {
                 totaltested = shared.allGamesViewed.Count;
                 todocount = shared.toDo.Count;
                 highestTodo = todocount > 0 ? shared.toDo.ElementAt(0).Value.getSearchScore() : -1;
-            }
+            } */
             tsslTotalTested.Text = string.Format("TotalTested: {0:n0}; TodoCount={1:n0} HighestTodo={2:n0}", totaltested, todocount, highestTodo);
             if (lastPrinted != gs || gs.HasChanges) {
                 refresh();
@@ -529,7 +364,6 @@ namespace EasyLinkGui {
         bool doClosing = false;
         private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
             doClosing = true;
-            cancel = true;
             opts.saveUI();
             opts.saveIfNeeded();
             saveGroup("AutoSave");
@@ -704,9 +538,9 @@ namespace EasyLinkGui {
                     olvPortals.ModelFilter = null;
                 }
             }
-            bool calcing = shared.RunningThreads == 0;
-            bCalc.Enabled = calcing;
-            bCalcStop.Enabled = !calcing;
+            //bool calcing = shared.RunningThreads == 0; // TODO
+            //bCalc.Enabled = calcing;
+            //bCalcStop.Enabled = !calcing;
         }
         Dictionary<string, PortalInfo> tmpPortals = new Dictionary<string, PortalInfo>();
         private void refreshGoogleMaps() {
@@ -891,34 +725,6 @@ namespace EasyLinkGui {
                 //List<PointD> tmphull = ConvexHull.MakeConvexHull(allPoints);
 
                 if (anchors.Count == 1) {
-                    SortedList<double, PointD> anglePoints = new SortedList<double, PointD>();
-                    PointD anchor = anchors.Keys.ToArray()[0];
-                    foreach (PointD p in allPoints) {
-                        if (p.Equals(anchor)) continue;
-                        double angl = geohelper.GetAngle(p, anchor);
-                        anglePoints.Add(angl, p);
-                    }
-                    double biggestAngleKey = 0;
-                    double biggestAngleDiff = 0;
-                    for (int i = 0; i < anglePoints.Count; i++) {
-                        double anglediff = anglePoints.Keys[i] - anglePoints.Keys[(i + 1) % anglePoints.Count];
-                        anglediff = Math.Abs(anglediff);
-                        //if (anglediff < 0) anglediff += 2 * Math.PI;
-                        if (anglediff > biggestAngleDiff) {
-                            biggestAngleDiff = anglediff;
-                            biggestAngleKey = anglePoints.Keys[(i + 1) % anglePoints.Count];
-                        }
-                    }
-                    int startInd = anglePoints.IndexOfKey(biggestAngleKey);
-                    for (int i = 0; i < anglePoints.Count; i++) {
-                        double key = anglePoints.Keys[(i + startInd) % anglePoints.Count];
-                        PointD p = anglePoints[key];
-                        gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anchor]);
-                        for(int j = 0; j < i; j++) {
-                            double jkey = anglePoints.Keys[(startInd + j) % anglePoints.Count];
-                            gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anglePoints[jkey]]);
-                        }
-                    }
                     /*
                     List<Triangle> remainTriangles = new List<Triangle>();
                     Triangle tmptr = new Triangle();
@@ -1016,68 +822,7 @@ namespace EasyLinkGui {
             }
         }
 
-        void linkFromTriangle(int lvl, Triangle tr, GameState game) {
-            foreach (Triangle triangle in tr.subTriangles) {
-                linkFromTriangle(lvl + 1, triangle, game);
-                if (lvl == 0 && triangle.p1.Valid && triangle.p2.Valid) { // total convex
-                    int p1 = game.Global.PortalMappingPointD[triangle.p1];
-                    int p2 = game.Global.PortalMappingPointD[triangle.p2];
-                    game.addLink(p1, p2);
-                }
-            }
-            if (tr.singlePoint.Valid) {
-                int p1 = game.Global.PortalMappingPointD[tr.p1];
-                int sp = game.Global.PortalMappingPointD[tr.singlePoint];
-                game.addLink(sp, p1);
-            }
-            if(tr.subHull.Count > 0) {
-
-                for (int i = 0; i < tr.subHull.Count; i++) {
-                    
-                    int hull = game.Global.PortalMappingPointD[tr.subHull[i]];
-                    if (tr.p1.Valid) {
-                        int p1 = game.Global.PortalMappingPointD[tr.p1];
-                        game.addLink(hull, p1);
-                    }
-
-                    if(i > 0) {
-                        int lasthull = game.Global.PortalMappingPointD[tr.subHull[i - 1]];
-                        game.addLink(hull, lasthull);
-                    }
-                    foreach (Triangle item in tr.subTriangles) {
-                        if (item.p2.Equals(tr.subHull[i])) {
-                            if (item.singlePoint.Valid) {
-                                int p2 = game.Global.PortalMappingPointD[item.p2];
-                                int sp = game.Global.PortalMappingPointD[item.singlePoint];
-                                game.addLink(p2, sp);
-                            }
-                        }
-                    }
-                }
-                
-                if (tr.p2.Valid) {
-                    //int p1 = game.Global.PortalMappingPointD[tr.p1];
-                    //int p2 = game.Global.PortalMappingPointD[tr.p2];
-                    //game.addLink(p2, p1);
-                    for (int i = 0; i < tr.subHull.Count; i++) {
-                        int p2 = game.Global.PortalMappingPointD[tr.p2];
-                        int hull = game.Global.PortalMappingPointD[tr.subHull[i]];
-                        game.addLink(p2, hull);
-                    }
-                }
-
-            }
-        }
-
-        class Triangle {
-            public PointD p1;
-            public PointD p2;
-
-            public List<PointD> subHull = new List<PointD>();
-            public List<Triangle> subTriangles = new List<Triangle>();
-
-            public PointD singlePoint;
-        }
+        
 
         private void gmap_OnMapDrag() {
             saveGMap();
@@ -1106,9 +851,15 @@ namespace EasyLinkGui {
             if (e.Button == MouseButtons.Left) {
                 context = new ContextMenu();
                 MenuItem mn = new MenuItem();
+                if (!(item.Tag is PortalInfo)) return;
                 PortalInfo ni = (PortalInfo)item.Tag;
 
                 if (ingressDatabase.getByGuid(ni.Guid) != null) { // Check if we have this portal already in database, otherwise it is a tmp portal (existing link)
+                    if (System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.LeftShift)) {
+                        linkToAnchors(ni.Guid);
+                        return;
+                    }
+
                     mn.Tag = item;
                     mn.Text = "Add as anchor";
                     mn.Click += Mn_AnchorClick;
@@ -1437,7 +1188,8 @@ namespace EasyLinkGui {
         }
 
         private void bCalcStop_Click(object sender, EventArgs e) {
-            cancel = true;
+            // TODO call algo cancel
+            if (autoLinkAlgo != null) autoLinkAlgo.cancel();
         }
 
         private void tcMain_SelectedIndexChanged(object sender, EventArgs e) {
@@ -1701,6 +1453,61 @@ namespace EasyLinkGui {
             gmap.MapProvider = pro.Provider;
             MapProviderID = pro.ID;
         }
+
+        private void ExportSvgToolStripMenuItem_Click(object sender, EventArgs e) {
+            saveFileDialogExportSvg.AddExtension = true;
+            saveFileDialogExportSvg.DefaultExt = ".svg";
+            if(saveFileDialogExportSvg.ShowDialog() == DialogResult.OK) {
+                StreamWriter fout = new StreamWriter(saveFileDialogExportSvg.FileName);
+                PointD refPoint = new PointD(gmap.ViewArea.LocationTopLeft.Lng, gmap.ViewArea.LocationTopLeft.Lat);
+                PointD rightBottom = convertPoint(refPoint, new PointD(gmap.ViewArea.LocationRightBottom.Lng, gmap.ViewArea.LocationRightBottom.Lat));
+                fout.WriteLine(string.Format(CultureInfo.InvariantCulture, @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<svg xmlns=""http://www.w3.org/2000/svg""
+	version=""1.1"" baseProfile=""full""
+	width=""700px"" height=""400px"" viewBox=""{0} {1} {2} {3}"">
+", 0, 0, rightBottom.X, rightBottom.Y));
+
+                foreach (LinkEntity link in externLinks.Values) {
+                    if (!pointInRec(gmap.ViewArea, link.DPos) && !pointInRec(gmap.ViewArea, link.OPos)) continue;
+                    PointD start = convertPoint(refPoint, link.OPos);
+                    PointD end = convertPoint(refPoint, link.DPos);
+                    //fout.WriteLine(string.Format(CultureInfo.InvariantCulture, @"<line x1=""{0}"" y1=""{1}"" x2=""{2}"" y2=""{3}"" stroke=""black"" stroke-width=""1px""/>", start.X, start.Y, end.X, end.Y));
+                }
+
+                foreach (Link link in gs.getTotalLinkList()) {
+                    if (!pointInRec(gmap.ViewArea, link.P1.Pos) && !pointInRec(gmap.ViewArea, link.P2.Pos)) continue;
+                    PointD start = convertPoint(refPoint, link.P1.Pos);
+                    PointD end = convertPoint(refPoint, link.P2.Pos);
+                    fout.WriteLine(string.Format(CultureInfo.InvariantCulture, @"<line x1=""{0}"" y1=""{1}"" x2=""{2}"" y2=""{3}"" stroke=""black"" stroke-width=""1px""/>", start.X, start.Y, end.X, end.Y));
+                }
+                fout.Write("</svg>");
+                fout.Close();
+            }
+
+
+        }
+        private PointD convertPoint(PointD refPoint, PointD p) {
+                double distX = CalcDistance(refPoint.X, refPoint.Y, p.X, refPoint.Y);
+                double distY = CalcDistance(refPoint.X, refPoint.Y, refPoint.X, p.Y);
+                if (refPoint.X - p.X > 0) distX *= -1;
+                if (refPoint.Y - p.Y < 0) distY *= -1;
+
+                return new PointD(distX, distY);
+        }
+        private bool pointInRec(RectLatLng rec, PointD p) {
+            RectLatLng other = new RectLatLng(new PointLatLng(p.Y, p.X), new SizeLatLng(0, 0));
+            return rec.IntersectsWith(other);
+            if (p.Y < rec.Bottom) return false;
+            if (p.Y < rec.Top) return false;
+            if (p.X > rec.Left) return false;
+            if (p.X < rec.Right) return false;
+            return true;
+        }
+        private void Gmap_KeyDown(object sender, KeyEventArgs e) {
+            if(e.KeyCode == Keys.Back) {
+                bShowParent_Click(null, null);
+            }
+        }
     }
     public class DuplicateKeyComparer<TKey>
         :
@@ -1718,19 +1525,7 @@ namespace EasyLinkGui {
 
         #endregion
     }
-    class SharedCalcData {
-        public float bestVal = 0;
-        public GameState bestGame = null;
-        public Dictionary<long, bool> allGamesViewed = new Dictionary<long, bool>();
-        public SortedList<float, GameState> toDo = new SortedList<float, GameState>(new DuplicateKeyComparer<float>());
-
-        public DateTime startCalc;
-        public DateTime resultTime;
-
-        public GameState lastHandled = null;
-
-        public int RunningThreads = 0;
-    }
+    
     class SharedGeoData {
         public List<PortalInfo> openGeoPortals = new List<PortalInfo>();
         public List<PortalInfo> finisedGeoPortals = new List<PortalInfo>();

@@ -44,6 +44,7 @@
             this.clearDisabledToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportSvgToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showDebugFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -102,6 +103,7 @@
             this.tabAnchors = new System.Windows.Forms.TabPage();
             this.tabLinks = new System.Windows.Forms.TabPage();
             this.olvLinks = new BrightIdeasSoftware.ObjectListView();
+            this.olvColumn21 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn7 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.tabDestroyPortals = new System.Windows.Forms.TabPage();
@@ -110,7 +112,7 @@
             this.olvDeleteColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
-            this.olvColumn21 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.saveFileDialogExportSvg = new System.Windows.Forms.SaveFileDialog();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -278,7 +280,8 @@
             // reportToolStripMenuItem
             // 
             this.reportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.generateReportToolStripMenuItem});
+            this.generateReportToolStripMenuItem,
+            this.exportSvgToolStripMenuItem});
             this.reportToolStripMenuItem.Name = "reportToolStripMenuItem";
             this.reportToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
             this.reportToolStripMenuItem.Text = "Report";
@@ -289,6 +292,13 @@
             this.generateReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
             this.generateReportToolStripMenuItem.Text = "Generate Report";
             this.generateReportToolStripMenuItem.Click += new System.EventHandler(this.generateReportToolStripMenuItem_Click);
+            // 
+            // exportSvgToolStripMenuItem
+            // 
+            this.exportSvgToolStripMenuItem.Name = "exportSvgToolStripMenuItem";
+            this.exportSvgToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.exportSvgToolStripMenuItem.Text = "Export svg";
+            this.exportSvgToolStripMenuItem.Click += new System.EventHandler(this.ExportSvgToolStripMenuItem_Click);
             // 
             // debugToolStripMenuItem
             // 
@@ -762,6 +772,7 @@
             this.gmap.OnMarkerEnter += new GMap.NET.WindowsForms.MarkerEnter(this.gmap_OnMarkerEnter);
             this.gmap.OnMapDrag += new GMap.NET.MapDrag(this.gmap_OnMapDrag);
             this.gmap.OnMapZoomChanged += new GMap.NET.MapZoomChanged(this.gmap_OnMapZoomChanged);
+            this.gmap.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Gmap_KeyDown);
             this.gmap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.gmap_MouseClick);
             this.gmap.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.gmap_MouseDoubleClick);
             // 
@@ -934,6 +945,13 @@
             this.olvLinks.View = System.Windows.Forms.View.Details;
             this.olvLinks.Resize += new System.EventHandler(this.olvLinks_Resize);
             // 
+            // olvColumn21
+            // 
+            this.olvColumn21.AspectName = "Index";
+            this.olvColumn21.CellPadding = null;
+            this.olvColumn21.Groupable = false;
+            this.olvColumn21.Text = "Index";
+            // 
             // olvColumn2
             // 
             this.olvColumn2.AspectName = "P1.Name";
@@ -1041,13 +1059,6 @@
             // 
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
-            // 
-            // olvColumn21
-            // 
-            this.olvColumn21.AspectName = "Index";
-            this.olvColumn21.CellPadding = null;
-            this.olvColumn21.Groupable = false;
-            this.olvColumn21.Text = "Index";
             // 
             // MainForm
             // 
@@ -1178,6 +1189,8 @@
         private System.Windows.Forms.Button bToogleProviders;
         private BrightIdeasSoftware.OLVColumn olvColumn20;
         private BrightIdeasSoftware.OLVColumn olvColumn21;
+        private System.Windows.Forms.ToolStripMenuItem exportSvgToolStripMenuItem;
+        private System.Windows.Forms.SaveFileDialog saveFileDialogExportSvg;
     }
 }
 
