@@ -66,7 +66,26 @@ namespace EasyLinkLib {
             }
 
             public override string ToString() {
-                return string.Format("{0} / {1}", this.Y, this.X);
+                return string.Format("{0},{1}", Lib.Converter.toString(this.Y), Lib.Converter.toString(this.X));
+            }
+            public bool Valid {
+                get { return Math.Abs(X) + Math.Abs(Y) > 0.00001; }
+            }
+        }
+        public struct RectangleD {
+            public double Top;
+            public double Bottom;
+            public double Left;
+            public double Right;
+            public RectangleD(double Left, double Right, double Bottom, double Top) {
+                this.Left = Left;
+                this.Right = Right;
+                this.Bottom = Bottom;
+                this.Top = Top;
+            }
+
+            public override string ToString() {
+                return string.Format("{0} / {1} / {2} / {3}", this.Left, this.Right, this.Bottom, this.Top);
             }
         }
 
@@ -87,6 +106,11 @@ namespace EasyLinkLib {
         }
         public static bool PointInPolygon(PointD[] Points, PortalInfo ni) {
             return PointInPolygon(Points, ni.Pos.X, ni.Pos.Y);
+        }
+        public static double GetAngle(PointD p1, PointD p2) {
+            double xDiff = p2.X - p1.X;
+            double yDiff = p2.Y - p1.Y;
+            return Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
         }
         // Author: http://csharphelper.com/blog/2014/07/determine-whether-a-point-is-inside-a-polygon-in-c/
         public static bool PointInPolygon(PointD[] Points, double X, double Y) {

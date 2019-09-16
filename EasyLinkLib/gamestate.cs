@@ -16,9 +16,11 @@ namespace EasyLinkLib {
         public List<PortalInfo> AnchorsPortals = new List<PortalInfo>();
 
         public Dictionary<string, int> PortalMapping = new Dictionary<string, int>();
+        public Dictionary<PointD, int> PortalMappingPointD = new Dictionary<PointD, int>();
     }
 
     public class Link {
+        public int Index;
         public PortalInfo P1;
         public PortalInfo P2;
         public Link(PortalInfo p1, PortalInfo p2) {
@@ -36,7 +38,7 @@ namespace EasyLinkLib {
 
     public class GameState {
         // global Info
-        GlobData glob = null;
+        GlobData glob = new GlobData();
 
         private List<Portal> pData = new List<Portal>();
         private List<Field> fields = new List<Field>();
@@ -44,6 +46,7 @@ namespace EasyLinkLib {
         private int linkCount = 0;
         private float totalWay = 0;
         private float totalArea = 0;
+        private bool _changed = false;
 
         private GameState parent = null;
         public List<Link> LastLinks { get; set; }
@@ -104,6 +107,13 @@ namespace EasyLinkLib {
             if (!Global.PortalMapping.ContainsKey(guid)) return null;
             return pData[Global.PortalMapping[guid]];
         }
+        public bool HasChanges {
+            get {
+                bool ret = _changed;
+                _changed = false;
+                return ret;
+            }
+        }
 
         public void loadPortals(List<PortalInfo> pInfos) {
 
@@ -117,6 +127,7 @@ namespace EasyLinkLib {
                 pData.Add(new Portal());
                 glob.borders.addValue(pInfos[i].Pos);
                 glob.PortalMapping[pInfos[i].Guid] = i;
+                glob.PortalMappingPointD[pInfos[i].Pos] = i;
             }
             glob.linkLookupTbl = new LinkLookupTbl(this);
         }
@@ -163,6 +174,9 @@ namespace EasyLinkLib {
                 }
                 rec = rec.parent;
             }
+            for(int i = 0; i < ret.Count; i++) {
+                ret[i].Index = i;
+            }
             return ret;
         }
         public bool isLinkCrossing(PointD p1, PointD p2) {
@@ -191,6 +205,22 @@ namespace EasyLinkLib {
                 return false;
             }
 
+            return true;
+        }
+        public bool linkToAllAnchorsPossible(PortalInfo pi) {
+            foreach (PortalInfo anchor in Global.AnchorsPortals) {
+                if (!checkLink(pi.Guid, anchor.Guid)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public bool linkToAllAnchors(PortalInfo pi) {
+            foreach (PortalInfo anchor in Global.AnchorsPortals) {
+                if (!addLink(pi.Guid, anchor.Guid)) {
+                    return false;
+                }
+            }
             return true;
         }
         public bool addLink(string p1id, string p2id) {
@@ -255,6 +285,7 @@ namespace EasyLinkLib {
                 f.Size = geohelper.calculateArea(this, f);
                 this.totalArea += (float)f.Size;
             }
+            _changed = true;
 
             /*
 
@@ -352,7 +383,7 @@ namespace EasyLinkLib {
             }
             ret.linkCount = this.linkCount;
             ret._cachedHashcode = this._cachedHashcode;
-            //ret.parent = this;
+            ret.parent = this;
             ret.totalWay = this.totalWay;
             ret.totalArea = this.TotalArea;
 
