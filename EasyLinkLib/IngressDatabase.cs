@@ -60,7 +60,9 @@ namespace EasyLinkLib {
             PortalInfo pi = (PortalInfo)obj;
             return this.Guid.Equals(pi.Guid);
         }
-
+        public override int GetHashCode() {
+            return this.Guid.GetHashCode();
+        }
     }
     public class Group {
         [BsonId]

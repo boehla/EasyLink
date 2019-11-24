@@ -98,7 +98,7 @@ namespace EasyLinkGui.Algos {
                         float gamescore = (float)item.getGameScore();
                         float searchscore = (float)item.getSearchScore();
                         lock (shared) {
-                            if (shared.bestGame == null || gamescore >= shared.bestVal) {
+                            if (shared.bestGame == null || gamescore > shared.bestVal) {
                                 shared.bestVal = gamescore;
                                 shared.bestGame = item;
                                 shared.resultTime = DateTime.UtcNow;

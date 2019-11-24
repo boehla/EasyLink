@@ -27,7 +27,7 @@ namespace EasyLinkGui {
         enum BitmapIcon { normalPortalNeutral, normalPortalEn, normalPortalRes, inFieldPortal, notLinkableToAnchor, filtered, disabledPortalNeutral, disabledPortalEn, disabledPortalRes, selectPoly };
         Dictionary<BitmapIcon, Bitmap> bitMapBuffer = new Dictionary<BitmapIcon, Bitmap>();
 
-        enum MapOverlay { gamePortals, gameLinks, gameFields, gameWay, externLinks, selected, disabled };
+        enum MapOverlay { gamePortals, gameLinks, gameFields, gameWay, externLinks, selected, disabled, carCharge };
         Dictionary<MapOverlay, GMapOverlay> overLays = new Dictionary<MapOverlay, GMapOverlay>();
 
         ContextMenu context = null;
@@ -1455,37 +1455,92 @@ namespace EasyLinkGui {
         }
 
         private void ExportSvgToolStripMenuItem_Click(object sender, EventArgs e) {
+            Forms.SvgExport svgExport = new Forms.SvgExport();
+
+            if (svgExport.ShowDialog() == DialogResult.Cancel) return;
+
             saveFileDialogExportSvg.AddExtension = true;
+            saveFileDialogExportSvg.Filter = "Vector grafic (*.svg)|*.svg";
+            saveFileDialogExportSvg.FileName = LastGroupNameSave + ".svg";
             saveFileDialogExportSvg.DefaultExt = ".svg";
-            if(saveFileDialogExportSvg.ShowDialog() == DialogResult.OK) {
-                StreamWriter fout = new StreamWriter(saveFileDialogExportSvg.FileName);
-                PointD refPoint = new PointD(gmap.ViewArea.LocationTopLeft.Lng, gmap.ViewArea.LocationTopLeft.Lat);
-                PointD rightBottom = convertPoint(refPoint, new PointD(gmap.ViewArea.LocationRightBottom.Lng, gmap.ViewArea.LocationRightBottom.Lat));
-                fout.WriteLine(string.Format(CultureInfo.InvariantCulture, @"<?xml version=""1.0"" encoding=""UTF-8""?>
+            if (saveFileDialogExportSvg.ShowDialog() != DialogResult.OK) return;
+
+            StreamWriter fout = new StreamWriter(saveFileDialogExportSvg.FileName);
+
+            PointD refPoint = new PointD(gmap.ViewArea.LocationTopLeft.Lng, gmap.ViewArea.LocationTopLeft.Lat);
+            PointD rightBottom = convertPoint(refPoint, new PointD(gmap.ViewArea.LocationRightBottom.Lng, gmap.ViewArea.LocationRightBottom.Lat));
+            fout.WriteLine(string.Format(CultureInfo.InvariantCulture, @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <svg xmlns=""http://www.w3.org/2000/svg""
 	version=""1.1"" baseProfile=""full""
 	width=""700px"" height=""400px"" viewBox=""{0} {1} {2} {3}"">
 ", 0, 0, rightBottom.X, rightBottom.Y));
 
-                foreach (LinkEntity link in externLinks.Values) {
-                    if (!pointInRec(gmap.ViewArea, link.DPos) && !pointInRec(gmap.ViewArea, link.OPos)) continue;
-                    PointD start = convertPoint(refPoint, link.OPos);
-                    PointD end = convertPoint(refPoint, link.DPos);
-                    //fout.WriteLine(string.Format(CultureInfo.InvariantCulture, @"<line x1=""{0}"" y1=""{1}"" x2=""{2}"" y2=""{3}"" stroke=""black"" stroke-width=""1px""/>", start.X, start.Y, end.X, end.Y));
-                }
+            List<EportLinkData> links = new List<EportLinkData>();
 
-                foreach (Link link in gs.getTotalLinkList()) {
-                    if (!pointInRec(gmap.ViewArea, link.P1.Pos) && !pointInRec(gmap.ViewArea, link.P2.Pos)) continue;
-                    PointD start = convertPoint(refPoint, link.P1.Pos);
-                    PointD end = convertPoint(refPoint, link.P2.Pos);
-                    fout.WriteLine(string.Format(CultureInfo.InvariantCulture, @"<line x1=""{0}"" y1=""{1}"" x2=""{2}"" y2=""{3}"" stroke=""black"" stroke-width=""1px""/>", start.X, start.Y, end.X, end.Y));
+            foreach (Forms.SvgExport.ExportOptions item in svgExport.Options) {
+                switch (item) {
+                    case Forms.SvgExport.ExportOptions.externLinks:
+                        foreach (LinkEntity link in externLinks.Values) {
+                            if (!pointInRec(gmap.ViewArea, link.DPos) && !pointInRec(gmap.ViewArea, link.OPos)) continue;
+                            //PointD start = convertPoint(refPoint, link.OPos);
+                            //PointD end = convertPoint(refPoint, link.DPos);
+                            links.Add(new EportLinkData(link.OPos, link.DPos));
+                        }
+                        break;
+                    case Forms.SvgExport.ExportOptions.gameLinks:
+                        foreach (Link link in gs.getTotalLinkList()) {
+                            if (!pointInRec(gmap.ViewArea, link.P1.Pos) && !pointInRec(gmap.ViewArea, link.P2.Pos)) continue;
+                            //PointD start = convertPoint(refPoint, link.P1.Pos);
+                            //PointD end = convertPoint(refPoint, link.P2.Pos);
+                            links.Add(new EportLinkData(link.P1.Pos, link.P2.Pos));
+                        }
+                        break;
                 }
-                fout.Write("</svg>");
-                fout.Close();
             }
+            PointD[] viewRec = new PointD[4];
+            viewRec[0] = new PointD(gmap.ViewArea.LocationRightBottom.Lng, gmap.ViewArea.LocationRightBottom.Lat);
+            viewRec[1] = new PointD(gmap.ViewArea.LocationTopLeft.Lng, gmap.ViewArea.LocationRightBottom.Lat);
+            viewRec[2] = new PointD(gmap.ViewArea.LocationTopLeft.Lng, gmap.ViewArea.LocationTopLeft.Lat);
+            viewRec[3] = new PointD(gmap.ViewArea.LocationRightBottom.Lng, gmap.ViewArea.LocationTopLeft.Lat);
+            foreach (EportLinkData link in links) {
+                if (!geohelper.PointInPolygon(viewRec, link.Origin)) {
+                    for (int i = 0; i < 4; i++) {
+                        Vector vector = geohelper.FindIntersection(viewRec[i % viewRec.Length], viewRec[(i + 1) % viewRec.Length], link.Origin, link.Destination);
+                        if (vector != null) {
+                            link.Origin = vector.toPointD();
+                            break;
+                        }
+                    }
 
+                }
+                if (!geohelper.PointInPolygon(viewRec, link.Destination)) {
+                    for (int i = 0; i < 4; i++) {
+                        Vector vector = geohelper.FindIntersection(viewRec[i % viewRec.Length], viewRec[(i + 1) % viewRec.Length], link.Origin, link.Destination);
+                        if (vector != null) {
+                            link.Destination = vector.toPointD();
+                            break;
+                        }
+                    }
+
+                }
+                PointD start = convertPoint(refPoint, link.Origin);
+                PointD end = convertPoint(refPoint, link.Destination);
+                fout.WriteLine(string.Format(CultureInfo.InvariantCulture, @"<line x1=""{0}"" y1=""{1}"" x2=""{2}"" y2=""{3}"" stroke=""black"" stroke-width=""1px""/>", start.X, start.Y, end.X, end.Y));
+            }
+            fout.Write("</svg>");
+            fout.Close();
 
         }
+        class EportLinkData {
+            public PointD Origin { get; set; }
+            public PointD Destination { get; set; }
+
+            public EportLinkData(PointD origin, PointD dest) {
+                this.Origin = origin;
+                this.Destination = dest;
+            }
+        }
+
         private PointD convertPoint(PointD refPoint, PointD p) {
                 double distX = CalcDistance(refPoint.X, refPoint.Y, p.X, refPoint.Y);
                 double distY = CalcDistance(refPoint.X, refPoint.Y, refPoint.X, p.Y);
@@ -1497,15 +1552,48 @@ namespace EasyLinkGui {
         private bool pointInRec(RectLatLng rec, PointD p) {
             RectLatLng other = new RectLatLng(new PointLatLng(p.Y, p.X), new SizeLatLng(0, 0));
             return rec.IntersectsWith(other);
-            if (p.Y < rec.Bottom) return false;
-            if (p.Y < rec.Top) return false;
-            if (p.X > rec.Left) return false;
-            if (p.X < rec.Right) return false;
-            return true;
         }
         private void Gmap_KeyDown(object sender, KeyEventArgs e) {
             if(e.KeyCode == Keys.Back) {
                 bShowParent_Click(null, null);
+            }
+        }
+
+        private void BRefreshCharging_Click(object sender, EventArgs e) {
+            double sw_lat = gmap.ViewArea.LocationRightBottom.Lat;
+            double sw_lng = gmap.ViewArea.LocationTopLeft.Lng;
+            double ne_lat = gmap.ViewArea.LocationTopLeft.Lat;
+            double ne_lng = gmap.ViewArea.LocationRightBottom.Lng;
+
+            string url = string.Format(CultureInfo.InvariantCulture, "https://api.goingelectric.de/chargepoints/?key={0}&sw_lat={1}&sw_lng={2}&ne_lat={3}&ne_lng={4}", "0ed798d8663dee421b81ec1971100cde", sw_lat, sw_lng, ne_lat, ne_lng);
+
+
+            //url = string.Format(CultureInfo.InvariantCulture, "https://api.goingelectric.de/chargepoints/?key={0}&lat={1}&lng={2}&radius=20", "0ed798d8663dee421b81ec1971100cde", gmap.ViewArea.LocationMiddle.Lat, gmap.ViewArea.Lng);
+
+            string data = Lib.HttpRequest.makeHttpRequestGet(url);
+            JObject ob = JObject.Parse(data);
+
+            if (Lib.JsonExtensions.IsNullOrEmpty(ob["chargelocations"])) return;
+
+            GMapOverlay ov = overLays[MapOverlay.carCharge];
+            ov.Clear();
+
+            foreach (JObject item in ob["chargelocations"]) {
+                double lat = Lib.Converter.toDouble(item["coordinates"]["lat"]);
+                double lon = Lib.Converter.toDouble(item["coordinates"]["lng"]);
+
+                string name = Lib.Converter.toString(item["name"]);
+                string network = Lib.Converter.toString(item["network"]);
+
+                name += "(" + network + ")";
+
+                GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(lat, lon), GMap.NET.WindowsForms.Markers.GMarkerGoogleType.blue_pushpin);
+                //GmapMarkerWithLabel marker = new GmapMarkerWithLabel(new PointLatLng(ni.Pos.Y, ni.Pos.X), ni.Name, img, gmap);
+                //marker.Tag = ni;
+                marker.ToolTipText = name;
+                //marker.Offset = new Point(-img.Width / 2, -img.Height / 2);
+                //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
+                ov.Markers.Add(marker);
             }
         }
     }

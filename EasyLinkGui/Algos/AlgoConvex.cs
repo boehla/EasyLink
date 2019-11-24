@@ -86,9 +86,12 @@ namespace EasyLinkGui.Algos {
                 }
             }
             */
-            foreach (PortalInfo item in gs.Global.pInfos) {
-                gs.addLink(item.Guid, gs.Global.AnchorsPortals[0].Guid);
+            foreach (PortalInfo anchor in gs.Global.AnchorsPortals) {
+                foreach (PortalInfo item in gs.Global.pInfos) {
+                    gs.addLink(item.Guid, anchor.Guid);
+                }
             }
+
 
             linkFromTriangle(0, tmptr, gs);
 

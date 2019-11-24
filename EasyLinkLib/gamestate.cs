@@ -225,6 +225,8 @@ namespace EasyLinkLib {
         }
         public bool addLink(string p1id, string p2id) {
             if ((getIndexByGuid(p1id) < 0) && (getIndexByGuid(p2id) < 0)) return false;
+            if (!Global.PortalMapping.ContainsKey(p1id)) return false;
+            if (!Global.PortalMapping.ContainsKey(p2id)) return false;
             return addLink(Global.PortalMapping[p1id], Global.PortalMapping[p2id]);
         }
         public bool addLink(int p1id, int p2id) {
@@ -490,7 +492,7 @@ namespace EasyLinkLib {
                 int to = this.LastLinks[this.Parent.LastLinks.Count - 1].P1;
                 return -geohelper.CalcDistance(PortalInfos[from], PortalInfos[to]);
             }*/
-            return -TotalWay + this.getAPScore(); // perfekt for 2 anchors
+            return this.getAPScore(); // perfekt for 2 anchors
             //return -TotalWay + this.getAPScore();
             //return this.getAPScore() / totalWay;
             //return this.getAPScore() / (TotalLinks + 1); // perfekt for 2 anchors

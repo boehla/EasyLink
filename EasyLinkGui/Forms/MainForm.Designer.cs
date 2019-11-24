@@ -85,6 +85,7 @@
             this.tbDbSearch = new System.Windows.Forms.TextBox();
             this.tabMap = new System.Windows.Forms.TabPage();
             this.lbMapProviders = new System.Windows.Forms.ListBox();
+            this.bRefreshCharging = new System.Windows.Forms.Button();
             this.bToogleProviders = new System.Windows.Forms.Button();
             this.bToogleLayers = new System.Windows.Forms.Button();
             this.clbMapLayers = new System.Windows.Forms.CheckedListBox();
@@ -113,6 +114,7 @@
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
             this.saveFileDialogExportSvg = new System.Windows.Forms.SaveFileDialog();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -281,6 +283,7 @@
             // 
             this.reportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.generateReportToolStripMenuItem,
+            this.toolStripSeparator4,
             this.exportSvgToolStripMenuItem});
             this.reportToolStripMenuItem.Name = "reportToolStripMenuItem";
             this.reportToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
@@ -289,14 +292,14 @@
             // generateReportToolStripMenuItem
             // 
             this.generateReportToolStripMenuItem.Name = "generateReportToolStripMenuItem";
-            this.generateReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.generateReportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.generateReportToolStripMenuItem.Text = "Generate Report";
             this.generateReportToolStripMenuItem.Click += new System.EventHandler(this.generateReportToolStripMenuItem_Click);
             // 
             // exportSvgToolStripMenuItem
             // 
             this.exportSvgToolStripMenuItem.Name = "exportSvgToolStripMenuItem";
-            this.exportSvgToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.exportSvgToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exportSvgToolStripMenuItem.Text = "Export svg";
             this.exportSvgToolStripMenuItem.Click += new System.EventHandler(this.ExportSvgToolStripMenuItem_Click);
             // 
@@ -492,6 +495,7 @@
     "";
             this.olvPortals.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.olvPortals.FullRowSelect = true;
+            this.olvPortals.HideSelection = false;
             this.olvPortals.Location = new System.Drawing.Point(177, 34);
             this.olvPortals.Name = "olvPortals";
             this.olvPortals.ShowGroups = false;
@@ -676,6 +680,7 @@
             // tabMap
             // 
             this.tabMap.Controls.Add(this.lbMapProviders);
+            this.tabMap.Controls.Add(this.bRefreshCharging);
             this.tabMap.Controls.Add(this.bToogleProviders);
             this.tabMap.Controls.Add(this.bToogleLayers);
             this.tabMap.Controls.Add(this.clbMapLayers);
@@ -705,6 +710,17 @@
             this.lbMapProviders.TabIndex = 17;
             this.lbMapProviders.Visible = false;
             this.lbMapProviders.SelectedValueChanged += new System.EventHandler(this.lbMapProviders_SelectedValueChanged);
+            // 
+            // bRefreshCharging
+            // 
+            this.bRefreshCharging.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bRefreshCharging.Location = new System.Drawing.Point(398, 36);
+            this.bRefreshCharging.Name = "bRefreshCharging";
+            this.bRefreshCharging.Size = new System.Drawing.Size(120, 23);
+            this.bRefreshCharging.TabIndex = 16;
+            this.bRefreshCharging.Text = "Refresh car charging";
+            this.bRefreshCharging.UseVisualStyleBackColor = true;
+            this.bRefreshCharging.Click += new System.EventHandler(this.BRefreshCharging_Click);
             // 
             // bToogleProviders
             // 
@@ -857,6 +873,7 @@
             this.olvDeleteColumn,
             this.olvColumn6});
             this.olvAnchors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.olvAnchors.HideSelection = false;
             this.olvAnchors.Location = new System.Drawing.Point(3, 3);
             this.olvAnchors.Name = "olvAnchors";
             this.olvAnchors.ShowImagesOnSubItems = true;
@@ -934,6 +951,7 @@
             this.olvColumn2,
             this.olvColumn7});
             this.olvLinks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.olvLinks.HideSelection = false;
             this.olvLinks.Location = new System.Drawing.Point(3, 3);
             this.olvLinks.Name = "olvLinks";
             this.olvLinks.ShowImagesOnSubItems = true;
@@ -1005,6 +1023,7 @@
             this.olvDestroy.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.olvDeleteColumn2,
             this.olvColumn15});
+            this.olvDestroy.HideSelection = false;
             this.olvDestroy.Location = new System.Drawing.Point(3, 22);
             this.olvDestroy.Name = "olvDestroy";
             this.olvDestroy.ShowGroups = false;
@@ -1059,6 +1078,11 @@
             // 
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(177, 6);
             // 
             // MainForm
             // 
@@ -1191,6 +1215,8 @@
         private BrightIdeasSoftware.OLVColumn olvColumn21;
         private System.Windows.Forms.ToolStripMenuItem exportSvgToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog saveFileDialogExportSvg;
+        private System.Windows.Forms.Button bRefreshCharging;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
     }
 }
 

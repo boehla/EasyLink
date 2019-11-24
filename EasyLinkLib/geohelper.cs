@@ -104,6 +104,9 @@ namespace EasyLinkLib {
             }
             return ret;
         }
+        public static bool PointInPolygon(PointD[] Points, PointD p) {
+            return PointInPolygon(Points, p.X, p.Y);
+        }
         public static bool PointInPolygon(PointD[] Points, PortalInfo ni) {
             return PointInPolygon(Points, ni.Pos.X, ni.Pos.Y);
         }
@@ -242,7 +245,7 @@ namespace EasyLinkLib {
                 foreach (KeyValuePair<int, bool> item in gs.PortalData[i].SideLinks) {
                     //if (!item.Value) continue;
                     //Point p = LineIntersection.FindIntersection(new Line(gs.PortalInfos[p1id], gs.PortalInfos[p2id]), new Line(gs.PortalInfos[i], gs.PortalInfos[item.Key]), 0.00000000000);
-                    bool inters = FindIntersection(new Vector(p1), new Vector(p2), new Vector(gs.PortalInfos[i]), new Vector(gs.PortalInfos[item.Key]));
+                    bool inters = Intersect(new Vector(p1), new Vector(p2), new Vector(gs.PortalInfos[i]), new Vector(gs.PortalInfos[item.Key]));
                     //if (!p.Equals(default(Point))) return true;
                     if (inters) return true;
                 }
@@ -275,10 +278,19 @@ namespace EasyLinkLib {
 
             //if (!b1.overlaps(b2)) return false; // not even overlaps -> no collision possible!
 
-            return FindIntersection(new Vector(s1), new Vector(e1), new Vector(s2), new Vector(e2));
+            return Intersect(new Vector(s1), new Vector(e1), new Vector(s2), new Vector(e2));
         }
-        // Author: https://www.codeproject.com/Tips/862988/Find-the-Intersection-Point-of-Two-Line-Segments
-        public static bool FindIntersection(Vector p, Vector p2, Vector q, Vector q2) {
+        public static bool Intersect(PointD p, PointD p2, PointD q, PointD q2) {
+            return FindIntersection(new Vector(p), new Vector(p2), new Vector(q), new Vector(q2)) != null;
+        }
+        public static bool Intersect(Vector p, Vector p2, Vector q, Vector q2) {
+            return FindIntersection(p, p2, q, q2) != null;
+        }
+        public static Vector FindIntersection(PointD p, PointD p2, PointD q, PointD q2) {
+            return FindIntersection(new Vector(p), new Vector(p2), new Vector(q), new Vector(q2));
+        }
+            // Author: https://www.codeproject.com/Tips/862988/Find-the-Intersection-Point-of-Two-Line-Segments
+        public static Vector FindIntersection(Vector p, Vector p2, Vector q, Vector q2) {
             Vector intersection = new Vector();
 
             bool considerCollinearOverlapAsIntersect = true;
@@ -294,17 +306,17 @@ namespace EasyLinkLib {
                 // then the two lines are overlapping,
                 if (considerCollinearOverlapAsIntersect)
                     if ((0 <= (q - p) * r && (q - p) * r <= r * r) || (0 <= (p - q) * s && (p - q) * s <= s * s))
-                        return true;
+                        return p;
 
                 // 2. If neither 0 <= (q - p) * r = r * r nor 0 <= (p - q) * s <= s * s
                 // then the two lines are collinear but disjoint.
                 // No need to implement this expression, as it follows from the expression above.
-                return false;
+                return null;
             }
 
             // 3. If r x s = 0 and (q - p) x r != 0, then the two lines are parallel and non-intersecting.
             if (rxs.IsZero() && !qpxr.IsZero())
-                return false;
+                return null;
 
             // t = (q - p) x s / (r x s)
             var t = (q - p).Cross(s) / rxs;
@@ -319,17 +331,17 @@ namespace EasyLinkLib {
                 // We can calculate the intersection point using either t or u.
                 intersection = p + t * r;
 
-                if (intersection.Equals(p)) return false;
-                if (intersection.Equals(p2)) return false;
-                if (intersection.Equals(q)) return false;
-                if (intersection.Equals(q2)) return false;
+                if (intersection.Equals(p)) return null;
+                if (intersection.Equals(p2)) return null;
+                if (intersection.Equals(q)) return null;
+                if (intersection.Equals(q2)) return null;
 
                 // An intersection was found.
-                return true;
+                return intersection;
             }
 
             // 5. Otherwise, the two line segments are not parallel but do not intersect.
-            return false;
+            return null;
         }
 
     }
@@ -346,6 +358,9 @@ namespace EasyLinkLib {
         public Vector(PointD d) {
             this.X = d.X;
             this.Y = d.Y;
+        }
+        public PointD toPointD() {
+            return new PointD(X, Y);
         }
         // Constructors.
         public Vector(double x, double y) { X = x; Y = y; }
