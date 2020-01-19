@@ -31,16 +31,12 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.tbEasyBuild = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.tbPassword = new System.Windows.Forms.TextBox();
+            this.pbSettings = new System.Windows.Forms.PropertyGrid();
+            this.bDefaultValues = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -122,7 +118,7 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.groupBox2);
+            this.tabPage2.Controls.Add(this.pbSettings);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -131,54 +127,23 @@
             this.tabPage2.Text = "Advanced";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // groupBox2
+            // pbSettings
             // 
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Controls.Add(this.label1);
-            this.groupBox2.Controls.Add(this.tbPassword);
-            this.groupBox2.Controls.Add(this.tbEasyBuild);
-            this.groupBox2.Location = new System.Drawing.Point(6, 6);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(281, 100);
-            this.groupBox2.TabIndex = 1;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "EasyBuild proxy";
+            this.pbSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pbSettings.Location = new System.Drawing.Point(3, 3);
+            this.pbSettings.Name = "pbSettings";
+            this.pbSettings.Size = new System.Drawing.Size(494, 316);
+            this.pbSettings.TabIndex = 0;
             // 
-            // tbEasyBuild
+            // bDefaultValues
             // 
-            this.tbEasyBuild.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbEasyBuild.Location = new System.Drawing.Point(66, 19);
-            this.tbEasyBuild.Name = "tbEasyBuild";
-            this.tbEasyBuild.Size = new System.Drawing.Size(209, 20);
-            this.tbEasyBuild.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(7, 25);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(20, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Url";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(7, 48);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(53, 13);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Password";
-            // 
-            // tbPassword
-            // 
-            this.tbPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbPassword.Location = new System.Drawing.Point(66, 45);
-            this.tbPassword.Name = "tbPassword";
-            this.tbPassword.Size = new System.Drawing.Size(209, 20);
-            this.tbPassword.TabIndex = 0;
+            this.bDefaultValues.Location = new System.Drawing.Point(12, 366);
+            this.bDefaultValues.Name = "bDefaultValues";
+            this.bDefaultValues.Size = new System.Drawing.Size(97, 23);
+            this.bDefaultValues.TabIndex = 3;
+            this.bDefaultValues.Text = "Default values";
+            this.bDefaultValues.UseVisualStyleBackColor = true;
+            this.bDefaultValues.Click += new System.EventHandler(this.BDefaultValues_Click);
             // 
             // SettingsForm
             // 
@@ -187,6 +152,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;
             this.ClientSize = new System.Drawing.Size(532, 401);
+            this.Controls.Add(this.bDefaultValues);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.bCancel);
             this.Controls.Add(this.bAccept);
@@ -198,8 +164,6 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -214,10 +178,7 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.TextBox tbEasyBuild;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox tbPassword;
+        private System.Windows.Forms.PropertyGrid pbSettings;
+        private System.Windows.Forms.Button bDefaultValues;
     }
 }

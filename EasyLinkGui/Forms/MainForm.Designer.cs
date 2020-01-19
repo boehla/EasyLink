@@ -44,6 +44,7 @@
             this.clearDisabledToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.exportSvgToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showDebugFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -114,7 +115,7 @@
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
             this.saveFileDialogExportSvg = new System.Windows.Forms.SaveFileDialog();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.clearExernLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -238,7 +239,8 @@
             this.toolStripSeparator2,
             this.toolStripSeparator3,
             this.clearAllToolStripMenuItem,
-            this.clearDisabledToolStripMenuItem});
+            this.clearDisabledToolStripMenuItem,
+            this.clearExernLinksToolStripMenuItem});
             this.portaldatabaseToolStripMenuItem.Name = "portaldatabaseToolStripMenuItem";
             this.portaldatabaseToolStripMenuItem.Size = new System.Drawing.Size(97, 20);
             this.portaldatabaseToolStripMenuItem.Text = "Portaldatabase";
@@ -292,14 +294,19 @@
             // generateReportToolStripMenuItem
             // 
             this.generateReportToolStripMenuItem.Name = "generateReportToolStripMenuItem";
-            this.generateReportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.generateReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
             this.generateReportToolStripMenuItem.Text = "Generate Report";
             this.generateReportToolStripMenuItem.Click += new System.EventHandler(this.generateReportToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(156, 6);
             // 
             // exportSvgToolStripMenuItem
             // 
             this.exportSvgToolStripMenuItem.Name = "exportSvgToolStripMenuItem";
-            this.exportSvgToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exportSvgToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
             this.exportSvgToolStripMenuItem.Text = "Export svg";
             this.exportSvgToolStripMenuItem.Click += new System.EventHandler(this.ExportSvgToolStripMenuItem_Click);
             // 
@@ -1079,10 +1086,12 @@
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
             // 
-            // toolStripSeparator4
+            // clearExernLinksToolStripMenuItem
             // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(177, 6);
+            this.clearExernLinksToolStripMenuItem.Name = "clearExernLinksToolStripMenuItem";
+            this.clearExernLinksToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.clearExernLinksToolStripMenuItem.Text = "Clear exern links";
+            this.clearExernLinksToolStripMenuItem.Click += new System.EventHandler(this.ClearExernLinksToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -1217,6 +1226,7 @@
         private System.Windows.Forms.SaveFileDialog saveFileDialogExportSvg;
         private System.Windows.Forms.Button bRefreshCharging;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem clearExernLinksToolStripMenuItem;
     }
 }
 

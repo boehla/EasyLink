@@ -96,6 +96,7 @@ namespace EasyLinkProxy {
                 } catch { }
 
                 host = new WebServiceHost(typeof(DemoService), new Uri(url));
+
                 WebHttpBinding bhb = new WebHttpBinding();
                 bhb.MaxReceivedMessageSize = int.MaxValue;
                 ServiceEndpoint ep = host.AddServiceEndpoint(typeof(IDemoService), bhb, "");

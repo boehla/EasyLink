@@ -76,8 +76,8 @@ namespace EasyLinkGui {
         public void putDataToProxy(string data) {
             try {
                 data = Base64Encode(data);
-                string hash = CreateMD5(data + mf.Settings.EasyLinkPassword);
-                string url = mf.Settings.EasyLinkProxyHost + "SetData";
+                string hash = CreateMD5(data + mf.ingressDatabase.Settings.EasyLinkPassword);
+                string url = mf.ingressDatabase.Settings.EasyLinkProxyHost + "SetData";
 
                 lProxyStatus.Text = string.Format("Starting uploading to {0}", url);
 
@@ -128,7 +128,7 @@ namespace EasyLinkGui {
                 lProxyStatus.Text = string.Format("Upload successfully!");
 
                 QRCodeGenerator qrGenerator = new QRCodeGenerator();
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(mf.Settings.EasyLinkProxyHost + "GetData/" + key, QRCodeGenerator.ECCLevel.Q);
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(mf.ingressDatabase.Settings.EasyLinkProxyHost + "GetData/" + key, QRCodeGenerator.ECCLevel.Q);
                 QRCode qrCode = new QRCode(qrCodeData);
                 pbQrcode.Image = qrCode.GetGraphic(20);
             } catch (Exception ex) {
@@ -215,7 +215,7 @@ namespace EasyLinkGui {
                 if (p.Team == IngressTeam.None) continue;
                 Item item = new Item("Weapon");
 
-                if(p.Team != mf.Settings.Team) {
+                if(p.Team != mf.ingressDatabase.Settings.Team) {
                     item.Subname = "Xmp";
                 } else if(p.Team == IngressTeam.Resistance) {
                     item.Subname = "JARVIS Virus";

@@ -21,17 +21,20 @@ namespace EasyLinkGui {
         }
 
         private void AboutForm_Load(object sender, EventArgs e) {
-            Assembly assem = Assembly.GetEntryAssembly();
-            AssemblyName assemName = assem.GetName();
-            Version ver = assemName.Version;
-            lVersion.Text = string.Format("Application {0}, Version {1}", assemName.Name, GetVersion());
+            lVersion.Text = getAppInfo();
         }
         static public string GetVersion() {
             if (ApplicationDeployment.IsNetworkDeployed) {
                 return ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
             }
-
             return "Debug";
+        }
+
+        public static string getAppInfo() {
+            Assembly assem = Assembly.GetEntryAssembly();
+            AssemblyName assemName = assem.GetName();
+            Version ver = assemName.Version;
+            return string.Format("Application {0}, Version {1}", assemName.Name, GetVersion());
         }
     }
 }

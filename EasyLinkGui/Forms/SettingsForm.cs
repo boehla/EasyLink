@@ -11,15 +11,24 @@ using System.Windows.Forms;
 
 namespace EasyLinkGui {
     public partial class SettingsForm : Form {
-        private SettingsDataset settings = new SettingsDataset();
+        public SettingsDataset Settings {
+            get {
+                return (SettingsDataset)pbSettings.SelectedObject;
+            }
+            set {
+                pbSettings.SelectedObject = value.Clone();
+            }
+        }
 
         public SettingsForm(SettingsDataset settings) {
-            this.settings = settings;
             InitializeComponent();
+
+            this.Settings = (SettingsDataset)settings.Clone();
         }
 
         private void bAccept_Click(object sender, EventArgs e) {
             this.DialogResult = DialogResult.OK;
+            loadIntoSettings();
             this.Close();
         }
 
@@ -29,18 +38,21 @@ namespace EasyLinkGui {
         }
 
         private void SettingsForm_Load(object sender, EventArgs e) {
-            if (settings.Team == IngressTeam.Enlightened) rbEnlightened.Checked = true;
-            else rbResistance.Checked = true;
-            tbEasyBuild.Text = settings.EasyLinkProxyHost;
-            tbPassword.Text = settings.EasyLinkPassword;
+            loadIntoUI();
         }
 
-        public SettingsDataset getNewSettings() {
-            if (rbEnlightened.Checked) settings.Team = IngressTeam.Enlightened;
-            else settings.Team = IngressTeam.Resistance;
-            settings.EasyLinkProxyHost = tbEasyBuild.Text;
-            settings.EasyLinkPassword = tbPassword.Text;
-            return settings;
+        private void loadIntoUI() {
+            if (Settings.Team == IngressTeam.Enlightened) rbEnlightened.Checked = true;
+            else rbResistance.Checked = true;
+        }
+        public void loadIntoSettings() {
+            if (rbEnlightened.Checked) Settings.Team = IngressTeam.Enlightened;
+            else Settings.Team = IngressTeam.Resistance;
+        }
+
+        private void BDefaultValues_Click(object sender, EventArgs e) {
+            this.Settings = new SettingsDataset();
+            loadIntoUI();
         }
     }
 }

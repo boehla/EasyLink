@@ -2,6 +2,7 @@
 using LiteDB;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -96,23 +97,25 @@ namespace EasyLinkLib {
 
         public string MapTile { get; set; }
     }
-    public class SettingsDataset {
+    public class SettingsDataset : ICloneable {
         [BsonId]
-        public string SettingsName { get; set; }
+        public string SettingsName { get; } = "Default";
 
-        public IngressTeam Team { get; set; }
-        public string EasyLinkProxyHost { get; set; }
-        public string EasyLinkPassword { get; set; }
+        public IngressTeam Team { get; set; } = IngressTeam.Resistance;
 
-        public SettingsDataset() {
-            this.SettingsName = "Default";
-            this.Team = IngressTeam.Resistance;
-            this.EasyLinkProxyHost = "http://hut.keinbrot.com:3950/";
-            this.EasyLinkPassword = "n47Y7JUNDKpQ2y7EaQfd";
+        public string OsmNominatimUrl { get; set; } = "https://nominatim.openstreetmap.org/reverse?format=json&lon={0}&lat={1}";
+
+        [Category("EasyLinkProxy")]
+        public string EasyLinkProxyHost { get; set; } = "http://hut.keinbrot.com:3950/";
+
+        [Category("EasyLinkProxy")]
+        public string EasyLinkPassword { get; set; } = "n47Y7JUNDKpQ2y7EaQfd";
+
+        public object Clone() {
+            return this.MemberwiseClone();
         }
     }
-    public class IngressDatabase
-    {
+    public class IngressDatabase  {
         LiteDatabase db = null;
 
         // Tables
@@ -237,7 +240,7 @@ namespace EasyLinkLib {
             return groups.FindOne(x => x.Name.Equals(groupname));
         }
         public void deleteAllOtherLinks() {
-            otherLinks.Delete(true);
+            otherLinks.Delete(x => true);
         }
         public List<CoreEntity> getAllOtherLinks() {
             otherLinks.Delete(x => x.LastRefresh.AddHours(12) < DateTime.UtcNow);
@@ -260,15 +263,22 @@ namespace EasyLinkLib {
         public void makeBackup(string filename) { 
             //db.FileStorage.
         }
+        public SettingsDataset _settings = null;
+        public SettingsDataset Settings {
+            get {
+                if (_settings == null) {
+                    _settings = settings.FindById("Default");
+                    if (_settings == null) _settings = new SettingsDataset();
+                }
+                return _settings;
+            }
+            set {
+                _settings = value;
+                settings.Upsert(_settings);
+            }
+        }
+       
 
-        public SettingsDataset getSettings() {
-            SettingsDataset ret = settings.FindById("Default");
-            if (ret == null) ret = new SettingsDataset();
-            return ret;
-        }
-        public void setSettings(SettingsDataset settingsset) {
-            settings.Upsert(settingsset);
-        }
         public void Close() {
             db.Engine.Dispose();
             db.Dispose();

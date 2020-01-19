@@ -61,7 +61,6 @@ namespace EasyLinkGui {
         public GameState GameState {
             get { return this.gs; }
         }
-        public SettingsDataset Settings { get; set; }
 
         public MainForm() {
             InitializeComponent();
@@ -77,7 +76,6 @@ namespace EasyLinkGui {
             dr = new GamePrinter(gs);
 
             ingressDatabase = new IngressDatabase("dat\\db.bin");
-            Settings = ingressDatabase.getSettings();
 
            List <PortalInfo> nodes = new List<PortalInfo>();
 
@@ -481,8 +479,9 @@ namespace EasyLinkGui {
                     }
                     if (todo != null) {
                         //string url = string.Format("https://nominatim.openstreetmap.org/reverse?format=json&lon={0}&lat={1}", Lib.Converter.toString(todo.X), Lib.Converter.toString(todo.Y));
-                        string url = string.Format("http://www.simmamap.com/nominatim/reverse.php?format=json&lon={0}&lat={1}", Lib.Converter.toString(todo.X), Lib.Converter.toString(todo.Y));
+                        string url = string.Format(ingressDatabase.Settings.OsmNominatimUrl, Lib.Converter.toString(todo.X), Lib.Converter.toString(todo.Y));
                         var request = (HttpWebRequest)HttpWebRequest.Create(url);
+                        request.UserAgent = AboutForm.getAppInfo() + "; https://github.com/boehla/EasyLink";
                         request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip,deflate");
                         request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                         string resp = StreamToString(request.GetResponse().GetResponseStream());
@@ -514,6 +513,9 @@ namespace EasyLinkGui {
                 } catch (Exception ex) {
                     Lib.Logging.logException("", ex);
                 } finally {
+                    if (ingressDatabase.Settings.OsmNominatimUrl.Contains("openstreetmap.org")) {
+                        Thread.Sleep(1000); // No heavy uses (an absolute maximum of 1 request per second).
+                    }
                     //Thread.Sleep(2000);
                 }
             }
@@ -601,7 +603,7 @@ namespace EasyLinkGui {
                         points.Add(new PointLatLng(p1.Pos.Y, p1.Pos.X));
                         points.Add(new PointLatLng(p2.Pos.Y, p2.Pos.X));
                         GMapRoute polygon = new GMapRoute(points, "mypolygon");
-                        polygon.Stroke = new Pen(CoreEntity.getTeamColor(Settings.Team), 1);
+                        polygon.Stroke = new Pen(CoreEntity.getTeamColor(ingressDatabase.Settings.Team), 1);
                         overLays[MapOverlay.gameLinks].Routes.Add(polygon);
                     }
                 }
@@ -614,8 +616,8 @@ namespace EasyLinkGui {
                         points.Add(new PointLatLng(p1.Pos.Y, p1.Pos.X));
                     }
                     GMapPolygon polygon = new GMapPolygon(points, "mypolygon");
-                    polygon.Fill = new SolidBrush(Color.FromArgb(15, CoreEntity.getTeamColor(Settings.Team)));
-                    polygon.Stroke = new Pen(CoreEntity.getTeamColor(Settings.Team), 1);
+                    polygon.Fill = new SolidBrush(Color.FromArgb(15, CoreEntity.getTeamColor(ingressDatabase.Settings.Team)));
+                    polygon.Stroke = new Pen(CoreEntity.getTeamColor(ingressDatabase.Settings.Team), 1);
                     overLays[MapOverlay.gameFields].Polygons.Add(polygon);
                     // gmap.Overlays.Add(polyOverlay);
                 }
@@ -1248,10 +1250,9 @@ namespace EasyLinkGui {
         }
          
         private void editToolStripMenuItem_Click(object sender, EventArgs e) {
-            SettingsForm sf = new SettingsForm(Settings);
+            SettingsForm sf = new SettingsForm(ingressDatabase.Settings);
             if(sf.ShowDialog() == DialogResult.OK) {
-                this.Settings = sf.getNewSettings();
-                ingressDatabase.setSettings(this.Settings);
+                ingressDatabase.Settings = sf.Settings;
             }
         }
 
@@ -1402,7 +1403,7 @@ namespace EasyLinkGui {
                 polygon.Stroke = null;
 
                 polygon.Fill = new SolidBrush(Color.FromArgb(30, Color.Yellow));
-                polygon.Stroke = new Pen(CoreEntity.getTeamColor(Settings.Team), 1);
+                polygon.Stroke = new Pen(CoreEntity.getTeamColor(ingressDatabase.Settings.Team), 1);
                 overLays[MapOverlay.selected].Polygons.Add(polygon);
             }
         }
@@ -1595,6 +1596,12 @@ namespace EasyLinkGui {
                 //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
                 ov.Markers.Add(marker);
             }
+        }
+
+        private void ClearExernLinksToolStripMenuItem_Click(object sender, EventArgs e) {
+            ingressDatabase.deleteAllOtherLinks();
+            externLinks.Clear();
+            refreshGoogleMaps();
         }
     }
     public class DuplicateKeyComparer<TKey>
