@@ -11,7 +11,8 @@ namespace EasyLinkGui.Algos {
 
         public Dictionary<string, object> Parameter { get; set; }
         internal bool calcing = false;
-       
+       public GameState LastHandled { get; set; }
+       public GameState Best { get; set; }
 
         public event Action<GameState> OnNewBestGameState;
         public event Action<GameState> OnCalculationFinish;
@@ -20,10 +21,11 @@ namespace EasyLinkGui.Algos {
 
         public AlgoDummy() {
             Parameter = new Dictionary<string, object>();
+            init();
         }
 
         public void startCalc(GameState gs) {
-            startGame = gs.clone();
+            startGame = gs.DeepClone();
 
             Thread thread = new Thread(() => startCalcMulti(startGame));
             thread.IsBackground = true;
@@ -42,8 +44,11 @@ namespace EasyLinkGui.Algos {
 
         public void newBestGame(GameState gs) {
             OnNewBestGameState(gs);
+            this.Best = gs;
         }
+        internal virtual void init() {
 
+        }
         internal virtual GameState getBestGame(GameState gs) {
             return null;
         }
@@ -51,5 +56,7 @@ namespace EasyLinkGui.Algos {
         public void cancel() {
             this.calcing = true;
         }
+
+        public object Settings { get; set; }
     }
 }

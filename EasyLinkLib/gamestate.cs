@@ -36,7 +36,7 @@ namespace EasyLinkLib {
         }
     }
 
-    public class GameState {
+    public class GameState : ICloneable {
         // global Info
         GlobData glob = new GlobData();
 
@@ -299,7 +299,7 @@ namespace EasyLinkLib {
         public List<GameState> getAllPossible() {
             List<GameState> ret = new List<GameState>();
 
-            GameState gs = this.clone();
+            GameState gs = this.DeepClone();
             gs.Parent = this;
 
             if(glob.AnchorsPortals != null && glob.AnchorsPortals.Count > 0) {
@@ -307,7 +307,7 @@ namespace EasyLinkLib {
                     for (int p1 = 0; p1 < this.pData.Count; p1++) {
                         if (!gs.pData[p1].OutLinkPossible) continue;
                         if (this.glob.AnchorsPortals.Contains(gs.PortalInfos[p1])) continue;
-                        gs = this.clone();
+                        gs = this.DeepClone();
                         gs.Parent = this;
                         bool allSucessfully = true;
                         foreach (PortalInfo p2Portal in this.Global.AnchorsPortals) {
@@ -321,10 +321,10 @@ namespace EasyLinkLib {
                         }
                         if (allSucessfully) {
                             ret.Add(gs);
-                            gs = this.clone();
+                            gs = this.DeepClone();
                             gs.Parent = this;
                         } else {
-                            gs = this.clone();
+                            gs = this.DeepClone();
                             gs.Parent = this;
                         }
                     }
@@ -338,14 +338,14 @@ namespace EasyLinkLib {
                                 if (p1 == p2) continue;
                                 if (gs.addLink(p1, p2)) {
                                     ret.Add(gs);
-                                    gs = this.clone();
+                                    gs = this.DeepClone();
                                     gs.Parent = this;
                                 }
                             }
                         } else {
                             if (gs.addLink(p1, anchor)) {
                                 ret.Add(gs);
-                                gs = this.clone();
+                                gs = this.DeepClone();
                                 gs.Parent = this;
                             }
                         }
@@ -358,7 +358,7 @@ namespace EasyLinkLib {
                         if (p1 == p2) continue;
                         if (gs.addLink(p1, p2)) {
                             ret.Add(gs);
-                            gs = this.clone();
+                            gs = this.DeepClone();
                             gs.Parent = this;
                         }
                     }
@@ -368,28 +368,29 @@ namespace EasyLinkLib {
 
             return ret;
         }
+        public object Clone() {
+            GameState ret = (GameState)this.MemberwiseClone();
 
-        public GameState clone() {
-            GameState ret = new GameState();
-
-            ret.glob = this.glob;
+            ret.LastLinks = null;
 
             ret.pData = new List<Portal>();
             foreach (Portal nd in this.pData) {
                 ret.pData.Add(nd.clone());
             }
             ret.fields = new List<Field>();
+            ret.fieldsDic = new Dictionary<Field, bool>();
             foreach (Field gf in this.fields) {
                 ret.fields.Add(gf);
                 ret.fieldsDic.Add(gf, true);
             }
-            ret.linkCount = this.linkCount;
-            ret._cachedHashcode = this._cachedHashcode;
+
             ret.parent = this;
-            ret.totalWay = this.totalWay;
-            ret.totalArea = this.TotalArea;
 
             return ret;
+        }
+
+        public GameState DeepClone() {
+            return (GameState)this.Clone();
         }
 
         public override bool Equals(object obj) {
@@ -460,38 +461,41 @@ namespace EasyLinkLib {
             return string.Format("way={0}; totalSearchScore: {1}; GameScore: {2}", this.totalWay, this.getSearchScore(), this.getAPScore());
         }
         public double getGameScore() {
-            //return this.getAPScore();
-            return getSearchScore();
+            return this.getAPScore();
+           // return getSearchScore();
         }
+
+        public double CustSearchScore { get; set; } = double.MinValue;
         public double getSearchScore() {
+            if (this.CustSearchScore > double.MinValue) return this.CustSearchScore;
             //int possibleSolls = this.getAllPossible().Count;
 
-            //return TotalLinks * 100 - totalWay + this.getAPScore();
-            //return this.getAPScore() - (totalWay);
+                //return TotalLinks * 100 - totalWay + this.getAPScore();
+                //return this.getAPScore() - (totalWay);
 
-            //return 1f * this.getAPScore() - totalWay - TotalLinks * 500;
-            /*
-            return -TotalWay;
+                //return 1f * this.getAPScore() - totalWay - TotalLinks * 500;
+                /*
+                return -TotalWay;
 
-            List<Link> llist = getTotalLinkList();
-            int p1 = -1;
-            int p2 = -1;
-            foreach (Link item in llist) {
-                if(p1 == -1) {
-                    p1 = item.P1;
-                }else if(p1 != item.P1 && p2 == -1) {
-                    p2 = item.P1;
+                List<Link> llist = getTotalLinkList();
+                int p1 = -1;
+                int p2 = -1;
+                foreach (Link item in llist) {
+                    if(p1 == -1) {
+                        p1 = item.P1;
+                    }else if(p1 != item.P1 && p2 == -1) {
+                        p2 = item.P1;
+                    }
                 }
-            }
-            if(p1 != -1 && p2 != -1) {
-                return -geohelper.CalcDistance(PortalInfos[p1], PortalInfos[p2]);
-            }
-            /*
-            if (this.getTotalLinkList()) {
-                int from = this.Parent.LastLinks[this.Parent.LastLinks.Count - 1].P1;
-                int to = this.LastLinks[this.Parent.LastLinks.Count - 1].P1;
-                return -geohelper.CalcDistance(PortalInfos[from], PortalInfos[to]);
-            }*/
+                if(p1 != -1 && p2 != -1) {
+                    return -geohelper.CalcDistance(PortalInfos[p1], PortalInfos[p2]);
+                }
+                /*
+                if (this.getTotalLinkList()) {
+                    int from = this.Parent.LastLinks[this.Parent.LastLinks.Count - 1].P1;
+                    int to = this.LastLinks[this.Parent.LastLinks.Count - 1].P1;
+                    return -geohelper.CalcDistance(PortalInfos[from], PortalInfos[to]);
+                }*/
             return this.getAPScore(); // perfekt for 2 anchors
             //return -TotalWay + this.getAPScore();
             //return this.getAPScore() / totalWay;

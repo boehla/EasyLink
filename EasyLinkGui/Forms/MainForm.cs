@@ -79,7 +79,6 @@ namespace EasyLinkGui {
 
            List <PortalInfo> nodes = new List<PortalInfo>();
 
-            opts.addUIElement(nudThreadCount);
             opts.loadUI();
 
             Thread thread = new Thread(startReverseGeocode);
@@ -328,6 +327,12 @@ namespace EasyLinkGui {
                 todocount = shared.toDo.Count;
                 highestTodo = todocount > 0 ? shared.toDo.ElementAt(0).Value.getSearchScore() : -1;
             } */
+            if (cbShowLastHandled.Checked) {
+                if(autoLinkAlgo.LastHandled != null && this.gs != autoLinkAlgo.LastHandled) {
+                    this.gs = autoLinkAlgo.LastHandled;
+                    this.refreshGoogleMaps();
+                }
+            }
             tsslTotalTested.Text = string.Format("TotalTested: {0:n0}; TodoCount={1:n0} HighestTodo={2:n0}", totaltested, todocount, highestTodo);
             if (lastPrinted != gs || gs.HasChanges) {
                 refresh();
@@ -1023,7 +1028,7 @@ namespace EasyLinkGui {
             }
         }
         private void linkToAnchors(string id) {
-            GameState newgs = gs.clone();
+            GameState newgs = gs.DeepClone();
             newgs.Parent = gs;
             bool allsuc = true;
             if (gs.Global.AnchorsPortals.Count == 2) {
@@ -1602,6 +1607,21 @@ namespace EasyLinkGui {
             ingressDatabase.deleteAllOtherLinks();
             externLinks.Clear();
             refreshGoogleMaps();
+        }
+
+        private void CbShowLastHandled_CheckedChanged(object sender, EventArgs e) {
+            if (!cbShowLastHandled.Checked) {
+                if (autoLinkAlgo.Best != null && this.gs != autoLinkAlgo.Best) {
+                    this.gs = autoLinkAlgo.Best;
+                    this.refreshGoogleMaps();
+                }
+            }
+        }
+
+        private void BAlgoSettings_Click(object sender, EventArgs e) {
+            if (autoLinkAlgo == null) return;
+            BaseSettingsForm bSettings = new BaseSettingsForm(autoLinkAlgo.Settings);
+            bSettings.ShowDialog();
         }
     }
     public class DuplicateKeyComparer<TKey>

@@ -194,6 +194,12 @@
     <Compile Include="Forms\NewGroupNameForm.Designer.cs">
       <DependentUpon>NewGroupNameForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\BasePropertyGrid.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\BasePropertyGrid.Designer.cs">
+      <DependentUpon>BasePropertyGrid.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\SvgExport.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -225,6 +231,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\NewGroupNameForm.resx">
       <DependentUpon>NewGroupNameForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\BasePropertyGrid.resx">
+      <DependentUpon>BasePropertyGrid.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SvgExport.resx">
       <DependentUpon>SvgExport.cs</DependentUpon>

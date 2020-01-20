@@ -42,6 +42,7 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearDisabledToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearExernLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -85,6 +86,7 @@
             this.bDbDisable = new System.Windows.Forms.Button();
             this.tbDbSearch = new System.Windows.Forms.TextBox();
             this.tabMap = new System.Windows.Forms.TabPage();
+            this.bAlgoSettings = new System.Windows.Forms.Button();
             this.lbMapProviders = new System.Windows.Forms.ListBox();
             this.bRefreshCharging = new System.Windows.Forms.Button();
             this.bToogleProviders = new System.Windows.Forms.Button();
@@ -92,8 +94,6 @@
             this.clbMapLayers = new System.Windows.Forms.CheckedListBox();
             this.gmap = new GMap.NET.WindowsForms.GMapControl();
             this.cbShowLastHandled = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.nudThreadCount = new System.Windows.Forms.NumericUpDown();
             this.bCreateGameState = new System.Windows.Forms.Button();
             this.bCalcStop = new System.Windows.Forms.Button();
             this.timerFast = new System.Windows.Forms.Timer(this.components);
@@ -115,7 +115,6 @@
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
             this.saveFileDialogExportSvg = new System.Windows.Forms.SaveFileDialog();
-            this.clearExernLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -123,7 +122,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.olvGroup)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.olvPortals)).BeginInit();
             this.tabMap.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudThreadCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.olvAnchors)).BeginInit();
             this.tabControl2.SuspendLayout();
             this.tabAnchors.SuspendLayout();
@@ -280,6 +278,13 @@
             this.clearDisabledToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.clearDisabledToolStripMenuItem.Text = "Clear disabled";
             this.clearDisabledToolStripMenuItem.Click += new System.EventHandler(this.clearDisabledToolStripMenuItem_Click);
+            // 
+            // clearExernLinksToolStripMenuItem
+            // 
+            this.clearExernLinksToolStripMenuItem.Name = "clearExernLinksToolStripMenuItem";
+            this.clearExernLinksToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.clearExernLinksToolStripMenuItem.Text = "Clear exern links";
+            this.clearExernLinksToolStripMenuItem.Click += new System.EventHandler(this.ClearExernLinksToolStripMenuItem_Click);
             // 
             // reportToolStripMenuItem
             // 
@@ -686,6 +691,7 @@
             // 
             // tabMap
             // 
+            this.tabMap.Controls.Add(this.bAlgoSettings);
             this.tabMap.Controls.Add(this.lbMapProviders);
             this.tabMap.Controls.Add(this.bRefreshCharging);
             this.tabMap.Controls.Add(this.bToogleProviders);
@@ -693,8 +699,6 @@
             this.tabMap.Controls.Add(this.clbMapLayers);
             this.tabMap.Controls.Add(this.gmap);
             this.tabMap.Controls.Add(this.cbShowLastHandled);
-            this.tabMap.Controls.Add(this.label1);
-            this.tabMap.Controls.Add(this.nudThreadCount);
             this.tabMap.Controls.Add(this.bCreateGameState);
             this.tabMap.Controls.Add(this.bCalcStop);
             this.tabMap.Controls.Add(this.bCalc);
@@ -706,6 +710,17 @@
             this.tabMap.TabIndex = 1;
             this.tabMap.Text = "EasyLink Map";
             this.tabMap.UseVisualStyleBackColor = true;
+            // 
+            // bAlgoSettings
+            // 
+            this.bAlgoSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bAlgoSettings.Location = new System.Drawing.Point(439, 7);
+            this.bAlgoSettings.Name = "bAlgoSettings";
+            this.bAlgoSettings.Size = new System.Drawing.Size(75, 23);
+            this.bAlgoSettings.TabIndex = 18;
+            this.bAlgoSettings.Text = "Algo settings";
+            this.bAlgoSettings.UseVisualStyleBackColor = true;
+            this.bAlgoSettings.Click += new System.EventHandler(this.BAlgoSettings_Click);
             // 
             // lbMapProviders
             // 
@@ -808,34 +823,7 @@
             this.cbShowLastHandled.TabIndex = 13;
             this.cbShowLastHandled.Text = "Show last handled";
             this.cbShowLastHandled.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(392, 12);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(71, 13);
-            this.label1.TabIndex = 11;
-            this.label1.Text = "Threadcount:";
-            // 
-            // nudThreadCount
-            // 
-            this.nudThreadCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.nudThreadCount.Location = new System.Drawing.Point(469, 9);
-            this.nudThreadCount.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nudThreadCount.Name = "nudThreadCount";
-            this.nudThreadCount.Size = new System.Drawing.Size(42, 20);
-            this.nudThreadCount.TabIndex = 10;
-            this.nudThreadCount.Value = new decimal(new int[] {
-            4,
-            0,
-            0,
-            0});
+            this.cbShowLastHandled.CheckedChanged += new System.EventHandler(this.CbShowLastHandled_CheckedChanged);
             // 
             // bCreateGameState
             // 
@@ -1086,13 +1074,6 @@
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
             // 
-            // clearExernLinksToolStripMenuItem
-            // 
-            this.clearExernLinksToolStripMenuItem.Name = "clearExernLinksToolStripMenuItem";
-            this.clearExernLinksToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
-            this.clearExernLinksToolStripMenuItem.Text = "Clear exern links";
-            this.clearExernLinksToolStripMenuItem.Click += new System.EventHandler(this.ClearExernLinksToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1120,7 +1101,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.olvPortals)).EndInit();
             this.tabMap.ResumeLayout(false);
             this.tabMap.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudThreadCount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.olvAnchors)).EndInit();
             this.tabControl2.ResumeLayout(false);
             this.tabAnchors.ResumeLayout(false);
@@ -1151,8 +1131,6 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabMap;
         private System.Windows.Forms.Button bCreateGameState;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown nudThreadCount;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
@@ -1227,6 +1205,7 @@
         private System.Windows.Forms.Button bRefreshCharging;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem clearExernLinksToolStripMenuItem;
+        private System.Windows.Forms.Button bAlgoSettings;
     }
 }
 

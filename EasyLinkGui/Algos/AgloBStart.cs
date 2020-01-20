@@ -8,16 +8,31 @@ using System.Threading.Tasks;
 using static EasyLinkLib.geohelper;
 
 namespace EasyLinkGui.Algos {
-    class AgloBStart : AlgoDummy{
+    class AgloBStart : AlgoDummy {
 
         SharedCalcData shared = null;
         int nextthreadid = 0;
         GameState gs = null;
+        internal override void init() {
+            this.Settings = new CustSettings();
+        }
+        private CustSettings custSettings{
+            get { return (CustSettings)this.Settings; }
+            }
         internal override GameState getBestGame(GameState gs) {
             this.gs = gs;
             shared = new SharedCalcData();
 
             bool alreadyCountDown = false;
+
+            if(gs.Global.AnchorsPortals.Count == 2) {
+                int p1 = gs.getIndexByGuid(gs.Global.AnchorsPortals[0].Guid);
+                int p2 = gs.getIndexByGuid(gs.Global.AnchorsPortals[1].Guid);
+                if (!gs.PortalData[p1].SideLinks.ContainsKey(p2)) {
+                    gs.addLink(p1, p2);
+                    gs = gs.DeepClone();
+                }
+            }
 
 
 
@@ -41,7 +56,8 @@ namespace EasyLinkGui.Algos {
                             countEmpty++;
                             if (countEmpty > 5) return shared.bestGame;
                         }
-                    }                    
+                    }
+                    Thread.Sleep(1000);
                 }
             } catch (Exception ex) {
                 Lib.Logging.logException("", ex);
@@ -60,7 +76,7 @@ namespace EasyLinkGui.Algos {
                 while (!calcing) {
                     GameState curToDo = null;
                     lock (shared) {
-                        int targetThreads = 1;
+                        int targetThreads = Math.Max(1, custSettings.TargetThreadCount);
                         while (targetThreads > shared.RunningThreads) {
                             Thread d = new Thread(CalcThread);
                             d.IsBackground = true;
@@ -86,7 +102,7 @@ namespace EasyLinkGui.Algos {
                         continue;
                     }
                     lock (shared) {
-                        shared.lastHandled = curToDo;
+                        LastHandled = curToDo;
                     }
                     Lib.Performance.setWatch("GetAllPossible", true);
                     List<GameState> nextgs = curToDo.getAllPossible();
@@ -95,8 +111,11 @@ namespace EasyLinkGui.Algos {
 
                     foreach (GameState item in nextgs) {
                         long hash = item.GetLongHashCode();
-                        float gamescore = (float)item.getGameScore();
-                        float searchscore = (float)item.getSearchScore();
+                        //float gamescore = (float)item.getGameScore();
+                        //float searchscore = (float)item.getSearchScore();
+                        calcSearchScore(item);
+                        float gamescore = (float)item.getSearchScore();
+                        float searchscore = gamescore;
                         lock (shared) {
                             if (shared.bestGame == null || gamescore > shared.bestVal) {
                                 shared.bestVal = gamescore;
@@ -129,6 +148,11 @@ namespace EasyLinkGui.Algos {
             }
         }
 
+        private void calcSearchScore(GameState gs) {
+            gs.CustSearchScore = gs.getAPScore() - gs.TotalWay * 5;
+            //gs.CustSearchScore = gs.TotalArea;
+        }
+
         class SharedCalcData {
             public float bestVal = 0;
             public GameState bestGame = null;
@@ -138,9 +162,11 @@ namespace EasyLinkGui.Algos {
             public DateTime startCalc;
             public DateTime resultTime;
 
-            public GameState lastHandled = null;
-
             public int RunningThreads = 0;
+        }
+
+        class CustSettings {
+            public int TargetThreadCount { get; set; } = 1;
         }
     }
 }
