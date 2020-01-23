@@ -297,8 +297,10 @@ namespace EasyLinkGui {
         Algos.AlgoDummy autoLinkAlgo = null;
         private void bCalc_Click(object sender, EventArgs e) {
             //Thread d = new Thread(calculateBest);
-            if(gs.Global.AnchorsPortals.Count == 1) {
+            if (gs.Global.AnchorsPortals.Count == 1) {
                 autoLinkAlgo = new Algos.MaxField();
+            } else if (gs.Global.AnchorsPortals.Count == 2) {
+                autoLinkAlgo = new Algos.Algo2Anker();
             } else {
                 autoLinkAlgo = new Algos.AgloBStart();
             }

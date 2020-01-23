@@ -167,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algos\AgloBStart.cs" />
+    <Compile Include="Algos\Algo2Anker.cs" />
     <Compile Include="Algos\AlgoConvex.cs" />
     <Compile Include="Algos\AlgoDummy.cs" />
     <Compile Include="Algos\AlgoMaxField.cs" />
