@@ -398,6 +398,17 @@ namespace EasyLinkLib {
         public override int GetHashCode() {
             return X.GetHashCode() + Y.GetHashCode() * 31;
         }
+
+        public double getAmplitude() {
+            return Math.Sqrt(this.X * this.X + this.Y * this.Y);
+        }
+
+        public double getAngleBetween(Vector vector) {
+            double sin = vector.X * this.Y - this.X * vector.Y;
+            double cos = vector.X * this.X + vector.Y * this.Y;
+
+            return Math.Atan2(sin, cos);
+        }
     }
     public static class Extensions {
         private const double Epsilon = 1e-10;

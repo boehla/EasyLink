@@ -300,7 +300,7 @@ namespace EasyLinkGui {
             if (gs.Global.AnchorsPortals.Count == 1) {
                 autoLinkAlgo = new Algos.MaxField();
             } else if (gs.Global.AnchorsPortals.Count == 2) {
-                autoLinkAlgo = new Algos.Algo2Anker();
+                autoLinkAlgo = new Algos.Algo2Anchor();
             } else {
                 autoLinkAlgo = new Algos.AgloBStart();
             }
