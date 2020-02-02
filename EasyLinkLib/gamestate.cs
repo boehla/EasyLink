@@ -185,6 +185,7 @@ namespace EasyLinkLib {
         public bool checkLink(string p1id, string p2id) {
             return checkLink(glob.PortalMapping[p1id], glob.PortalMapping[p2id]);
         }
+        public bool CheckKeys { get; set; } = false;
         public bool checkLink(int p1id, int p2id) {
             if (p1id == p2id) return false;
             if (p1id < 0 || p2id < 0) return false;
@@ -193,7 +194,7 @@ namespace EasyLinkLib {
             Portal p1 = this.pData[p1id];
             Portal p2 = this.pData[p2id];
 
-            if (p2.KeysLeft <= 0) return false;
+            if (CheckKeys && p2.KeysLeft <= 0) return false;
             if (p1.SideLinks.ContainsKey(p2id)) return false;
             if (!p1.OutLinkPossible) return false;
 

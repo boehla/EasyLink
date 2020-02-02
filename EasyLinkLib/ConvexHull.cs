@@ -88,14 +88,15 @@ namespace EasyLinkLib {
         // Return the points that make up a polygon's convex hull.
         // This method leaves the points list unchanged.
         public static List<PointD> MakeConvexHull(List<PointD> points) {
+            List<PointD> tmpPoints = new List<PointD>(points);
             // Cull.
             //points = HullCull(points);
-            if (points.Count <= 0) return points;
+            if (tmpPoints.Count <= 0) return tmpPoints;
 
             // Find the remaining point with the smallest Y value.
             // if (there's a tie, take the one with the smaller X value.
-            PointD best_pt = points[0];
-            foreach (PointD pt in points) {
+            PointD best_pt = tmpPoints[0];
+            foreach (PointD pt in tmpPoints) {
                 if ((pt.Y < best_pt.Y) ||
                    ((pt.Y == best_pt.Y) && (pt.X < best_pt.X))) {
                     best_pt = pt;
@@ -105,9 +106,9 @@ namespace EasyLinkLib {
             // Move this point to the convex hull.
             List<PointD> hull = new List<PointD>();
             hull.Add(best_pt);
-            points.Remove(best_pt);
+            tmpPoints.Remove(best_pt);
 
-            if (points.Count <= 0) return points;
+            if (tmpPoints.Count <= 0) return tmpPoints;
 
             // Start wrapping up the other points.
             double sweep_angle = 0;
@@ -117,11 +118,11 @@ namespace EasyLinkLib {
                 // from the last point.
                 double X = hull[hull.Count - 1].X;
                 double Y = hull[hull.Count - 1].Y;
-                best_pt = points[0];
+                best_pt = tmpPoints[0];
                 double best_angle = 3600;
 
                 // Search the rest of the points.
-                foreach (PointD pt in points) {
+                foreach (PointD pt in tmpPoints) {
                     double test_angle = AngleValue(X, Y, pt.X, pt.Y);
                     if ((test_angle >= sweep_angle) &&
                         (best_angle > test_angle)) {
@@ -141,12 +142,12 @@ namespace EasyLinkLib {
 
                 // Add the best point to the convex hull.
                 hull.Add(best_pt);
-                points.Remove(best_pt);
+                tmpPoints.Remove(best_pt);
 
                 sweep_angle = best_angle;
 
                 // If all of the points are on the hull, we're done.
-                if (points.Count == 0) break;
+                if (tmpPoints.Count == 0) break;
             }
 
             return hull;

@@ -302,8 +302,7 @@ namespace EasyLinkGui {
             } else if (gs.Global.AnchorsPortals.Count == 2) {
                 autoLinkAlgo = new Algos.Algo2Anchor();
             } else {
-                //autoLinkAlgo = new Algos.AlgoMaxField();
-                autoLinkAlgo = new Algos.AgloBStart();
+                autoLinkAlgo = new Algos.AlgoMaxField();
             }
             autoLinkAlgo.OnCalculationFinish += onCalculationFinished;
             autoLinkAlgo.OnNewBestGameState += OnNewBestGameState;

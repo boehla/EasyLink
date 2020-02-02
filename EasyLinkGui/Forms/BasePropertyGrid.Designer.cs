@@ -25,6 +25,7 @@
         private void InitializeComponent() {
             this.pbSettings = new System.Windows.Forms.PropertyGrid();
             this.bOk = new System.Windows.Forms.Button();
+            this.bAccept = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // pbSettings
@@ -47,11 +48,21 @@
             this.bOk.UseVisualStyleBackColor = true;
             this.bOk.Click += new System.EventHandler(this.BOk_Click);
             // 
+            // bAccept
+            // 
+            this.bAccept.Location = new System.Drawing.Point(364, 374);
+            this.bAccept.Name = "bAccept";
+            this.bAccept.Size = new System.Drawing.Size(75, 23);
+            this.bAccept.TabIndex = 1;
+            this.bAccept.Text = "Accept";
+            this.bAccept.UseVisualStyleBackColor = true;
+            // 
             // BaseSettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(532, 401);
+            this.Controls.Add(this.bAccept);
             this.Controls.Add(this.bOk);
             this.Controls.Add(this.pbSettings);
             this.Name = "BaseSettingsForm";
@@ -64,5 +75,6 @@
 
         private System.Windows.Forms.PropertyGrid pbSettings;
         private System.Windows.Forms.Button bOk;
+        private System.Windows.Forms.Button bAccept;
     }
 }
