@@ -298,10 +298,11 @@ namespace EasyLinkGui {
         private void bCalc_Click(object sender, EventArgs e) {
             //Thread d = new Thread(calculateBest);
             if (gs.Global.AnchorsPortals.Count == 1) {
-                autoLinkAlgo = new Algos.MaxField();
+                autoLinkAlgo = new Algos.OneAnchorMaxField();
             } else if (gs.Global.AnchorsPortals.Count == 2) {
                 autoLinkAlgo = new Algos.Algo2Anchor();
             } else {
+                //autoLinkAlgo = new Algos.AlgoMaxField();
                 autoLinkAlgo = new Algos.AgloBStart();
             }
             autoLinkAlgo.OnCalculationFinish += onCalculationFinished;
@@ -461,7 +462,9 @@ namespace EasyLinkGui {
 
         Dictionary<string, LinkEntity> externLinks = new Dictionary<string, LinkEntity>();
         public void addEntities(List<CoreEntity> entities) {
+            Lib.Performance.setWatch("ingressDatabase.addEntities", true);
             ingressDatabase.addEntities(entities);
+            Lib.Performance.setWatch("ingressDatabase.addEntities", false);
             bool refreshExternLinks = false;
             foreach (CoreEntity ent in entities) {
                 if (ent is LinkEntity) {
@@ -693,7 +696,7 @@ namespace EasyLinkGui {
                     polygon.Stroke = null;
 
                     if (destroyPortals.ContainsKey(link.OGuid) || destroyPortals.ContainsKey(link.DGuid)) {
-                        polygon.Stroke = new Pen(Color.DarkRed, 3);
+                        polygon.Stroke = new Pen(ChangeColorBrightness(CoreEntity.getTeamColor(link.Team), -0.5f), 3);
                         polygon.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
                     } else if (isCrossing) {
                         remainDestorys++;
@@ -831,7 +834,35 @@ namespace EasyLinkGui {
             }
         }
 
-        
+        /// <summary>
+        /// Creates color with corrected brightness.
+        /// </summary>
+        /// <param name="color">Color to correct.</param>
+        /// <param name="correctionFactor">The brightness correction factor. Must be between -1 and 1. 
+        /// Negative values produce darker colors.</param>
+        /// <returns>
+        /// Corrected <see cref="Color"/> structure.
+        /// </returns>
+        public static Color ChangeColorBrightness(Color color, float correctionFactor) {
+            float red = (float)color.R;
+            float green = (float)color.G;
+            float blue = (float)color.B;
+
+            if (correctionFactor < 0) {
+                correctionFactor = 1 + correctionFactor;
+                red *= correctionFactor;
+                green *= correctionFactor;
+                blue *= correctionFactor;
+            } else {
+                red = (255 - red) * correctionFactor + red;
+                green = (255 - green) * correctionFactor + green;
+                blue = (255 - blue) * correctionFactor + blue;
+            }
+
+            return Color.FromArgb(color.A, (int)red, (int)green, (int)blue);
+        }
+
+
 
         private void gmap_OnMapDrag() {
             saveGMap();

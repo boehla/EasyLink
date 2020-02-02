@@ -7,58 +7,35 @@ using System.Threading.Tasks;
 using static EasyLinkLib.geohelper;
 
 namespace EasyLinkGui.Algos {
-    class MaxField : AlgoDummy {
+    class AlgoMaxField : AlgoDummy {
         internal override GameState getBestGame(GameState gs) {
 
+            Random r = new Random(0);
             List<PointD> allPoints = new List<PointD>();
-            Dictionary<PointD, bool> anchors = new Dictionary<PointD, bool>();
-            if (gs.Global != null) {
-                foreach (PortalInfo item in gs.Global.AnchorsPortals) {
-                    anchors[item.Pos] = true;
-                }
-            }
-            foreach (PortalInfo pInfo in gs.PortalInfos) {
-                if (!anchors.ContainsKey(pInfo.Pos)) {
+            Dictionary<PointD, int> index = new Dictionary<PointD, int>();
+
+            for(int i = 0; i < gs.PortalInfos.Count; i++) {
+                PortalInfo pInfo = gs.PortalInfos[i];
                     allPoints.Add(pInfo.Pos);
-                }
+                index[pInfo.Pos] = i;
+                
             }
 
-            SortedList<double, PointD> anglePoints = new SortedList<double, PointD>();
-            PointD anchor = anchors.Keys.ToArray()[0];
+            List<PointD> hull = ConvexHull.MakeConvexHull(allPoints);
 
-            foreach (PointD p in allPoints) {
-                if (p.Equals(anchor)) continue;
-                //gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anchor]);
+            for (int i = 0; i < hull.Count; i++) {
+                gs.addLink(index[hull[(i - 1 + hull.Count) % hull.Count]], index[hull[i]]);
+            }
+            while(hull.Count > 3) {
+                int mid = r.Next(0, hull.Count);
+                int ind1 = (mid - 1 + hull.Count) % hull.Count;
+                int ind2 = (mid + 1 + hull.Count) % hull.Count;
+                gs.addLink(index[hull[ind1]], index[hull[ind2]]);
+                hull.RemoveAt(mid);
             }
 
-            foreach (PointD p in allPoints) {
-                if (p.Equals(anchor)) continue;
-                double angl = geohelper.GetAngle(p, anchor);
-                anglePoints.Add(angl, p);
-            }
-            double biggestAngleKey = 0;
-            double biggestAngleDiff = 0;
-            for (int i = 0; i < anglePoints.Count; i++) {
-                double anglediff = anglePoints.Keys[i] - anglePoints.Keys[(i + 1) % anglePoints.Count];
-                anglediff = Math.Abs(anglediff);
-                while (anglediff > 180) anglediff -= 360;
-                anglediff = Math.Abs(anglediff);
-                //if (anglediff < 0) anglediff += 2 * Math.PI;
-                if (anglediff > biggestAngleDiff) {
-                    biggestAngleDiff = anglediff;
-                    biggestAngleKey = anglePoints.Keys[(i + 1) % anglePoints.Count];
-                }
-            }
-            int startInd = anglePoints.IndexOfKey(biggestAngleKey);
-            for (int i = 0; i < anglePoints.Count; i++) {
-                double key = anglePoints.Keys[(i + startInd) % anglePoints.Count];
-                PointD p = anglePoints[key];
-                gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anchor]);
-                for (int j = 0; j < i; j++) {
-                    double jkey = anglePoints.Keys[(startInd + j) % anglePoints.Count];
-                    gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anglePoints[jkey]]);
-                }
-            }
+
+
             return gs;
         }
     }

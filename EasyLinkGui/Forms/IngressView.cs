@@ -58,7 +58,15 @@ namespace EasyLinkGui {
             InitializeComponent();
 
             CefSettings settings = new CefSettings();
-            settings.CachePath = "\\CEF";
+            string oldCachePath = "C:\\CEF";
+            string newCachePath = "cef_browser_cache";
+            if (Directory.Exists(oldCachePath)) {
+                if(Directory.Exists(newCachePath)) Directory.Delete(newCachePath, true);
+                Directory.Move(oldCachePath, newCachePath);
+            }
+
+            settings.CachePath = newCachePath;
+            settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0";
             //settings.CachePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CEF";
 
             if (!Cef.IsInitialized) {
