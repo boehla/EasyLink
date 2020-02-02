@@ -111,6 +111,9 @@ namespace EasyLinkLib {
         [Category("EasyLinkProxy")]
         public string EasyLinkPassword { get; set; } = "n47Y7JUNDKpQ2y7EaQfd";
 
+        [Category("Linking")]
+        public int MaxOutgoingLinksAllowed { get; set; } = 24;
+
         public object Clone() {
             return this.MemberwiseClone();
         }

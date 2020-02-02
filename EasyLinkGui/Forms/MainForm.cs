@@ -33,7 +33,6 @@ namespace EasyLinkGui {
         ContextMenu context = null;
 
         GameState gs = new GameState();
-        GamePrinter dr = null;
         List<GameState> nextSols = new List<GameState>();
         Lib.Options opts = new Lib.Options("dat\\BestField.json");
 
@@ -68,16 +67,14 @@ namespace EasyLinkGui {
             Lib.Logging.log("Applicatoin started..");
             try {
                 opts.load();
-            }catch(Exception ex) {
-                Lib.Logging.logException("",ex);
+            } catch (Exception ex) {
+                Lib.Logging.logException("", ex);
             }
-            
-            
-            dr = new GamePrinter(gs);
 
             ingressDatabase = new IngressDatabase("dat\\db.bin");
+            gs.loadSettings(ingressDatabase.Settings);
 
-           List <PortalInfo> nodes = new List<PortalInfo>();
+            List<PortalInfo> nodes = new List<PortalInfo>();
 
             opts.loadUI();
 
@@ -136,14 +133,7 @@ namespace EasyLinkGui {
             }
             bitMapBuffer[b] = ret;
             return ret;
-        }
-
-
-
-
-        
-        static int nextthreadid = 0;
-       
+        }       
 
         private void refresh() {
             refreshGoogleMaps();
@@ -157,11 +147,10 @@ namespace EasyLinkGui {
             sb.Append(string.Format("TotalFields: {0:n0}\r\n", gs.Fields.Count));
             sb.Append(string.Format("TotalArea: {0:n1}km²\r\n", gs.TotalArea / 1000 / 1000));
             sb.Append(string.Format("TotalWay: {0:n0}m\r\n", gs.TotalWay));
-            /*
-            lock (shared) { //TODO
-                sb.Append(string.Format("CalcTime: {0}\r\n", Lib.Converter.formatTimeSpan(shared.resultTime - shared.startCalc)));
 
-            }*/
+            sb.Append(string.Format("MaxOutgoingLinks: {0:n0} of {1:n0}\r\n", gs.MaxOutgoingLinks, gs.MaxOutgoingLinksAllowed));
+            sb.Append(string.Format("MaxIncomingLinks: {0:n0}\r\n", gs.MaxIncomingLinks));
+
             tbGameInfos.Text = sb.ToString();
 
             List<Link> linkList = gs.getTotalLinkList();
@@ -211,8 +200,6 @@ namespace EasyLinkGui {
             gmap.Position = new PointLatLng((double)opts.get("gmap_pos_lat", 47.45043).DecimalValue, (double)opts.get("gmap_pos_lon", 9.83109).DecimalValue);
             gmap.Zoom = (double)opts.get("gmap_zoom", gmap.Zoom).DecimalValue;
 
-            
-
             foreach (MapOverlay suit in (MapOverlay[])Enum.GetValues(typeof(MapOverlay))) {
                 bool val = opts.get("MapLayerCheckItem_" + (int)suit, true).BoolValue;
                 overLays[suit] = new GMapOverlay();
@@ -221,7 +208,6 @@ namespace EasyLinkGui {
                 
                 clbMapLayers.Items.Add(new MapLayerCheckItem(suit.ToString(), suit), val);
             }
-
             loadGroup("AutoSave");
             refreshGroupList();
             addEntities(ingressDatabase.getAllOtherLinks());
@@ -386,6 +372,7 @@ namespace EasyLinkGui {
             gs = new GameState();
             gs.loadPortals(ingressDatabase.getAllEnabled());
             gs.loadGroup(p);
+            gs.loadSettings(ingressDatabase.Settings);
 
             refreshAnchorList();
             refresh();
@@ -705,125 +692,6 @@ namespace EasyLinkGui {
                     lDestroyStatus.Text = string.Format("Remaining crossing links: {0}", remainDestorys);
                     lDestroyStatus.ForeColor = remainDestorys <= 0 ? Color.DarkGreen : Color.DarkRed;
                     overLays[MapOverlay.externLinks].Routes.Add(polygon);
-                }
-
-                // only for debugging:
-                List<PointD> allPoints = new List<PointD>();
-                Dictionary<PointD, bool> anchors = new Dictionary<PointD, bool>();
-                if (GameState.Global != null) {
-                    foreach (PortalInfo item in GameState.Global.AnchorsPortals) {
-                        anchors[item.Pos] = true;
-                    }
-                }
-                foreach (PortalInfo pInfo in this.GameState.PortalInfos) {
-                    if (!anchors.ContainsKey(pInfo.Pos)){
-                        if(gs.TotalLinks == 0) {
-                            if (!gs.getPortalDataByGuid(pInfo.Guid).OutLinkPossible) {
-                                //continue;
-                            }
-                        } else {
-                            if (gs.getPortalDataByGuid(pInfo.Guid).OutLinkPossible) {
-                                //continue;
-                            }
-                        }
-                        
-                        //if (!gs.linkToAllAnchorsPossible(pInfo)) continue;
-                    }
-                    allPoints.Add(pInfo.Pos);
-                }
-
-                //List<PointD> tmphull = ConvexHull.MakeConvexHull(allPoints);
-
-                if (anchors.Count == 1) {
-                    /*
-                    List<Triangle> remainTriangles = new List<Triangle>();
-                    Triangle tmptr = new Triangle();
-                    tmptr.subHull = tmphull;
-                    remainTriangles.Add(tmptr);
-
-                    while (remainTriangles.Count > 0) {
-                        Triangle tr = remainTriangles[0];
-                        remainTriangles.RemoveAt(0);
-
-                        points = new List<PointLatLng>();
-                        foreach (PointD hullp in tr.subHull) {
-                            points.Add(new PointLatLng(hullp.Y, hullp.X));
-                            if (!anchors.ContainsKey(hullp)) allPoints.Remove(hullp);
-
-                            GMapRoute tmp = new GMapRoute(new PointLatLng[] { new PointLatLng(hullp.Y, hullp.X), new PointLatLng(anchors.Keys.ToArray()[0].Y, anchors.Keys.ToArray()[0].X) }, "mypolygon");
-                            tmp.Stroke = new Pen(Color.Blue, 1);
-                            //overLays[MapOverlay.externLinks].Routes.Add(tmp);
-                        }
-                        List<PointD> toDel = new List<PointD>();
-                        foreach (PointD p in allPoints) {
-                            if (tr.subHull.Contains(p)) continue;
-                            if (!geohelper.PointInPolygon(tr.subHull.ToArray(), p.X, p.Y)) toDel.Add(p);
-                        }
-                        foreach (PointD item in toDel) {
-                            //allPoints.Remove(item);
-                        }
-                        points.Add(new PointLatLng(tr.subHull[0].Y, tr.subHull[0].X));
-                        GMapRoute hullPoly = new GMapRoute(points, "mypolygon");
-                        hullPoly.Stroke = new Pen(Color.Black, 1);
-                        //overLays[MapOverlay.externLinks].Routes.Add(hullPoly);
-
-                        while (!tr.subHull[0].Equals(anchors.Keys.ToArray()[0])) {
-                            tr.subHull.Insert(0, tr.subHull[tr.subHull.Count - 1]);
-                            tr.subHull.RemoveAt(tr.subHull.Count - 1);
-                        }
-                        for (int i = 1; i < tr.subHull.Count - 1; i++) {
-                            List<PointD> inTriangle = new List<PointD>();
-                            PointD p1 = tr.subHull[i];
-                            PointD p2 = tr.subHull[i + 1];
-                            PointD[] tri = new PointD[] { p1, p2, anchors.Keys.ToArray()[0] };
-                            foreach (PointD point in allPoints) {
-
-                                if (geohelper.PointInPolygon(tri, point.X, point.Y)) {
-                                    inTriangle.Add(point);
-                                }
-                            }
-                            if (inTriangle.Count < 2) {
-                                if (inTriangle.Count == 1) {
-                                    Triangle tmpt = new Triangle();
-                                    tmpt.p1 = p1;
-                                    tmpt.p2 = p2;
-                                    tmpt.singlePoint = inTriangle[0];
-                                    tr.subTriangles.Add(tmpt);
-                                }
-                                continue;
-                            }
-                            inTriangle.Add(anchors.Keys.ToArray()[0]);
-                            List<PointD> subHull = ConvexHull.MakeConvexHull(inTriangle);
-                            if (subHull.Count >= 3) {
-                                Triangle tmpt = new Triangle();
-                                tmpt.p1 = p1;
-                                tmpt.p2 = p2;
-                                tmpt.subHull = subHull;
-                                remainTriangles.Add(tmpt);
-                                tr.subTriangles.Add(tmpt);
-                            } else {
-                                Triangle tmpt = new Triangle();
-                                tmpt.p1 = p1;
-                                tmpt.p2 = p2;
-                                tmpt.subHull = subHull;
-                                tr.subTriangles.Add(tmpt);
-                            }
-
-                            points = new List<PointLatLng>();
-                            foreach (PointD hullp in subHull) {
-                                points.Add(new PointLatLng(hullp.Y, hullp.X));
-                            }
-                            points.Add(new PointLatLng(subHull[0].Y, subHull[0].X));
-                            hullPoly = new GMapRoute(points, "mypolygon");
-                            hullPoly.Stroke = new Pen(Color.Brown, 1);
-                            //overLays[MapOverlay.externLinks].Routes.Add(hullPoly);
-                        }
-                    }
-                    foreach (PortalInfo item in GameState.Global.pInfos) {
-                        GameState.addLink(item.Guid, GameState.Global.AnchorsPortals[0].Guid);
-                    }
-                    linkFromTriangle(0, tmptr, this.GameState);
-                    */
                 }
 
                 gmap.Refresh();
@@ -1195,6 +1063,7 @@ namespace EasyLinkGui {
             gs = new GameState();
             gs.loadPortals(ingressDatabase.getAllEnabled());
             gs.loadGroup(p);
+            gs.loadSettings(ingressDatabase.Settings);
             refreshAnchorList();
             refreshDestryPortalList();
             refresh();
@@ -1299,6 +1168,7 @@ namespace EasyLinkGui {
             SettingsForm sf = new SettingsForm(ingressDatabase.Settings);
             if(sf.ShowDialog() == DialogResult.OK) {
                 ingressDatabase.Settings = sf.Settings;
+                gs.loadSettings(sf.Settings);
             }
         }
 

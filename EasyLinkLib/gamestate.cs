@@ -46,7 +46,8 @@ namespace EasyLinkLib {
 
         private GameState parent = null;
         public List<Link> LastLinks { get; set; } = new List<Link>();
-        
+
+        public int MaxOutgoingLinksAllowed { get; set; } = 24;        
 
         public GameState Parent {
             get { return this.parent; }
@@ -88,6 +89,9 @@ namespace EasyLinkLib {
                 return totWay;
             }
         }
+        public void loadSettings(SettingsDataset settings) {
+            this.MaxOutgoingLinksAllowed = settings.MaxOutgoingLinksAllowed;
+        }
         /// <summary>
         /// in m²
         /// </summary>
@@ -104,6 +108,24 @@ namespace EasyLinkLib {
         public int TotalLinks {
             get { if (this.LastLinks == null) return 0;
                 return this.LastLinks.Count; }
+        }
+        public int MaxOutgoingLinks {
+            get {
+                int ret = int.MinValue;
+                foreach (var item in this.PortalData) {
+                    ret = Math.Max(ret, item.OutgoingLinkCount);
+                }
+                return ret;
+            }
+        }
+        public int MaxIncomingLinks {
+            get {
+                int ret = int.MinValue;
+                foreach (var item in this.PortalData) {
+                    ret = Math.Max(ret, item.IncomingLinkCount);
+                }
+                return ret;
+            }
         }
         public int TotalFields {
             get { return this.fields.Count; }
@@ -202,7 +224,7 @@ namespace EasyLinkLib {
 
             if (CheckKeys && p2.KeysLeft <= 0) return false;
             if (p1.SideLinks.ContainsKey(p2id)) return false;
-            if (!p1.OutLinkPossible) return false;
+            if (!p1.OutLinkPossible(MaxOutgoingLinksAllowed)) return false;
 
             //if(geohelper.crossLink(this, p1id, p2id)) return "cannot link because it would cross other link!";
             if (glob.linkLookupTbl.crossLink(this, p1id, p2id)) {
@@ -244,9 +266,8 @@ namespace EasyLinkLib {
             Portal p1 = this.pData[p1id];
             Portal p2 = this.pData[p2id];
 
-            p1.SideLinks.Add(p2id, true); // outside
-            p1.Outlinkscount++;
-            p2.SideLinks.Add(p1id, false); // inside
+            p1.addLink(p2id, true); // outgoing
+            p2.addLink(p1id, false); // incoming
 
             p2.KeysLeft--;
 
@@ -327,7 +348,7 @@ namespace EasyLinkLib {
             if(glob.AnchorsPortals != null && glob.AnchorsPortals.Count > 0) {
                 if (glob.AnchorsPortals.Count == 2) {
                     for (int p1 = 0; p1 < this.pData.Count; p1++) {
-                        if (!gs.pData[p1].OutLinkPossible) continue;
+                        if (!gs.pData[p1].OutLinkPossible(MaxOutgoingLinksAllowed)) continue;
                         if (this.glob.AnchorsPortals.Contains(gs.PortalInfos[p1])) continue;
                         gs = this.DeepClone();
                         gs.Parent = this;
@@ -354,7 +375,7 @@ namespace EasyLinkLib {
                     int anchor = glob.PortalMapping[glob.AnchorsPortals[0].Guid];
                     for (int p1 = 0; p1 < this.pData.Count; p1++) {
                         if (p1 == anchor) continue;
-                        if (!gs.pData[p1].OutLinkPossible) continue;
+                        if (!gs.pData[p1].OutLinkPossible(MaxOutgoingLinksAllowed)) continue;
                         if (gs.pData[p1].SideLinks.ContainsKey(anchor)) {
                             for (int p2 = 0; p2 < this.pData.Count; p2++) {
                                 if (p1 == p2) continue;
@@ -375,7 +396,7 @@ namespace EasyLinkLib {
                 }
             } else {
                 for (int p1 = 0; p1 < this.pData.Count; p1++) {
-                    if (!gs.pData[p1].OutLinkPossible) continue;
+                    if (!gs.pData[p1].OutLinkPossible(MaxOutgoingLinksAllowed)) continue;
                     for (int p2 = 0; p2 < this.pData.Count; p2++) {
                         if (p1 == p2) continue;
                         if (gs.addLink(p1, p2)) {
@@ -461,7 +482,7 @@ namespace EasyLinkLib {
             int ret = 0;
 
             foreach (Portal nd in this.pData) {
-                ret += (nd.Outlinkscount * 313);
+                ret += (nd.OutgoingLinkCount * 313);
             }
             ret += this.fields.Count * 1250;
 
@@ -486,14 +507,19 @@ namespace EasyLinkLib {
         public int KeysLeft = 999;
         public bool InTriangle = false;
         public Dictionary<int, bool> SideLinks = new Dictionary<int, bool>();
-        public int Outlinkscount = 0;
+        public int OutgoingLinkCount = 0;
+        public int IncomingLinkCount = 0;
 
-        public bool OutLinkPossible {
-            get {
-                if (InTriangle) return false;
-                if (Outlinkscount >= 24) return false;
-                return true;
-            }
+        public bool OutLinkPossible(int maxOutgoing) {
+            if (InTriangle) return false;
+            if (OutgoingLinkCount >= maxOutgoing) return false;
+            return true;
+        }
+
+        public void addLink(int p, bool outgoing) {
+            this.SideLinks[p] = outgoing;
+            if (outgoing) this.OutgoingLinkCount++;
+            else this.IncomingLinkCount++;
         }
 
         public Portal clone() {
@@ -503,7 +529,8 @@ namespace EasyLinkLib {
             foreach (KeyValuePair<int, bool> item in this.SideLinks) {
                 ret.SideLinks.Add(item.Key, item.Value);
             }
-            ret.Outlinkscount = this.Outlinkscount;
+            ret.OutgoingLinkCount = this.OutgoingLinkCount;
+            ret.IncomingLinkCount = this.IncomingLinkCount;
             ret.KeysLeft = this.KeysLeft;
             return ret;
         }
@@ -516,7 +543,6 @@ namespace EasyLinkLib {
 
             if (nd.InTriangle != this.InTriangle) return false;
             if (nd.SideLinks.Count != this.SideLinks.Count) return false;
-            if (nd.Outlinkscount != this.Outlinkscount) return false;
             if (nd.KeysLeft != this.KeysLeft) return false;
             foreach (KeyValuePair<int, bool> link in nd.SideLinks) {
                 if (!this.SideLinks.ContainsKey(link.Key) || this.SideLinks[link.Key] != nd.SideLinks[link.Key]) return false;
