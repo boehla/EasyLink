@@ -151,12 +151,12 @@ namespace EasyLinkGui {
             StringBuilder sb = new StringBuilder();
             sb.Append(string.Format("TotalNodes: {0:n0}\r\n", gs.PortalInfos.Count));
             sb.Append(string.Format("TotalAP: {0:n0}\r\n", gs.getAPScore()));
-            sb.Append(string.Format("TotalSearchScore: {0}\r\n", gs.getSearchScore()));
-            sb.Append(string.Format("TotalGameScore: {0}\r\n", gs.getGameScore()));
-            sb.Append(string.Format("TotalLinks: {0}\r\n", gs.TotalLinks));
-            sb.Append(string.Format("TotalFields: {0}\r\n", gs.Fields.Count));
-            sb.Append(string.Format("TotalArea: {0:0.0}km²\r\n", gs.TotalArea / 1000 / 1000));
-            sb.Append(string.Format("TotalWay: {0:0}m\r\n", gs.TotalWay));
+            //sb.Append(string.Format("TotalSearchScore: {0}\r\n", gs.getSearchScore()));
+            //sb.Append(string.Format("TotalGameScore: {0:n0}\r\n", gs.getGameScore()));
+            sb.Append(string.Format("TotalLinks: {0:n0}\r\n", gs.TotalLinks));
+            sb.Append(string.Format("TotalFields: {0:n0}\r\n", gs.Fields.Count));
+            sb.Append(string.Format("TotalArea: {0:n1}km²\r\n", gs.TotalArea / 1000 / 1000));
+            sb.Append(string.Format("TotalWay: {0:n0}m\r\n", gs.TotalWay));
             /*
             lock (shared) { //TODO
                 sb.Append(string.Format("CalcTime: {0}\r\n", Lib.Converter.formatTimeSpan(shared.resultTime - shared.startCalc)));
@@ -357,9 +357,8 @@ namespace EasyLinkGui {
         }
 
         private void bShowParent_Click(object sender, EventArgs e) {
-            if (gs.Parent != null) {
-                gs = gs.Parent;
-            }
+            gs.removeLastLink();
+            refresh();
         }
 
         private void pbDraw_SizeChanged(object sender, EventArgs e) {
@@ -631,14 +630,14 @@ namespace EasyLinkGui {
                     // gmap.Overlays.Add(polyOverlay);
                 }
 
-                PortalInfo fromPortal = null;
+                PortalInfo lastPortal = null;
                 points = new List<PointLatLng>();
                 foreach (Link link in gs.getTotalLinkList()) {
                     PortalInfo newPortal = link.P1;
-                    if (fromPortal != null && newPortal != fromPortal) {
+                    if (lastPortal == null || newPortal != lastPortal) {
                         points.Add(new PointLatLng(newPortal.Pos.Y, newPortal.Pos.X));
                     }
-                    fromPortal = link.P1;
+                    lastPortal = link.P1;
                 }
                 overLays[MapOverlay.gameWay].Clear();
                 GMapRoute todoroute = new GMapRoute(points, "mypolygon");
@@ -1003,6 +1002,11 @@ namespace EasyLinkGui {
                 PortalInfo pid = (PortalInfo)marker.Tag;
                 anchors[pid.Guid] = true;
                 refreshAnchorList();
+
+                pid.Enabled = true;
+                ingressDatabase.updatePortals(pid);
+                loadGameState();
+                refreshDisabledPortals();
             }
         }
         private void Mn_LinkFromClick(object sender, EventArgs e) {
@@ -1049,6 +1053,11 @@ namespace EasyLinkGui {
                 pid.Enabled = false;
                 ingressDatabase.updatePortals(pid);
                 loadGameState();
+
+                if (anchors.ContainsKey(pid.Guid)) {
+                    anchors.Remove(pid.Guid);
+                    refreshAnchorList();
+                }
             }
         }
         private void Mn_LinkToAnchors(object sender, EventArgs e) {

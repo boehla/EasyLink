@@ -164,7 +164,7 @@
             // bCalc
             // 
             this.bCalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bCalc.Location = new System.Drawing.Point(520, 6);
+            this.bCalc.Location = new System.Drawing.Point(488, 7);
             this.bCalc.Name = "bCalc";
             this.bCalc.Size = new System.Drawing.Size(75, 23);
             this.bCalc.TabIndex = 5;
@@ -181,11 +181,11 @@
             // bShowParent
             // 
             this.bShowParent.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bShowParent.Location = new System.Drawing.Point(682, 6);
+            this.bShowParent.Location = new System.Drawing.Point(650, 6);
             this.bShowParent.Name = "bShowParent";
-            this.bShowParent.Size = new System.Drawing.Size(88, 24);
+            this.bShowParent.Size = new System.Drawing.Size(120, 24);
             this.bShowParent.TabIndex = 8;
-            this.bShowParent.Text = "Show parent";
+            this.bShowParent.Text = "Remove last link";
             this.bShowParent.UseVisualStyleBackColor = true;
             this.bShowParent.Click += new System.EventHandler(this.bShowParent_Click);
             // 
@@ -714,7 +714,7 @@
             // bAlgoSettings
             // 
             this.bAlgoSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bAlgoSettings.Location = new System.Drawing.Point(439, 7);
+            this.bAlgoSettings.Location = new System.Drawing.Point(407, 8);
             this.bAlgoSettings.Name = "bAlgoSettings";
             this.bAlgoSettings.Size = new System.Drawing.Size(75, 23);
             this.bAlgoSettings.TabIndex = 18;
@@ -831,7 +831,7 @@
             this.bCreateGameState.Name = "bCreateGameState";
             this.bCreateGameState.Size = new System.Drawing.Size(119, 23);
             this.bCreateGameState.TabIndex = 9;
-            this.bCreateGameState.Text = "Reload";
+            this.bCreateGameState.Text = "Clear all links";
             this.bCreateGameState.UseVisualStyleBackColor = true;
             this.bCreateGameState.Click += new System.EventHandler(this.bCreateGameState_Click);
             // 
@@ -839,7 +839,7 @@
             // 
             this.bCalcStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.bCalcStop.Enabled = false;
-            this.bCalcStop.Location = new System.Drawing.Point(601, 6);
+            this.bCalcStop.Location = new System.Drawing.Point(569, 7);
             this.bCalcStop.Name = "bCalcStop";
             this.bCalcStop.Size = new System.Drawing.Size(75, 23);
             this.bCalcStop.TabIndex = 5;

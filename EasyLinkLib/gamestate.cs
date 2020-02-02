@@ -41,15 +41,11 @@ namespace EasyLinkLib {
         GlobData glob = new GlobData();
 
         private List<Portal> pData = new List<Portal>();
-        private List<Field> fields = new List<Field>();
-        private Dictionary<Field, bool> fieldsDic = new Dictionary<Field, bool>();
-        private int linkCount = 0;
-        private float totalWay = 0;
-        private float totalArea = 0;
+        private HashSet<Field> fields = new HashSet<Field>();
         private bool _changed = false;
 
         private GameState parent = null;
-        public List<Link> LastLinks { get; set; }
+        public List<Link> LastLinks { get; set; } = new List<Link>();
         
 
         public GameState Parent {
@@ -74,22 +70,40 @@ namespace EasyLinkLib {
                 return this.glob.borders; }
         }
         public List<Field> Fields {
-            get { return this.fields; }
+            get { return this.fields.ToList(); }
         }
         /// <summary>
         /// in m
         /// </summary>
         public float TotalWay {
-            get { return this.totalWay; }
+            get {
+                float totWay = 0;
+                if (this.LastLinks == null) return totWay;
+                for(int i = 1; i < this.LastLinks.Count; i++) {
+                    Link lastLink = this.LastLinks[i - 1];
+                    Link curLink = this.LastLinks[i];
+                    if (lastLink.P1 == curLink.P1) continue;
+                    totWay += (float)geohelper.CalcDistance(lastLink.P1, curLink.P1);
+                }
+                return totWay;
+            }
         }
         /// <summary>
         /// in m²
         /// </summary>
         public float TotalArea {
-            get { return this.totalArea; }
+            get {
+                float ret = 0;
+                if (this.fields == null) return ret;
+                foreach (Field item in this.fields) {
+                    ret += (float)item.Size;
+                }
+                return ret;
+                    }
         }
         public int TotalLinks {
-            get { return linkCount; }
+            get { if (this.LastLinks == null) return 0;
+                return this.LastLinks.Count; }
         }
         public int TotalFields {
             get { return this.fields.Count; }
@@ -120,7 +134,8 @@ namespace EasyLinkLib {
             glob = new GlobData();
             this.glob.pInfos = pInfos;
             pData = new List<Portal>(pInfos.Count);
-            fields = new List<Field>();
+            fields = new HashSet<Field>();
+            LastLinks.Clear();
             glob.borders = new Border();
             glob.PortalMapping.Clear();
             for(int i = 0; i < pInfos.Count; i++) {
@@ -164,16 +179,7 @@ namespace EasyLinkLib {
         }
 
         public List<Link> getTotalLinkList() {
-            List<Link> ret = new List<Link>();
-            GameState rec = this;
-            while(rec != null) {
-                if (rec.LastLinks != null) {
-                    for (int i = 0; i < rec.LastLinks.Count; i++) {
-                        ret.Insert(0, rec.LastLinks[rec.LastLinks.Count - 1 - i]);
-                    }
-                }
-                rec = rec.parent;
-            }
+            List<Link> ret = new List<Link>(this.LastLinks);
             for(int i = 0; i < ret.Count; i++) {
                 ret[i].Index = i;
             }
@@ -241,13 +247,11 @@ namespace EasyLinkLib {
             p1.SideLinks.Add(p2id, true); // outside
             p1.Outlinkscount++;
             p2.SideLinks.Add(p1id, false); // inside
-            linkCount++;
 
             p2.KeysLeft--;
 
             if(this.Parent != null && this.Parent.LastLinks != null && this.Parent.LastLinks.Count > 0) {
                 PortalInfo lastPortal = this.Parent.LastLinks[this.Parent.LastLinks.Count - 1].P1;
-                this.totalWay += (float)geohelper.calculateDistance(lastPortal, this.glob.pInfos[p1id]);
                 p1.KeysLeft += 4;
             }
             if (this.LastLinks == null) this.LastLinks = new List<Link>();
@@ -286,7 +290,6 @@ namespace EasyLinkLib {
                 }
                 this.fields.Add(f);
                 f.Size = geohelper.calculateArea(this, f);
-                this.totalArea += (float)f.Size;
             }
             _changed = true;
 
@@ -296,6 +299,24 @@ namespace EasyLinkLib {
 
             return true;
         }
+        public void removeLastLink() {
+            if (this.LastLinks == null) return;
+            if (this.LastLinks.Count <= 0) return;
+            this.removeLink(this.LastLinks.Last());
+        }
+        public void removeLink(Link link) {
+            if (this.LastLinks == null) return;
+            if (!this.LastLinks.Contains(link)) return;
+
+            List<Link> newLinks = new List<Link>(this.LastLinks);
+            newLinks.Remove(link);
+
+            this.loadPortals(this.PortalInfos);
+            foreach (Link rebuildlink in newLinks) {
+                this.addLink(rebuildlink.P1.Guid, rebuildlink.P2.Guid);
+            }
+        }
+
 
         public List<GameState> getAllPossible() {
             List<GameState> ret = new List<GameState>();
@@ -372,18 +393,12 @@ namespace EasyLinkLib {
         public object Clone() {
             GameState ret = (GameState)this.MemberwiseClone();
 
-            ret.LastLinks = null;
-
             ret.pData = new List<Portal>();
             foreach (Portal nd in this.pData) {
                 ret.pData.Add(nd.clone());
             }
-            ret.fields = new List<Field>();
-            ret.fieldsDic = new Dictionary<Field, bool>();
-            foreach (Field gf in this.fields) {
-                ret.fields.Add(gf);
-                ret.fieldsDic.Add(gf, true);
-            }
+            ret.fields = new HashSet<Field>(this.fields);
+            ret.LastLinks = new List<Link>(this.LastLinks);
 
             ret.parent = this;
 
@@ -399,10 +414,8 @@ namespace EasyLinkLib {
             if (!(obj is GameState)) return false;
 
             GameState gs = (GameState)obj;
-            if (gs.linkCount != this.linkCount) return false;
             if (gs.fields.Count != this.fields.Count) return false;
             if (gs.pData.Count != this.pData.Count) return false;
-            if (Math.Abs(gs.totalWay - this.totalWay) > 1) return false;
 
             for (int i = 0; i < this.pData.Count; i++) {
                 Portal n1 = gs.pData[i];
@@ -414,13 +427,13 @@ namespace EasyLinkLib {
                 if (!gs.fields[i].Equals(this.fields[i])) return false;
             }*/
             foreach(Field f in this.fields) {
-                if (!gs.fieldsDic.ContainsKey(f)) return false;
+                if (!gs.fields.Contains(f)) return false;
             }
             return true;
         }
 
         public override int GetHashCode() {
-            return (int)GetHashCode();
+            return (int)GetLongHashCode();
         }
 
         long _cachedHashcode = 0;
@@ -432,17 +445,14 @@ namespace EasyLinkLib {
             for (int i = 0; i < this.pData.Count; i++) {
                 Portal n1 = this.pData[i];
                 foreach (KeyValuePair<int, bool> linkp in n1.SideLinks) {
-                    //if (!linkp.Value) continue;
                     ret ^= Zobrist.getValue("node" + i, linkp.Key);
                 }
                 
             }
-            ret ^= Zobrist.getValue("linkcount", linkCount);
             
             foreach (Field f in this.fields) {
                 ret ^= f.GetHashCode();
             }
-            ret ^= totalWay.GetHashCode();
             _cachedHashcode = ret;
             return ret;
         }
@@ -459,7 +469,7 @@ namespace EasyLinkLib {
         }
 
         public override string ToString() {
-            return string.Format("way={0}; totalSearchScore: {1}; GameScore: {2}", this.totalWay, this.getSearchScore(), this.getAPScore());
+            return string.Format("way={0}; totalSearchScore: {1}; GameScore: {2}", this.TotalWay, this.getSearchScore(), this.getAPScore());
         }
         public double getGameScore() {
             return this.getAPScore();
@@ -469,71 +479,8 @@ namespace EasyLinkLib {
         public double CustSearchScore { get; set; } = double.MinValue;
         public double getSearchScore() {
             if (this.CustSearchScore > double.MinValue) return this.CustSearchScore;
-            //int possibleSolls = this.getAllPossible().Count;
-
-                //return TotalLinks * 100 - totalWay + this.getAPScore();
-                //return this.getAPScore() - (totalWay);
-
-                //return 1f * this.getAPScore() - totalWay - TotalLinks * 500;
-                /*
-                return -TotalWay;
-
-                List<Link> llist = getTotalLinkList();
-                int p1 = -1;
-                int p2 = -1;
-                foreach (Link item in llist) {
-                    if(p1 == -1) {
-                        p1 = item.P1;
-                    }else if(p1 != item.P1 && p2 == -1) {
-                        p2 = item.P1;
-                    }
-                }
-                if(p1 != -1 && p2 != -1) {
-                    return -geohelper.CalcDistance(PortalInfos[p1], PortalInfos[p2]);
-                }
-                /*
-                if (this.getTotalLinkList()) {
-                    int from = this.Parent.LastLinks[this.Parent.LastLinks.Count - 1].P1;
-                    int to = this.LastLinks[this.Parent.LastLinks.Count - 1].P1;
-                    return -geohelper.CalcDistance(PortalInfos[from], PortalInfos[to]);
-                }*/
-            return this.getAPScore(); // perfekt for 2 anchors
-            //return -TotalWay + this.getAPScore();
-            //return this.getAPScore() / totalWay;
-            //return this.getAPScore() / (TotalLinks + 1); // perfekt for 2 anchors
-            //return -TotalWay / (TotalLinks);
-
-            int gen = 0;
-            GameState gs = this;
-            while(gs.Parent != null) {
-                gen++;
-                gs = gs.Parent;
-            }
-            return -totalWay / (TotalLinks / 2);
-            //return totalArea  / 1000 / 1000 - totalWay / 100;
-            //return totalArea / TotalLinks;
-            
-            //return this.Fields.Count * 10 - totalWay / 100 - TotalLinks / 5d; // really good for now  // 235-0;179-0;179-235
-            //return this.Fields.Count * 15 - totalWay / 100 - TotalLinks / 2d;
-            double tot = 0;
-            for(int i = 1; i < this.fields.Count; i++) {
-                //double sizediff = this.fields[i].Size - this.fields[i - 1].Size;
-                //tot += sizediff;
-            }
-
-           
-
-            int isBadPortal = 0;
-            for(int i = 0; i < this.PortalInfos.Count; i++) {
-                if (this.PortalData[i].SideLinks.Count <= 0 && this.PortalData[i].InTriangle) isBadPortal++;
-            }
-
-            return getAPScore() - totalWay;
-            return -isBadPortal;
-
-            //return - TotalWay + (isGoodPortal - TotalLinks / 2) * 10000;
+            return this.getAPScore(); 
         }
-
     }
     public class Portal {
         public int KeysLeft = 999;

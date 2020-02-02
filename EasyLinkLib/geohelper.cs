@@ -237,6 +237,10 @@ namespace EasyLinkLib {
             double b = CalcDistance(p2, p3);
             double c = CalcDistance(p3, p1);
             double s = (a + b + c) / 2;
+
+            if (s - a < 0) return 0; // no closed triangle.. but can happen..
+            if (s - b < 0) return 0;
+            if (s - c < 0) return 0;
             
             return Math.Sqrt(s * (s - a) * (s - b) * (s - c));
         }
