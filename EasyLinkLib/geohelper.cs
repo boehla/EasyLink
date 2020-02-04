@@ -110,6 +110,12 @@ namespace EasyLinkLib {
         public static bool PointInPolygon(PointD[] Points, PortalInfo ni) {
             return PointInPolygon(Points, ni.Pos.X, ni.Pos.Y);
         }
+        /// <summary>
+        /// Get Angle in Degree ° (360° per turn)
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
         public static double GetAngle(PointD p1, PointD p2) {
             double xDiff = p2.X - p1.X;
             double yDiff = p2.Y - p1.Y;

@@ -50,12 +50,15 @@ namespace EasyLinkGui.Algos {
                 }
             }
             int startInd = anglePoints.IndexOfKey(biggestAngleKey);
-            for (int i = 0; i < anglePoints.Count; i++) {
+            for (int i = 0; i < anglePoints.Count * 2; i++) {
                 double key = anglePoints.Keys[(i + startInd) % anglePoints.Count];
                 PointD p = anglePoints[key];
                 gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anchor]);
                 for (int j = 0; j < i; j++) {
                     double jkey = anglePoints.Keys[(startInd + j) % anglePoints.Count];
+                    double angleDiff = key - jkey;
+                    if (angleDiff < 0) angleDiff += 360;
+                    if (angleDiff > 180) continue;
                     gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anglePoints[jkey]]);
                 }
             }
