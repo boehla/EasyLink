@@ -64,7 +64,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\tmp\EasyLink\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -174,6 +174,7 @@
     <Compile Include="Algos\AlgoDummy.cs" />
     <Compile Include="Algos\AlgoMaxField.cs" />
     <Compile Include="Algos\AlgoOneAnchorMaxField.cs" />
+    <Compile Include="Algos\AlgoWayOptimizer.cs" />
     <Compile Include="Forms\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>

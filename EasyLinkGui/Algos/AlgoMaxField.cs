@@ -14,12 +14,13 @@ namespace EasyLinkGui.Algos {
             base.init();
             this.Settings = custSettings;
         }
+        Dictionary<PointD, int> index = new Dictionary<PointD, int>();
         internal override GameState getBestGame(GameState gs) {
 
             Random r = new Random(0);
             List<PointD> allPoints = new List<PointD>();
-            Dictionary<PointD, int> index = new Dictionary<PointD, int>();
 
+            index = new Dictionary<PointD, int>();
             for (int i = 0; i < gs.PortalInfos.Count; i++) {
                 PortalInfo pInfo = gs.PortalInfos[i];
                 allPoints.Add(pInfo.Pos);
@@ -61,7 +62,7 @@ namespace EasyLinkGui.Algos {
                     }
                 }
             }
-            
+
             while (remTriangles.Count > 0) {
                 Triangle curTriangle = remTriangles[0];
                 remTriangles.RemoveAt(0);
@@ -86,64 +87,12 @@ namespace EasyLinkGui.Algos {
                 }
 
             }
-            
-            List<int> remPortals = new List<int>();
-            for (int i = 0; i < linkPlan.Portals.Length; i++) {
-                remPortals.Add(i);
-            }
-            List<int> capturedPortals = new List<int>();
-            LinkPlan alreadyLinked = new LinkPlan(linkPlan.Portals.Length);
 
-            while (remPortals.Count > 0) {
-                int lowest = -1;
-                foreach (int item in remPortals) {
-                    if (lowest < 0 || gs.PortalInfos[lowest].Pos.Y > gs.PortalInfos[item].Pos.Y) {
-                        lowest = item;
-                    }
-                }
-                SortedList<double, Triangle> triangleSize = new SortedList<double, Triangle>();
-                foreach (int cap in capturedPortals) {
-                    if (linkPlan.Portals[cap].Links.Contains(lowest)) {
-                        alreadyLinked.addLink(lowest, cap);
-                    }
-                }
-                foreach (int p2 in alreadyLinked.Portals[lowest].Links) {
-                    foreach (int p3 in alreadyLinked.Portals[p2].Links) {
-                        if (alreadyLinked.Portals[p3].Links.Contains(lowest)) {
-                            int[] triangleKey = new int[] { lowest, p2, p3 };
-                            Array.Sort(triangleKey);
-                            Triangle newTr = new Triangle(triangleKey);
-                            double size = geohelper.calculateArea(gs, new Field(newTr.P1, newTr.P2, newTr.P3));
-                            size = 1 / size;
-                            if (triangleSize.ContainsKey(size)) continue;
-                            triangleSize.Add(size, newTr);
-                        }
-                    }
-                }
-                foreach (Triangle item in triangleSize.Values) {
-                    if (gs.addLink(lowest, item.P1)) {
-                        linkPlan.removeLink(lowest, item.P1);
-                    }
-                    if (gs.addLink(lowest, item.P2)) {
-                        linkPlan.removeLink(lowest, item.P2);
-                    }
-                    if (gs.addLink(lowest, item.P3)) {
-                        linkPlan.removeLink(lowest, item.P3);
-                    }
-                }
-                foreach (int cap in capturedPortals) {
-                    if (linkPlan.Portals[cap].Links.Contains(lowest)) {
-                        if(gs.addLink(lowest, cap)) {
-                            linkPlan.removeLink(lowest, cap);
-                        } else {
 
-                        }
-                        
-                    }
-                }
-                remPortals.Remove(lowest);
-                capturedPortals.Add(lowest);
-            }
+
+            AlgoWayOptimizer wopt = new AlgoWayOptimizer(gs, linkPlan);
+
+            gs = wopt.linkConvex();
 
 
             this.newBestGame(gs);
@@ -162,36 +111,7 @@ namespace EasyLinkGui.Algos {
             this.P3 = pp[2];
         }
     }
-    public class LinkPlan {
-        public Portal[] Portals;
-        public int CountLinks = 0;
 
-        public LinkPlan(int portalCount) {
-            this.Portals = new Portal[portalCount];
-            for (int i = 0; i < portalCount; i++) {
-                this.Portals[i] = new Portal();
-            }
-        }
-
-        public void addLink(int p1, int p2) {
-            CountLinks++;
-            Portals[p1].Links.Add(p2);
-            Portals[p2].Links.Add(p1);
-        }
-
-        public void removeLink(int p1, int p2) {
-            CountLinks--;
-            Portals[p1].Links.Remove(p2);
-            Portals[p2].Links.Remove(p1);
-        }
-
-        
-        public class Portal {
-            public HashSet<int> Links { get; set; } = new HashSet<int>();
-        }
-
-
-    }
     class CustSettings {
         public int maxLinkCount { get; set; } = 10000;
     }

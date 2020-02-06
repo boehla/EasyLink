@@ -62,6 +62,11 @@ namespace EasyLinkGui.Algos {
                     gs.addLink(gs.Global.PortalMappingPointD[p], gs.Global.PortalMappingPointD[anglePoints[jkey]]);
                 }
             }
+            AlgoWayOptimizer wopt = new AlgoWayOptimizer(gs);
+            gs = wopt.linkConvex();
+
+            this.newBestGame(gs);
+
             return gs;
         }
     }

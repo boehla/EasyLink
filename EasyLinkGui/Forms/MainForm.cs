@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -158,8 +159,6 @@ namespace EasyLinkGui {
             sb.Append(string.Format("MaxIncomingLinks: {0:n0}\r\n", gs.MaxIncomingLinks));
 
             tbGameInfos.Text = sb.ToString();
-
-            List<Link> linkList = gs.getTotalLinkList();
 
             refreshPortals();
         }
@@ -545,6 +544,30 @@ namespace EasyLinkGui {
             //bCalc.Enabled = calcing;
             //bCalcStop.Enabled = !calcing;
         }
+        public static List<Color> GetGradientColors(Color start, Color end, int steps) {
+            return GetGradientColors(start, end, steps, 0, steps - 1);
+        }
+
+        public static List<Color> GetGradientColors(Color start, Color end, int steps, int firstStep, int lastStep) {
+            var colorList = new List<Color>();
+            if (steps <= 0 || firstStep < 0 || lastStep > steps - 1)
+                return colorList;
+
+            double aStep = (double)(end.A - start.A) / steps;
+            double rStep = (double)(end.R - start.R) / steps;
+            double gStep = (double)(end.G - start.G) / steps;
+            double bStep = (double)(end.B - start.B) / steps;
+
+            for (int i = firstStep; i < lastStep; i++) {
+                var a = start.A + (int)(aStep * i);
+                var r = start.R + (int)(rStep * i);
+                var g = start.G + (int)(gStep * i);
+                var b = start.B + (int)(bStep * i);
+                colorList.Add(Color.FromArgb(a, r, g, b));
+            }
+
+            return colorList;
+        }
         Dictionary<string, PortalInfo> tmpPortals = new Dictionary<string, PortalInfo>();
         private void refreshGoogleMaps() {
             if (gs != null && gmap != null && gmap.Overlays.Count > 0) {
@@ -622,7 +645,9 @@ namespace EasyLinkGui {
                     overLays[MapOverlay.gameFields].Polygons.Add(polygon);
                     // gmap.Overlays.Add(polyOverlay);
                 }
-
+                overLays[MapOverlay.gameWay].Clear();
+                
+                
                 PortalInfo lastPortal = null;
                 points = new List<PointLatLng>();
                 foreach (Link link in gs.getTotalLinkList()) {
@@ -632,10 +657,14 @@ namespace EasyLinkGui {
                     }
                     lastPortal = link.P1;
                 }
-                overLays[MapOverlay.gameWay].Clear();
-                GMapRoute todoroute = new GMapRoute(points, "mypolygon");
-                todoroute.Stroke = new Pen(Color.Orange, 3);
-                overLays[MapOverlay.gameWay].Routes.Add(todoroute);
+                if (points.Count >= 2) {
+                    List<Color> colorList = GetGradientColors(Color.Green, Color.Red, points.Count);
+                    for (int i = 1; i < points.Count; i++) {
+                        GMapRoute todoroute = new GMapRoute(new List<PointLatLng>() { points[i - 1], points[i] }, "mypolygon");
+                        todoroute.Stroke = new Pen(colorList[i - 1], 3);
+                        overLays[MapOverlay.gameWay].Routes.Add(todoroute);
+                    }
+                }               
 
                 overLays[MapOverlay.externLinks].Clear();
                 tmpPortals.Clear();
