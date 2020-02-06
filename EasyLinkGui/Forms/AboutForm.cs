@@ -24,17 +24,11 @@ namespace EasyLinkGui {
             lVersion.Text = getAppInfo();
         }
         static public string GetVersion() {
-            if (ApplicationDeployment.IsNetworkDeployed) {
-                return ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
-            }
-            return "Debug";
+            return "1.0.5";
         }
 
         public static string getAppInfo() {
-            Assembly assem = Assembly.GetEntryAssembly();
-            AssemblyName assemName = assem.GetName();
-            Version ver = assemName.Version;
-            return string.Format("Application {0}, Version {1}", assemName.Name, GetVersion());
+            return string.Format("Application {0}, Version {1}", "EasyLink", GetVersion());
         }
     }
 }

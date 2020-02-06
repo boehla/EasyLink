@@ -34,11 +34,18 @@ namespace EasyLinkGui {
 
         GameState gs = new GameState();
         List<GameState> nextSols = new List<GameState>();
-        Lib.Options opts = new Lib.Options("dat\\BestField.json");
+        Lib.Options opts = new Lib.Options(Path.Combine(MainFolder, "BestField.json"));
 
         List<GameState> sameBest = new List<GameState>();
 
         public IngressDatabase ingressDatabase = null;
+
+        public static string MainFolder {
+            get {
+                string folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                return Path.Combine(folder, "EasyLink");
+            }
+        }
         
         public string LastGroupNameSave {
             get {
@@ -70,8 +77,7 @@ namespace EasyLinkGui {
             } catch (Exception ex) {
                 Lib.Logging.logException("", ex);
             }
-
-            ingressDatabase = new IngressDatabase("dat\\db.bin");
+            ingressDatabase = new IngressDatabase(Path.Combine(MainFolder,  "db.bin"));
             gs.loadSettings(ingressDatabase.Settings);
 
             List<PortalInfo> nodes = new List<PortalInfo>();
@@ -1573,7 +1579,6 @@ namespace EasyLinkGui {
 
             Caption = caption;
         }
-        static int p = 0;
         public override void OnRender(Graphics g) {
             base.OnRender(g);
             if(gmap.Zoom >= 17) g.DrawString(Caption, font, Brushes.Black, new PointF(this.LocalPosition.X, this.LocalPosition.Y + markerHeight));

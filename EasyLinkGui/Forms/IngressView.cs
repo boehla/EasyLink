@@ -59,10 +59,9 @@ namespace EasyLinkGui {
 
             CefSettings settings = new CefSettings();
             string oldCachePath = "C:\\CEF";
-            string newCachePath = "cef_browser_cache";
+            string newCachePath = Path.Combine(MainForm.MainFolder, "cef_browser_cache");
             if (Directory.Exists(oldCachePath)) {
-                if(Directory.Exists(newCachePath)) Directory.Delete(newCachePath, true);
-                Directory.Move(oldCachePath, newCachePath);
+                Directory.Delete(oldCachePath, true);
             }
 
             settings.CachePath = newCachePath;

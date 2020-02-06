@@ -23,8 +23,6 @@ namespace EasyLinkGui.Algos {
             this.gs = gs;
             shared = new SharedCalcData();
 
-            bool alreadyCountDown = false;
-
             if(gs.Global.AnchorsPortals.Count == 2) {
                 int p1 = gs.getIndexByGuid(gs.Global.AnchorsPortals[0].Guid);
                 int p2 = gs.getIndexByGuid(gs.Global.AnchorsPortals[1].Guid);
@@ -159,7 +157,6 @@ namespace EasyLinkGui.Algos {
             public Dictionary<long, bool> allGamesViewed = new Dictionary<long, bool>();
             public SortedList<float, GameState> toDo = new SortedList<float, GameState>(new DuplicateKeyComparer<float>());
 
-            public DateTime startCalc;
             public DateTime resultTime;
 
             public int RunningThreads = 0;
