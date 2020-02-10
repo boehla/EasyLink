@@ -64,7 +64,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>..\..\..\..\..\..\tmp\EasyLink\</OutputPath>
+    <OutputPath>bin\x64\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -308,6 +308,7 @@
     <Content Include="Screenshots\Report.png" />
     <Content Include="Screenshots\SetStartLink.png" />
     <Content Include="Screenshots\StartAutolink.png" />
+    <Content Include="setup.iss" />
     <Content Include="snapshot_blob.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

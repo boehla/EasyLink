@@ -115,7 +115,6 @@
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.listViewPrinter1 = new BrightIdeasSoftware.ListViewPrinter();
             this.saveFileDialogExportSvg = new System.Windows.Forms.SaveFileDialog();
-            this.label1 = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -1075,21 +1074,11 @@
             this.listViewPrinter1.ListHeaderFormat.CanWrap = true;
             this.listViewPrinter1.ListHeaderFormat.Font = new System.Drawing.Font("Verdana", 12F);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(326, 10);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 13);
-            this.label1.TabIndex = 14;
-            this.label1.Text = "label1";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1079, 523);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.tabControl2);
             this.Controls.Add(this.tcMain);
             this.Controls.Add(this.tbGameInfos);
@@ -1217,7 +1206,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem clearExernLinksToolStripMenuItem;
         private System.Windows.Forms.Button bAlgoSettings;
-        private System.Windows.Forms.Label label1;
     }
 }
 

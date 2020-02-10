@@ -24,7 +24,7 @@ namespace EasyLinkGui {
             lVersion.Text = getAppInfo();
         }
         static public string GetVersion() {
-            return "1.0.5";
+            return "0.5.0.5";
         }
 
         public static string getAppInfo() {
