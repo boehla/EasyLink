@@ -28,7 +28,7 @@ namespace EasyLinkGui {
         enum BitmapIcon { normalPortalNeutral, normalPortalEn, normalPortalRes, inFieldPortal, notLinkableToAnchor, filtered, disabledPortalNeutral, disabledPortalEn, disabledPortalRes, selectPoly };
         Dictionary<BitmapIcon, Bitmap> bitMapBuffer = new Dictionary<BitmapIcon, Bitmap>();
 
-        enum MapOverlay { gamePortals, gameLinks, gameFields, gameWay, externLinks, selected, disabled, carCharge };
+        enum MapOverlay {  gameLinks, gameFields, gameWay, externLinks, selected, disabled, carCharge, gamePortals };
         Dictionary<MapOverlay, GMapOverlay> overLays = new Dictionary<MapOverlay, GMapOverlay>();
 
         ContextMenu context = null;
@@ -607,7 +607,13 @@ namespace EasyLinkGui {
                     //GmapMarkerWithLabel marker = new GmapMarkerWithLabel(new PointLatLng(ni.Pos.Y, ni.Pos.X), ni.Name, img, gmap);
                     portalsOnMap[ni.Guid] = true;
                     marker.Tag = ni;
-                    marker.ToolTipText = ni.Name;
+                    string toolTip = ni.Name;
+                    Portal pidDat = gs.PortalData[i];
+                    if (pidDat != null) {
+                        if (pidDat.OutgoingLinkCount > 0) toolTip += string.Format("\r\nOutlinks: {0}", pidDat.OutgoingLinkCount);
+                        if (pidDat.IncomingLinkCount > 0) toolTip += string.Format("\r\nInlinks: {0}", pidDat.IncomingLinkCount);
+                    }
+                    marker.ToolTipText = toolTip;
                     marker.Offset = new Point(-img.Width / 2, -img.Height / 2);
                     //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
                     overLays[MapOverlay.gamePortals].Markers.Add(marker);
@@ -699,7 +705,14 @@ namespace EasyLinkGui {
                             }                       
                             GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(pid.Pos.Y, pid.Pos.X), icon);
                             marker.Tag = pid;
-                            marker.ToolTipText = pid.Name;
+                            string toolTip = "";
+                            toolTip = pid.Name;
+                            Portal pidDat = gs.getPortalDataByGuid(pid.Guid);
+                            if (pidDat != null) {
+                                if (pidDat.OutgoingLinkCount > 0) toolTip += string.Format("\r\nOutlinks: {0}", pidDat.OutgoingLinkCount); 
+                                if (pidDat.IncomingLinkCount > 0) toolTip += string.Format("\r\nInlinks: {0}", pidDat.IncomingLinkCount);
+                            }
+                            marker.ToolTipText = toolTip;
                             marker.Offset = new Point(-icon.Width / 2, -icon.Height / 2);
                             //GMarkerGoogle marker = new GMarkerGoogle(new PointLatLng(ni.Pos.Y, ni.Pos.X), GMarkerGoogleType.blue_pushpin);
                             overLays[MapOverlay.externLinks].Markers.Add(marker);

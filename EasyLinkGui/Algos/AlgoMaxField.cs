@@ -90,7 +90,7 @@ namespace EasyLinkGui.Algos {
 
 
 
-            AlgoWayOptimizer wopt = new AlgoWayOptimizer(gs, linkPlan);
+            AlgoWayOptimizer wopt = new AlgoWayOptimizer(gs, linkPlan, this);
 
             gs = wopt.linkConvex();
 
